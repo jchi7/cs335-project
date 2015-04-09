@@ -1,0 +1,5 @@
+to compile on mac use:
+make mac
+
+to compile on linux use:
+make linux
