@@ -33,7 +33,10 @@ int leftPressed = 0;
 int rightPressed = 0;
 int shootPressed = 0;
 
+// jumpInitiated is set to 1 when the jump key is pressed
 int jumpInitiated = 0;
+// jumpFinished is used to prevent the hero from double jumping or
+// jumping after falling off of a platform
 int jumpFinished = 1;
 int numCollisions;
 
@@ -252,6 +255,7 @@ void createBullet(Game *game){
 }
 void movement(Game *game)
 {
+    //Check what keys are pressed
     numCollisions = 0;
     if (rightPressed == 1){
         game->hero->body.center.x += 3;
@@ -274,6 +278,7 @@ void movement(Game *game)
         jumpInitiated = 0;
     }
  
+
     Shape *body = &game->hero->body;
     Shape *prevPosition = &game->hero->prevPosition;
     prevPosition->center.x = body->center.x;
@@ -282,7 +287,8 @@ void movement(Game *game)
     game->hero->body.center.y += game->hero->velocity.y;
     game->hero->velocity.y += GRAVITY;
     Enemy * enemy;
-    
+
+    // Move all bullets and check collision with "Basic Enemies"    
     for (int j = 0; j < game->hero->numBullets; j++){
         game->hero->bullet[j].center.x += game->hero->bullet[j].velocity.x;
         for (int k = 0; k < game->level->numBasicEnemies; k++){
@@ -307,6 +313,8 @@ void movement(Game *game)
 
     }
 
+    //check collision between the Hero and platforms.
+    //also sets the jumpInitiated and jumpFinised variables to prevent
     Shape * platform;
     for (int i = 0; i < game->level->numPlatforms; i++){
         platform = (game->level->platform)+i;
@@ -342,11 +350,17 @@ void movement(Game *game)
         }
         
     }
+
+    // if numCollisions is set to 0 then this means that the character is falling
+    // off of a platform and therefore we set jumpFinished to 0 so that he cannot 
+    // jump while in this falling state. We also set jumpInitiated to 0 so that
+    // he doenst jump instantly when he hits the ground (I think)
     if (numCollisions == 0){
         jumpFinished = 0;
         jumpInitiated = 0;
     }
 
+    // This next bit of code handles transitioning between levels
     if (body->center.x > WINDOW_WIDTH){
         body->center.x = 0;
         currentHorizontalLevel = game->level->horizontalPosition + 1;
@@ -372,6 +386,7 @@ void movement(Game *game)
         game->hero->numBullets = 0;
     }
    
+    // check collision between the hero and "basic enemies"
     for (int k = 0; k < game->level->numBasicEnemies; k++){ 
         enemy = (game->level->basicEnemy)+k;
         if (body->center.x + body->width >= enemy->body.center.x - enemy->body.width &&
@@ -501,9 +516,5 @@ void render(Game *game)
         glEnd();
         glPopMatrix();
     }
-
-
-
-
 }
 
