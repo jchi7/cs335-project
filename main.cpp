@@ -9,8 +9,15 @@
 #include <GL/glx.h>
 #include <sys/time.h>
 #include <typeinfo>
+#include <vector>
 #include "structs.h"
 #include "gameObject.h"
+#include "hero.h"
+#include "basicEnemy.h"
+#include "platform.h"
+#include "Level.h"
+#include "game.h"
+//#include "initializeLevels.h"
 
 
 #define WINDOW_WIDTH  1000
@@ -28,6 +35,8 @@ void set_title(void);
 void init_MainMenuButtons(void);
 void render_MainMenu(void);
 void check_menu_button(XEvent *e);
+void render_game(game* game);
+Level*** initializeLevels();
 
 //X Windows variables
 Display *dpy;
@@ -40,15 +49,6 @@ int nbuttons=0;
 enum GameState {MAIN_MENU, PLAYING, EXIT_GAME};
 GameState g_gamestate = MAIN_MENU;
 
-int leftPressed = 0;
-int rightPressed = 0;
-int shootPressed = 0;
-
-// jumpInitiated is set to 1 when the jump key is pressed
-int jumpInitiated = 0;
-// jumpFinished is used to prevent the hero from double jumping or
-// jumping after falling off of a platform
-int jumpFinished = 1;
 int numCollisions;
 
 int main()
@@ -56,6 +56,10 @@ int main()
     initXWindows();
     init_opengl();
     init_MainMenuButtons();
+    Level*** levels = initializeLevels();
+    game newgame(levels);
+    newgame.hero = new hero();
+
     while(g_gamestate != EXIT_GAME) {
         switch (g_gamestate) {
             case MAIN_MENU:
@@ -67,6 +71,7 @@ int main()
                 render_MainMenu();
                 break;
             case PLAYING:
+                render_game(&newgame);
                 break;
             case EXIT_GAME:
                 break;
@@ -271,4 +276,98 @@ void check_menu_button(XEvent *e) {
 		}
 	}
 	return;
+}
+
+void render_game(game* game)
+{
+    Level* current_level = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
+
+    glClear(GL_COLOR_BUFFER_BIT);
+    float w, h;
+
+    // Draw the Hero to the screen
+    glColor3ub(200,200,200);
+    glPushMatrix();
+    glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
+    w = game->hero->body.width;
+    h = game->hero->body.height;
+    glBegin(GL_QUADS);
+    glVertex2i(-w,-h);
+    glVertex2i(-w,h);
+    glVertex2i(w,-h);
+    glVertex2i(w,h);
+    glEnd();
+    glPopMatrix();
+
+    for(auto &entity : current_level->enemies) {
+        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBegin(GL_QUADS);
+        glVertex2i(-entity->body.width,-entity->body.height);
+        glVertex2i(-entity->body.width,entity->body.height);
+        glVertex2i(entity->body.width,-entity->body.height);
+        glVertex2i(entity->body.width,entity->body.height);
+        glEnd();
+        glPopMatrix();
+    }
+
+    for(auto entity : current_level->bullet) {
+        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBegin(GL_QUADS);
+        glVertex2i(-entity->body.width,-entity->body.height);
+        glVertex2i(-entity->body.width,entity->body.height);
+        glVertex2i(entity->body.width,entity->body.height);
+        glVertex2i(entity->body.width,-entity->body.height);
+        glEnd();
+        glPopMatrix();
+    }
+
+    for(auto entity : current_level->objects) {
+        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBegin(GL_QUADS);
+        glVertex2i(-entity->body.width,-entity->body.height);
+        glVertex2i(-entity->body.width,entity->body.height);
+        glVertex2i(entity->body.width,entity->body.height);
+        glVertex2i(entity->body.width,-entity->body.height);
+        glEnd();
+        glPopMatrix();
+    }
+}
+
+Level*** initializeLevels()
+{
+    Level*** room = (Level***)malloc(20 * sizeof(Level**));
+    int count = 0;
+    while (count < 20)
+    {
+        room[count] = (Level**)malloc( 5 * sizeof(void*));
+        count++;
+    }
+    //Level* temp;
+    //temp = new Level(13,1);
+    room[10][2] = new Level(13,1);
+    room[11][2] = new Level(7,0);
+    room[9][2] = new Level(7,0);
+    room[10][3] = new Level(1,0);
+    room[10][2]->horizontalPosition = 10;
+    room[10][2]->verticalPosition = 2;
+    room[11][2]->horizontalPosition = 11;
+    room[11][2]->verticalPosition = 2;
+    room[9][2]->horizontalPosition = 9;
+    room[9][2]->verticalPosition = 2;
+    room[10][3]->horizontalPosition = 10;
+    room[10][3]->verticalPosition = 3;
+
+    room[10][2]->objects.push_back(new platform(500,50,450,50));
+    room[10][2]->objects.push_back(new platform(100,25,200,150));
+    room[10][2]->objects.push_back(new platform(100,25,500,150));
+    room[10][2]->objects.push_back(new platform(100,15,600,180));
+    room[10][2]->objects.push_back(new platform(15,15,650,260));
+
+    return room;
 }

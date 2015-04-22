@@ -13,11 +13,12 @@ class Level
         int numBasicEnemies;
         int currentPlatform;
         int currentBasicEnemy;
-        vector<gameObject*> enemies;
-        vector<gameObject*> bullet;
-        vector<gameObject*> objects;
+        std::vector<gameObject*> enemies;
+        std::vector<gameObject*> bullet;
+        std::vector<gameObject*> objects;
+        Level();
         Level(int num, int numBasic);
-        virtual ~Level();
+        ~Level();
     protected:
     private:
 };

@@ -10,7 +10,7 @@ InputComponent::~InputComponent()
     //dtor
 }
 
-InputComponent::update(gameObject* entity, game* game)
+InputComponent::update()
 {
 
 }

@@ -2,22 +2,32 @@
 
 hero::hero()
 {
-    this.numBullets = 0;
-    this.maxBullets = 3;
-    this.bulletVelocity = 10;
-    this.body.width = 8;
-    this.body.height = 15;
-    this.body.center[0] = 400;
-    this.body.center[1] = 250;
-    this.body.center[2] = 0;
-    this.prevPosition.center[0] = 400;
-    this.prevPosition.center[1] = 250;
-    this.velocity[0] = 0;
-    this.velocity[1] = 0;
-    this.facing = 1;
+    numBullets = 0;
+    maxBullets = 3;
+    bulletVelocity = 10;
+    body.width = 8;
+    body.height = 15;
+    body.center[0] = 400;
+    body.center[1] = 250;
+    body.center[2] = 0;
+    prevPosition.center[0] = 400;
+    prevPosition.center[1] = 250;
+    velocity[0] = 0;
+    velocity[1] = 0;
+    facing = 1;
+    jumpInitiated = 0;
+    jumpFinished = 0;
+    rgb[0] = 200;
+    rgb[1] = 200;
+    rgb[2] = 200;
 }
 
 hero::~hero()
 {
     //dtor
+}
+
+void hero::update()
+{
+
 }

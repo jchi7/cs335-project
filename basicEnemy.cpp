@@ -10,9 +10,17 @@ basicEnemy::basicEnemy(int x, int y, int left, int right)
     this.velocity[0] = 0.5;
     this.leftBoundary = left;
     this.rightBoundary = right;
+    this.rgb[0] = 150;
+    this.rgb[1] = 100;
+    this.rgb[2] = 100;
 }
 
 basicEnemy::~basicEnemy()
 {
     //dtor
+}
+
+void basicEnemy::update(game* game, gameObject* entity)
+{
+    //InputComponent->update(game, entity);
 }

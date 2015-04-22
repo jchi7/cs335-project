@@ -1,11 +1,6 @@
 #include "collisions.h"
 
-collisions::collisions()
-{
-    //ctor
-}
-
-bool collisions::collision(gameObject* entity1, gameObject* entity2)
+bool collision(gameObject* entity1, gameObject* entity2)
 {
     if (entity1->body->center[0] + entity1->body->width >= entity2->body->center[0] - entity2->body->width &&
                 entity1->body->center[0] - entity1->body->width <= entity2->body->center[0] + entity2->body->width &&
