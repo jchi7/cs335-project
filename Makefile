@@ -7,7 +7,10 @@ LFLAGS = -std=c++0x -lX11 -lGLU -lGL -lm #-lXrandr
 all: game.o hero.o Level.o gameObject.o platform.o main
 
 mac:
-	g++ main.cpp -Wall -oGame -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11
+	g++ main.cpp -Wall -oGame -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11
+
+mac2:
+	g++ main.cpp game.cpp hero.cpp level.cpp gameObject.cpp platform.cpp -Wall -oGame -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11
 
 linux:
 	g++ main.cpp -Wall -oGame -lX11 -lGL -lGLU -lm

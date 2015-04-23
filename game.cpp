@@ -1,6 +1,6 @@
 #include "game.h"
 
-game::game(Level*** newlevel)
+game::game(Level *** newlevel)
 {
     this->leftPressed = 0;
     this->rightPressed = 0;
