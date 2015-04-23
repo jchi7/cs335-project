@@ -301,13 +301,12 @@ void check_game_input(XEvent *e, game *game){
         if (key == XK_Escape){
             g_gamestate = MAIN_MENU;
         }
-        /*
-        if ((key == XK_w || key == XK_space) && jumpFinished == 1){
-            game->jumpInitiated = 1;
-            jumpFinished = 0;
-        }
+        
+        if ((key == XK_w || key == XK_space) && (game->hero->state == STANDING || game->hero->state == WALKING)){
+            game->hero->jumpInitiated = 1;
+        }/*
         if (key == XK_e && shootPressed == 0){
-            game->shootPressed = 5;
+            game->hero->shootPressed = 5;
         }*/
 
     }
@@ -328,10 +327,13 @@ void physics(game * game){
     bool isCollision = false;
     Level * room = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
     game->hero->movement();
-   // for (int i = 0; i < room->numPlatforms; i++){
-   //     isCollision = collision(game->hero, room->objects[i]);
+    for (int i = 0; i < room->numPlatforms; i++){
+        isCollision = collision(game->hero, room->objects[i]);
+        if (isCollision == true){
+            game->hero->onCollision(room->objects[i]);
+        }
     
-  //  }
+    }
 
 }
 
@@ -407,7 +409,7 @@ Level*** initializeLevels()
     }
     //Level* temp;
     //temp = new Level(13,1);
-    room[10][2] = new Level(13,1);
+    room[10][2] = new Level(5,0);
     room[11][2] = new Level(7,0);
     room[9][2] = new Level(7,0);
     room[10][3] = new Level(1,0);

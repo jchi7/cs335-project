@@ -2,11 +2,11 @@
 #define HERO_H
 
 #include "gameObject.h"
-
-
+enum CharacterState {STANDING, WALKING, JUMPING};
 class hero : public gameObject
 {
     public:
+        CharacterState state;        
         int leftPressed;
         int rightPressed;
         Vec prevPosition;
@@ -25,6 +25,7 @@ class hero : public gameObject
         virtual ~hero();
         void update();
         void movement();
+        void onCollision(gameObject* platform);
     protected:
     private:
 };
