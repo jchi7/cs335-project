@@ -8,6 +8,7 @@ class gameObject
     public:
         Shape body;
         int rgb[3];
+        float gravity;
         gameObject();
         virtual ~gameObject();
         virtual void update();

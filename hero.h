@@ -7,7 +7,9 @@
 class hero : public gameObject
 {
     public:
-        Shape prevPosition;
+        int leftPressed;
+        int rightPressed;
+        Vec prevPosition;
         Vec velocity;
         int facing;
         int numBullets;
@@ -22,6 +24,7 @@ class hero : public gameObject
         hero();
         virtual ~hero();
         void update();
+        void movement();
     protected:
     private:
 };
