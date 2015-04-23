@@ -4,6 +4,7 @@
 #include "Level.h"
 #include "hero.h"
 
+
 class game
 {
     public:
@@ -13,7 +14,7 @@ class game
         int currentHorizontalLevel;
         int currentVerticalLevel;
         Level*** level;
-        gameObject* hero;
+        hero* hero;
 
         game(Level*** newlevel);
         ~game();

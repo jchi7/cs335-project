@@ -10,8 +10,8 @@ hero::hero()
     body.center[0] = 400;
     body.center[1] = 250;
     body.center[2] = 0;
-    prevPosition.center[0] = 400;
-    prevPosition.center[1] = 250;
+    prevPosition[0] = 400;
+    prevPosition[1] = 250;
     velocity[0] = 0;
     velocity[1] = 0;
     facing = 1;
@@ -20,6 +20,8 @@ hero::hero()
     rgb[0] = 200;
     rgb[1] = 200;
     rgb[2] = 200;
+    leftPressed = 0;
+    rightPressed = 0;
 }
 
 hero::~hero()
@@ -30,4 +32,14 @@ hero::~hero()
 void hero::update()
 {
 
+}
+void hero::movement(){
+    body.center[1] += velocity[1];
+    velocity[1] += gravity; 
+    if (leftPressed == 1){
+        body.center[0] += -3;
+    }
+    if (rightPressed == 1){
+        body.center[0] += 3;
+    }
 }

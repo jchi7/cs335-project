@@ -17,6 +17,7 @@
 #include "platform.h"
 #include "Level.h"
 #include "game.h"
+#include "collisions.h"
 //#include "initializeLevels.h"
 
 
@@ -37,6 +38,9 @@ void render_MainMenu(void);
 void check_menu_button(XEvent *e);
 void render_game(game* game);
 Level*** initializeLevels();
+
+void check_game_input(XEvent *e, game * game);
+void physics(game * game);
 
 //X Windows variables
 Display *dpy;
@@ -71,6 +75,12 @@ int main()
                 render_MainMenu();
                 break;
             case PLAYING:
+                while(XPending(dpy)) {
+                    XEvent e;
+                    XNextEvent(dpy, &e);
+                    check_game_input(&e, &newgame);
+                }
+                physics(&newgame);
                 render_game(&newgame);
                 break;
             case EXIT_GAME:
@@ -276,6 +286,53 @@ void check_menu_button(XEvent *e) {
 		}
 	}
 	return;
+}
+
+void check_game_input(XEvent *e, game *game){
+
+    if (e->type == KeyPress){
+        int key = XLookupKeysym(&e->xkey,0);
+        if (key == XK_Left){
+            game->hero->leftPressed = 1;
+        }
+        if (key == XK_Right){
+            game->hero->rightPressed = 1;
+        }
+        if (key == XK_Escape){
+            g_gamestate = MAIN_MENU;
+        }
+        /*
+        if ((key == XK_w || key == XK_space) && jumpFinished == 1){
+            game->jumpInitiated = 1;
+            jumpFinished = 0;
+        }
+        if (key == XK_e && shootPressed == 0){
+            game->shootPressed = 5;
+        }*/
+
+    }
+    if (e->type == KeyRelease){
+        int key = XLookupKeysym(&e->xkey,0);
+        if ( key == XK_Left){
+            game->hero->leftPressed = 0;
+        }
+        if ( key == XK_Right){
+            game->hero->rightPressed = 0;
+        }
+    }
+
+}
+
+void physics(game * game){
+
+    bool isCollision = false;
+    Level * room = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
+    game->hero->movement();
+   // for (int i = 0; i < room->numPlatforms; i++){
+   //     isCollision = collision(game->hero, room->objects[i]);
+    
+  //  }
+
 }
 
 void render_game(game* game)

@@ -3,6 +3,7 @@
 
 gameObject::gameObject()
 {
+    gravity = -0.35;
 }
 
 gameObject::~gameObject()
