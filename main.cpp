@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <cstdio>
 #include <ctime>
 #include <cstring>
 #include <cmath>
@@ -8,151 +9,90 @@
 #include <GL/glx.h>
 #include <sys/time.h>
 #include <typeinfo>
-#include "globals.h"
+#include <vector>
+#include "structs.h"
+#include "gameObject.h"
+#include "hero.h"
+#include "basicEnemy.h"
+#include "platform.h"
+#include "Level.h"
+#include "game.h"
+#include "collisions.h"
+//#include "initializeLevels.h"
+
+#include <fstream>
 
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
 
 #define GRAVITY -0.35
+#define MAXBUTTONS 4
 
-#define HORIZONTAL_LEVELS 20
-#define VERTICAL_LEVELS 5
+using namespace std;
+
+void initXWindows(void);
+void init_opengl(void);
+void cleanupXWindows(void);
+void set_title(void);
+void init_MainMenuButtons(void);
+void render_MainMenu(void);
+void check_menu_button(XEvent *e);
+void render_game(game* game);
+Level*** initializeLevels();
+
+void check_game_input(XEvent *e, game * game);
+void physics(game * game);
 
 //X Windows variables
 Display *dpy;
 Window win;
 GLXContext glc;
 
-//Function prototypes
-int checkGameQuit(XEvent *e, Game *game);
-int checkMoveKey(XEvent *e, Game *game);
+Button button[MAXBUTTONS];
+int nbuttons=0;
 
-//         Global variables
+enum GameState {MAIN_MENU, PLAYING, EXIT_GAME};
+GameState g_gamestate = MAIN_MENU;
 
-int leftPressed = 0;
-int rightPressed = 0;
-int shootPressed = 0;
-
-// jumpInitiated is set to 1 when the jump key is pressed
-int jumpInitiated = 0;
-// jumpFinished is used to prevent the hero from double jumping or
-// jumping after falling off of a platform
-int jumpFinished = 1;
 int numCollisions;
 
-//Create a 2-dimensional array that holds pointers to levels.
-//The indexes represent the location of the level relative to other
-//levels based on a cartesian sort of mapping. So level[5][2] holds
-//a pointer to the level that is at coordinate (5,2).
-//Level * level[HORIZONTAL_LEVELS][VERTICAL_LEVELS];
-Level *** level;
-int currentHorizontalLevel;
-int currentVerticalLevel;
-
-// These are used for throttling the game
-struct timeval throttle;
-int oldMilliSec = 0;
-int timeLapse = 0;
-int threshold = 10000;
-
-using namespace std;
-
-int main(void)
+int main()
 {
-    level = (Level***)malloc(20 * sizeof(Level**));
-    int count = 0;
-    while (count < 20)
-    {
-        level[count] = (Level**)malloc( 5 * sizeof(void*));
-        count++;
-    }
-    initializeLevels();
-    int done=0;
-    srand(time(NULL));
     initXWindows();
     init_opengl();
+    init_MainMenuButtons();
+    Level*** levels = initializeLevels();
+    game newgame(levels);
+    newgame.hero = new Hero();
 
-    Hero *hero = new Hero;
-    hero->numBullets = 0;
-    hero->maxBullets = 3;
-    for (int j = 0; j < hero->maxBullets; j++){
-        hero->bullet[j].width = 5;
-        hero->bullet[j].height = 5;
-    }
-    hero->bulletVelocity = 10;
-    hero->body.width = 8;
-    hero->body.height = 15;
-    hero->body.center.x = 400;
-    hero->body.center.y = 250;
-    hero->body.center.z = 0;
-    hero->prevPosition.center.x = 400;
-    hero->prevPosition.center.y = 150;
-    hero->velocity.x = 0;
-    hero->velocity.y = 0;
-    hero->facing = 1;
-    
-    int testTime = 0;
-    Game * game = new Game(level[10][2],hero); 
-    while(!done) {
-
-        testTime = gettimeofday(&throttle,NULL);
-        timeLapse = (throttle.tv_usec >= oldMilliSec) ? throttle.tv_usec - oldMilliSec :
-            (1000000 - oldMilliSec) + throttle.tv_usec;
-        if (timeLapse >= threshold){
-            
-            oldMilliSec = throttle.tv_usec;
-            while(XPending(dpy)) {
-                XEvent e;
-                XNextEvent(dpy, &e);
-                done = checkGameQuit(&e, game);
-                checkMoveKey(&e, game);
-            }
-            movement(game);
-            render(game);
-            glXSwapBuffers(dpy, win);
+    while(g_gamestate != EXIT_GAME) {
+        switch (g_gamestate) {
+            case MAIN_MENU:
+                while(XPending(dpy)) {
+                    XEvent e;
+                    XNextEvent(dpy, &e);
+                    check_menu_button(&e);
+                }
+                render_MainMenu();
+                break;
+            case PLAYING:
+                while(XPending(dpy)) {
+                    XEvent e;
+                    XNextEvent(dpy, &e);
+                    check_game_input(&e, &newgame);
+                }
+                physics(&newgame);
+                render_game(&newgame);
+                break;
+            case EXIT_GAME:
+                break;
+            default:
+                break;
         }
+        glXSwapBuffers(dpy, win);
     }
     cleanupXWindows();
     return 0;
-}
-
-void createPlatform(int width, int height, int x, int y, Level * level){
-
-    
-    ((level->platform)+(level->currentPlatform))->width = width;
-    ((level->platform)+(level->currentPlatform))->height = height;
-    ((level->platform)+(level->currentPlatform))->center.x = x;
-    ((level->platform)+(level->currentPlatform))->center.y = y;
-    ((level->platform)+(level->currentPlatform))->center.z = 0;
-    level->currentPlatform++;
-
-}
-
-void createBasicEnemy(int x, int y,int left, int right, Level * level){
-
-    ((level->basicEnemy)+(level->currentBasicEnemy))->body.width = 10;
-    ((level->basicEnemy)+(level->currentBasicEnemy))->body.height = 20;
-    ((level->basicEnemy)+(level->currentBasicEnemy))->body.center.x = x;
-    ((level->basicEnemy)+(level->currentBasicEnemy))->body.center.y = y;
-    ((level->basicEnemy)+(level->currentBasicEnemy))->body.center.z = 0;
-    ((level->basicEnemy)+(level->currentBasicEnemy))->velocity.x = 0.5;
-    ((level->basicEnemy)+(level->currentBasicEnemy))->leftBoundary = left;
-    ((level->basicEnemy)+(level->currentBasicEnemy))->rightBoundary = right;
-    level->currentBasicEnemy++;
-
-}
-
-void set_title(void)
-{
-    //Set the window title bar.
-    XMapWindow(dpy, win);
-    XStoreName(dpy, win, "CSUB Professor Smash");
-}
-
-void cleanupXWindows(void) {
-    //do not change
-    XDestroyWindow(dpy, win);
-    XCloseDisplay(dpy);
 }
 
 void initXWindows(void) {
@@ -169,7 +109,7 @@ void initXWindows(void) {
     if(vi == NULL) {
         std::cout << "\n\tno appropriate visual found\n" << std::endl;
         exit(EXIT_FAILURE);
-    } 
+    }
     Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
     XSetWindowAttributes swa;
     swa.colormap = cmap;
@@ -184,8 +124,7 @@ void initXWindows(void) {
     glXMakeCurrent(dpy, win, glc);
 }
 
-void init_opengl(void)
-{
+void init_opengl(void) {
     //OpenGL initialization
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     //Initialize matrices
@@ -196,252 +135,236 @@ void init_opengl(void)
     //Set the screen background color
     glClearColor(0.1, 0.1, 0.1, 1.0);
 }
-#define rnd() (float) rand() / (float)RAND_MAX
 
-int checkMoveKey(XEvent *e, Game * game){
+void cleanupXWindows(void) {
+    //do not change
+    XDestroyWindow(dpy, win);
+    XCloseDisplay(dpy);
+}
+
+void set_title(void)
+{
+    //Set the window title bar.
+    XMapWindow(dpy, win);
+    XStoreName(dpy, win, "CSUB Professor Smash");
+}
+
+void init_MainMenuButtons(void) {
+	//initialize buttons...
+	nbuttons=0;
+	//size and position
+	button[nbuttons].r.width = 380;
+	button[nbuttons].r.height = 60;
+	button[nbuttons].r.left = 290;
+	button[nbuttons].r.bot = 320;
+	button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
+	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
+	button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
+	button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
+	strcpy(button[nbuttons].text, "Reset");
+	button[nbuttons].down = 0;
+	button[nbuttons].click = 0;
+	button[nbuttons].color[0] = 0.4f;
+	button[nbuttons].color[1] = 0.4f;
+	button[nbuttons].color[2] = 0.7f;
+	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
+	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
+	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
+	button[nbuttons].text_color = 0x00ffffff;
+	nbuttons++;
+	button[nbuttons].r.width = 380;
+	button[nbuttons].r.height = 60;
+	button[nbuttons].r.left = 290;
+	button[nbuttons].r.bot = 160;
+	button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
+	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
+	button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
+	button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
+	strcpy(button[nbuttons].text, "Quit");
+	button[nbuttons].down = 0;
+	button[nbuttons].click = 0;
+	button[nbuttons].color[0] = 0.3f;
+	button[nbuttons].color[1] = 0.3f;
+	button[nbuttons].color[2] = 0.6f;
+	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
+	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
+	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
+	button[nbuttons].text_color = 0x00ffffff;
+	nbuttons++;
+}
+
+void render_MainMenu(void) {
+    //Rect r;
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3ub(200,200,200);
+    glPushMatrix();
+    for (int i=0; i<nbuttons; i++) {
+		if (button[i].over) {
+			int w=2;
+			glColor3f(1.0f, 1.0f, 0.0f);
+			//draw a highlight around button
+			glLineWidth(3);
+			glBegin(GL_LINE_LOOP);
+				glVertex2i(button[i].r.left-w,  button[i].r.bot-w);
+				glVertex2i(button[i].r.left-w,  button[i].r.top+w);
+				glVertex2i(button[i].r.right+w, button[i].r.top+w);
+				glVertex2i(button[i].r.right+w, button[i].r.bot-w);
+				glVertex2i(button[i].r.left-w,  button[i].r.bot-w);
+			glEnd();
+			glLineWidth(1);
+		}
+		if (button[i].down) {
+			glColor3fv(button[i].dcolor);
+		} else {
+			glColor3fv(button[i].color);
+		}
+		glBegin(GL_QUADS);
+			glVertex2i(button[i].r.left,  button[i].r.bot);
+			glVertex2i(button[i].r.left,  button[i].r.top);
+			glVertex2i(button[i].r.right, button[i].r.top);
+			glVertex2i(button[i].r.right, button[i].r.bot);
+		glEnd();
+		//r.left = button[i].r.centerx;
+		//r.bot  = button[i].r.centery-8;
+		//r.center = 1;
+		/*
+		if (button[i].down) {
+			ggprint16(&r, 0, button[i].text_color, "Pressed!");
+		} else {
+			ggprint16(&r, 0, button[i].text_color, button[i].text);
+		}
+		*/
+		glPopMatrix();
+	}
+}
+
+void check_menu_button(XEvent *e) {
+    static int savex = 0;
+	static int savey = 0;
+	int i,x,y;
+	int lbutton=0;
+	//int rbutton=0;
+	//
+	if (e->type == ButtonRelease)
+		return;
+	if (e->type == ButtonPress) {
+		if (e->xbutton.button==1) {
+			//Left button is down
+			lbutton=1;
+		}
+		//if (e->xbutton.button==3) {
+			//Right button is down
+			//rbutton=1;
+		//}
+	}
+	x = e->xbutton.x;
+	y = e->xbutton.y;
+	y = WINDOW_HEIGHT - y;
+	if (savex != e->xbutton.x || savey != e->xbutton.y) {
+		//Mouse moved
+		savex = e->xbutton.x;
+		savey = e->xbutton.y;
+	}
+	for (i=0; i<nbuttons; i++) {
+		button[i].over=0;
+		if (x >= button[i].r.left &&
+			x <= button[i].r.right &&
+			y >= button[i].r.bot &&
+			y <= button[i].r.top) {
+			button[i].over=1;
+			if (button[i].over) {
+				if (lbutton) {
+					switch(i) {
+						case 0:
+							g_gamestate = PLAYING;
+							break;
+						case 1:
+							g_gamestate = EXIT_GAME;
+							break;
+					}
+				}
+			}
+		}
+	}
+	return;
+}
+
+void check_game_input(XEvent *e, game *game){
 
     if (e->type == KeyPress){
         int key = XLookupKeysym(&e->xkey,0);
         if (key == XK_Left){
-            leftPressed = 1;
+            game->hero->leftPressed = 1;
         }
         if (key == XK_Right){
-            rightPressed = 1;
+            game->hero->rightPressed = 1;
         }
-        if ((key == XK_w || key == XK_space) && jumpFinished == 1){
-            jumpInitiated = 1;
-            jumpFinished = 0;
+        if (key == XK_Escape){
+            g_gamestate = MAIN_MENU;
         }
+        
+        if ((key == XK_w || key == XK_space) && game->hero->jumpRelease == 0){
+            if (game->hero->state == WALKING || game->hero->state == STANDING){
+                game->hero->initialJump = 1;
+            }
+            if (game->hero->state == JUMPING && game->hero->jumpCount < 2){
+                game->hero->secondJump = 1;
+            }
+        }
+        if (key == XK_j){
+            game->currentHorizontalLevel--;
+        }
+        if (key == XK_l){
+            game->currentHorizontalLevel++;
+        }
+        if (key == XK_k){
+            game->currentVerticalLevel--;
+        }
+        if (key == XK_i){
+            game->currentVerticalLevel++;
+        }
+        if (key == XK_5){
+            game->hero->body.center[0] = e->xbutton.x;
+            game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+        }
+        /*
         if (key == XK_e && shootPressed == 0){
-            shootPressed = 5;
-        }
+            game->hero->shootPressed = 5;
+        }*/
 
     }
     if (e->type == KeyRelease){
         int key = XLookupKeysym(&e->xkey,0);
         if ( key == XK_Left){
-            leftPressed = 0;
+            game->hero->leftPressed = 0;
         }
         if ( key == XK_Right){
-            rightPressed = 0;
+            game->hero->rightPressed = 0;
+        }
+        if ( key == XK_w ){
+            game->hero->jumpRelease = 4;
         }
     }
-    return 0;
 
 }
 
-int checkGameQuit(XEvent *e, Game *game)
+void physics(game * game){
+
+    bool isCollision = false;
+    Level * room = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
+    game->hero->movement();
+    for (int i = 0; i < room->numPlatforms; i++){
+        isCollision = collision(game->hero, room->objects[i]);
+        if (isCollision == true){
+            game->hero->onCollision(room->objects[i]);
+        }
+    }
+    game->checkRoom();
+}
+
+void render_game(game* game)
 {
-    //IF esc key is pressed return 1 to break the loop in main and terminate
-    //the program
-    if (e->type == KeyPress) {
-        int key = XLookupKeysym(&e->xkey, 0);
-        if (key == XK_Escape) {
-            return 1;
-        }
-
-    }
-    return 0;
-}
-void createBullet(Game *game){
-    Shape * body = &game->hero->body;
-    if (game->hero->numBullets < game->hero->maxBullets){
-        game->hero->bullet[game->hero->numBullets].center.x = body->center.x;
-        game->hero->bullet[game->hero->numBullets].center.y = body->center.y;
-        game->hero->bullet[game->hero->numBullets].velocity.x = 10 * game->hero->facing;
-        game->hero->numBullets++;
-    }
-
-}
-void movement(Game *game)
-{
-    //Check what keys are pressed
-    numCollisions = 0;
-    if (rightPressed == 1){
-        game->hero->body.center.x += 3;
-        game->hero->facing = 1;
-    }
-    if (leftPressed == 1){
-        game->hero->body.center.x += -3;
-        game->hero->facing = -1;
-    }
-    if (shootPressed == 5){
-        createBullet(game);
-        shootPressed--;
-    }
-    if (shootPressed > 0 && shootPressed < 5){
-        shootPressed--;
-    }
-
-    if (jumpInitiated == 1){
-        game->hero->velocity.y = 8;
-        jumpInitiated = 0;
-    }
- 
-
-    Shape *body = &game->hero->body;
-    Shape *prevPosition = &game->hero->prevPosition;
-    prevPosition->center.x = body->center.x;
-    prevPosition->center.y = body->center.y;
-    
-    game->hero->body.center.y += game->hero->velocity.y;
-    game->hero->velocity.y += GRAVITY;
-    Enemy * enemy;
-
-    // Move all bullets and check collision with "Basic Enemies"    
-    for (int j = 0; j < game->hero->numBullets; j++){
-        game->hero->bullet[j].center.x += game->hero->bullet[j].velocity.x;
-        for (int k = 0; k < game->level->numBasicEnemies; k++){
-            enemy = (game->level->basicEnemy)+k;
-            if (game->hero->bullet[j].center.x + game->hero->bullet[j].width >= 
-                    enemy->body.center.x - enemy->body.width &&
-                game->hero->bullet[j].center.x - game->hero->bullet[j].width <= 
-                    enemy->body.center.x + enemy->body.width &&
-                game->hero->bullet[j].center.y + game->hero->bullet[j].height < 
-                    enemy->body.center.y + enemy->body.height &&
-                game->hero->bullet[j].center.y + game->hero->bullet[j].height > 
-                    enemy->body.center.y - enemy->body.height)
-            {
-                enemy->body.center.y = -50;
-            }     
-            
-        }
-        if (game->hero->bullet[j].center.x > WINDOW_WIDTH || game->hero->bullet[j].center.x < 0){
-            memcpy(&game->hero->bullet[j],&game->hero->bullet[game->hero->numBullets-1],sizeof(Shape));
-            game->hero->numBullets--;
-        }
-
-    }
-
-    //check collision between the Hero and platforms.
-    //also sets the jumpInitiated and jumpFinised variables to prevent
-    Shape * platform;
-    for (int i = 0; i < game->level->numPlatforms; i++){
-        platform = (game->level->platform)+i;
-        if (body->center.x + body->width >= platform->center.x - platform->width &&
-                body->center.x - body->width <= platform->center.x + platform->width &&
-                body->center.y - body->height < platform->center.y + platform->height &&
-                body->center.y + body->height > platform->center.y - platform->height )
-        {
-            if (prevPosition->center.x  < platform->center.x - platform->width)
-            {
-                body->center.x = platform->center.x - platform->width - body->width;
-            }
-            else{
-                if (prevPosition->center.x  > platform->center.x + platform->width)
-                {
-                    body->center.x = platform->center.x + platform->width + body->width;
-                }
-                else{
-                    if (prevPosition->center.y < body->center.y ||
-                            body->center.y < platform->center.y){
-                        game->hero->velocity.y = -2;
-                    }
-            
-                    else{
-                    body->center.y = platform->center.y + platform->height + body->height;
-                    game->hero->velocity.y = -1;
-                    jumpFinished = 1;
-                    jumpInitiated = 0;
-                    numCollisions++;
-                    }
-                }
-            }
-        }
-        
-    }
-
-    // if numCollisions is set to 0 then this means that the character is falling
-    // off of a platform and therefore we set jumpFinished to 0 so that he cannot 
-    // jump while in this falling state. We also set jumpInitiated to 0 so that
-    // he doenst jump instantly when he hits the ground (I think)
-    if (numCollisions == 0){
-        jumpFinished = 0;
-        jumpInitiated = 0;
-    }
-
-    // This next bit of code handles transitioning between levels
-    if (body->center.x > WINDOW_WIDTH){
-        body->center.x = 0;
-        currentHorizontalLevel = game->level->horizontalPosition + 1;
-        game->level = level[currentHorizontalLevel][currentVerticalLevel];
-        game->hero->numBullets = 0;
-    }
-    if (body->center.x < 0){
-        body->center.x = WINDOW_WIDTH-1;
-        currentHorizontalLevel = game->level->horizontalPosition - 1;
-        game->level = level[currentHorizontalLevel][currentVerticalLevel];
-        game->hero->numBullets = 0;
-    }
-    if (body->center.y > WINDOW_HEIGHT){
-        body->center.y = 0;
-        currentVerticalLevel = game->level->verticalPosition + 1;
-        game->level = level[currentHorizontalLevel][currentVerticalLevel];
-        game->hero->numBullets = 0;
-    }
-    if (body->center.y < 0){
-        body->center.y = WINDOW_HEIGHT;
-        currentVerticalLevel = game->level->verticalPosition - 1;
-        game->level = level[currentHorizontalLevel][currentVerticalLevel];
-        game->hero->numBullets = 0;
-    }
-   
-    // check collision between the hero and "basic enemies"
-    for (int k = 0; k < game->level->numBasicEnemies; k++){ 
-        enemy = (game->level->basicEnemy)+k;
-        if (body->center.x + body->width >= enemy->body.center.x - enemy->body.width &&
-            body->center.x - body->width <= enemy->body.center.x + enemy->body.width &&
-            body->center.y - body->height < enemy->body.center.y + enemy->body.height &&
-            body->center.y + body->height > enemy->body.center.y - enemy->body.height )
-        {
-            body->center.x = 400;
-            body->center.y = 250;
-        }
-    }
-    
-    
-    for (int k = 0; k < game->level->numBasicEnemies; k++){
-        enemy = (game->level->basicEnemy)+k;
-        if (enemy->body.center.x > enemy->rightBoundary){
-            enemy->velocity.x = -0.5;
-        }
-        if (enemy->body.center.x < enemy->leftBoundary){
-            enemy->velocity.x = 0.5;
-        }
-        enemy->body.center.x += enemy->velocity.x;
-    }
-
-}
-
-// This function is used to draw a circle in openGL. I grabbed it
-// off of the web
-void DrawCircle(float cx, float cy, float r, int num_segments) 
-{
-    glPushMatrix(); 
-    float theta = 2 * 3.1415926 / float(num_segments); 
-    float c = cosf(theta);//precalculate the sine and cosine
-    float s = sinf(theta);
-    float t;
-
-    float x = r;//we start at angle = 0 
-    float y = 0; 
-
-    glBegin(GL_LINE_LOOP); 
-    for(int ii = 0; ii < num_segments; ii++) 
-    { 
-        glVertex2f(x + cx, y + cy);//output vertex 
-
-        //apply the rotation matrix
-        t = x;
-        x = c * x - s * y;
-        y = s * t + c * y;
-    } 
-    glEnd(); 
-    glPopMatrix();
-}
-
-void render(Game *game)
-{
+    Level* current_level = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
 
     glClear(GL_COLOR_BUFFER_BIT);
     float w, h;
@@ -449,72 +372,119 @@ void render(Game *game)
     // Draw the Hero to the screen
     glColor3ub(200,200,200);
     glPushMatrix();
-    glTranslatef(game->hero->body.center.x, game->hero->body.center.y, game->hero->body.center.z);
+    glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
     w = game->hero->body.width;
     h = game->hero->body.height;
     glBegin(GL_QUADS);
-    glVertex2i(-w,-h); 
-    glVertex2i(-w,h); 
-    glVertex2i(w,-h); 
-    glVertex2i(w,h); 
+    glVertex2i(-w,-h);
+    glVertex2i(-w,h);
+    glVertex2i(w,-h);
+    glVertex2i(w,h);
     glEnd();
     glPopMatrix();
 
-
-    // Draw all Basic Enemies for the current level to the screen
-    Shape * basicEnemy;
-    glColor3ub(150,100,100);
-    for (int i = 0; i < game->level->numBasicEnemies; i++){
-        basicEnemy = &((game->level->basicEnemy)+i)->body;
-
+    for(auto &entity : current_level->enemies) {
+        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
-        glTranslatef(basicEnemy->center.x, basicEnemy->center.y, basicEnemy->center.z);
-        w = basicEnemy->width;
-        h = basicEnemy->height;
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_QUADS);
-        glVertex2i(-w,-h);
-        glVertex2i(-w, h);
-        glVertex2i( w, h);
-        glVertex2i( w,-h);
+        glVertex2i(-entity->body.width,-entity->body.height);
+        glVertex2i(-entity->body.width,entity->body.height);
+        glVertex2i(entity->body.width,-entity->body.height);
+        glVertex2i(entity->body.width,entity->body.height);
         glEnd();
         glPopMatrix();
     }
 
-    // Draw all Platforms for hte current level to the screen    
-    Shape * platform;
-    glColor3ub(90,140,90);
-    for(int i =0; i < game->level->numPlatforms; i++){
-        platform = (game->level->platform)+i;
-        
+    for(auto entity : current_level->bullet) {
+        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
-        glTranslatef(platform->center.x, platform->center.y, platform->center.z);
-        w = platform->width;
-        h = platform->height;
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_QUADS);
-        glVertex2i(-w,-h);
-        glVertex2i(-w, h);
-        glVertex2i( w, h);
-        glVertex2i( w,-h);
+        glVertex2i(-entity->body.width,-entity->body.height);
+        glVertex2i(-entity->body.width,entity->body.height);
+        glVertex2i(entity->body.width,entity->body.height);
+        glVertex2i(entity->body.width,-entity->body.height);
         glEnd();
-
         glPopMatrix();
     }
 
-    // Draw all Bullets for the current level to the screen. Should be
-    // at most 3.
-    glColor3ub(250,250,250);
-    for (int i = 0; i < game->hero->numBullets; i++){
+    for(auto entity : current_level->objects) {
+        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
-        glTranslatef(game->hero->bullet[i].center.x, game->hero->bullet[i].center.y, 0);
-        w = game->hero->bullet[i].width;
-        h = game->hero->bullet[i].height;
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_QUADS);
-        glVertex2i(-w,-h);
-        glVertex2i(-w,h);
-        glVertex2i( w,-h);
-        glVertex2i( w,h);
+        glVertex2i(-entity->body.width,-entity->body.height);
+        glVertex2i(-entity->body.width,entity->body.height);
+        glVertex2i(entity->body.width,entity->body.height);
+        glVertex2i(entity->body.width,-entity->body.height);
         glEnd();
         glPopMatrix();
     }
 }
 
+Level*** initializeLevels()
+{
+    Level*** room = (Level***)malloc(20 * sizeof(Level**));
+    int count = 0;
+    while (count < 20)
+    {
+        room[count] = (Level**)malloc( 5 * sizeof(void*));
+        count++;
+    }
+    //Level* temp;
+    //temp = new Level(13,1);
+    
+    
+    ifstream roomFile;
+    char num[5];
+    int args[4];
+    char row1 = '0';
+    char row2 = '2';
+    char column = '1';
+    char fileName[19] = "Rooms/room";
+    fileName[18] = 0;
+    for (int i = 0; i < 5; i++){
+        for (int j = 0; j < 4; j++){
+            row1 = (char) (i / 10) + 48;
+            row2 = (char) (i % 10) + 48;
+            column = (char)j + 48;
+            fileName[10] = row1;
+            fileName[11] = row2;
+            fileName[12] = '0';
+            fileName[13] = column;
+            cout << row1 << " " << row2 << " " << column << endl;
+            fileName[14] = '.';
+            fileName[15] = 't';
+            fileName[16] = 'x';
+            fileName[17] = 't';
+
+            cout << fileName << endl;
+            roomFile.open(fileName);
+            room[row2-48][column-48] = new Level(0,0);
+            while (true){
+                roomFile >> num;
+                if (roomFile.eof())
+                    break;
+                args[0] = atoi(num);
+                roomFile >> num;
+                if (roomFile.eof())
+                    break;
+                args[1] = atoi(num);
+                roomFile >> num;
+                if (roomFile.eof())
+                    break;
+                args[2] = atoi(num);
+                roomFile >> num;
+                if (roomFile.eof())
+                    break;
+                args[3] = atoi(num);
+                room[row2-48][column-48]->objects.push_back(new platform(args[0], args[1], args[2], args[3]));
+                room[row2-48][column-48]->numPlatforms++;
+            }
+            roomFile.close();
+        }
+    }
+    
+    return room;
+}
