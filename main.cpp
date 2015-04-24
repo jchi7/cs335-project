@@ -442,7 +442,8 @@ Level*** initializeLevels()
     char row1 = '0';
     char row2 = '2';
     char column = '1';
-    char fileName[18] = "Rooms/room";
+    char fileName[19] = "Rooms/room";
+    fileName[18] = 0;
     for (int i = 0; i < 5; i++){
         for (int j = 0; j < 4; j++){
             row1 = (char) (i / 10) + 48;
