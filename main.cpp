@@ -63,7 +63,7 @@ int main()
     init_MainMenuButtons();
     Level*** levels = initializeLevels();
     game newgame(levels);
-    newgame.hero = new hero();
+    newgame.hero = new Hero();
 
     while(g_gamestate != EXIT_GAME) {
         switch (g_gamestate) {

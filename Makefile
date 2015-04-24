@@ -10,7 +10,7 @@ mac:
 	g++ main.cpp -Wall -oGame -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11
 
 mac2:
-	g++ main.cpp game.cpp hero.cpp level.cpp gameObject.cpp platform.cpp collisions.cpp -Wall -oGame -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11
+	g++ main.cpp game.cpp hero.cpp Level.cpp gameObject.cpp platform.cpp collisions.cpp -Wall -oGame -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11
 
 linux:
 	g++ main.cpp -Wall -oGame -lX11 -lGL -lGLU -lm

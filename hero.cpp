@@ -1,6 +1,6 @@
 #include "hero.h"
 
-hero::hero()
+Hero::Hero()
 {
     numBullets = 0;
     maxBullets = 3;
@@ -30,16 +30,16 @@ hero::hero()
 
 }
 
-hero::~hero()
+Hero::~Hero()
 {
     //dtor
 }
 
-void hero::update()
+void Hero::update()
 {
 
 }
-void hero::movement(){
+void Hero::movement(){
     prevPosition[0] = body.center[0];
     prevPosition[1] = body.center[1];
     if (jumpRelease > 0)
@@ -70,7 +70,7 @@ void hero::movement(){
     }
 
 }
-void hero::onCollision(gameObject * platform){
+void Hero::onCollision(gameObject * platform){
 
     if (prevPosition[0]  < platform->body.center[0] - platform->body.width){
         body.center[0] = platform->body.center[0] - platform->body.width - body.width;

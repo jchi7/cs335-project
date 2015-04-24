@@ -14,7 +14,7 @@ class game
         int currentHorizontalLevel;
         int currentVerticalLevel;
         Level*** level;
-        hero* hero;
+        Hero* hero;
 
         game(Level*** newlevel);
         ~game();
