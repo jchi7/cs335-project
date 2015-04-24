@@ -20,6 +20,7 @@
 #include "collisions.h"
 //#include "initializeLevels.h"
 
+#include <fstream>
 
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
@@ -62,7 +63,7 @@ int main()
     init_MainMenuButtons();
     Level*** levels = initializeLevels();
     game newgame(levels);
-    newgame.hero = new hero();
+    newgame.hero = new Hero();
 
     while(g_gamestate != EXIT_GAME) {
         switch (g_gamestate) {
@@ -302,9 +303,31 @@ void check_game_input(XEvent *e, game *game){
             g_gamestate = MAIN_MENU;
         }
         
-        if ((key == XK_w || key == XK_space) && (game->hero->state == STANDING || game->hero->state == WALKING)){
-            game->hero->jumpInitiated = 1;
-        }/*
+        if ((key == XK_w || key == XK_space) && game->hero->jumpRelease == 0){
+            if (game->hero->state == WALKING || game->hero->state == STANDING){
+                game->hero->initialJump = 1;
+            }
+            if (game->hero->state == JUMPING && game->hero->jumpCount < 2){
+                game->hero->secondJump = 1;
+            }
+        }
+        if (key == XK_j){
+            game->currentHorizontalLevel--;
+        }
+        if (key == XK_l){
+            game->currentHorizontalLevel++;
+        }
+        if (key == XK_k){
+            game->currentVerticalLevel--;
+        }
+        if (key == XK_i){
+            game->currentVerticalLevel++;
+        }
+        if (key == XK_5){
+            game->hero->body.center[0] = e->xbutton.x;
+            game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+        }
+        /*
         if (key == XK_e && shootPressed == 0){
             game->hero->shootPressed = 5;
         }*/
@@ -317,6 +340,9 @@ void check_game_input(XEvent *e, game *game){
         }
         if ( key == XK_Right){
             game->hero->rightPressed = 0;
+        }
+        if ( key == XK_w ){
+            game->hero->jumpRelease = 4;
         }
     }
 
@@ -332,9 +358,8 @@ void physics(game * game){
         if (isCollision == true){
             game->hero->onCollision(room->objects[i]);
         }
-    
     }
-
+    game->checkRoom();
 }
 
 void render_game(game* game)
@@ -409,24 +434,57 @@ Level*** initializeLevels()
     }
     //Level* temp;
     //temp = new Level(13,1);
-    room[10][2] = new Level(5,0);
-    room[11][2] = new Level(7,0);
-    room[9][2] = new Level(7,0);
-    room[10][3] = new Level(1,0);
-    room[10][2]->horizontalPosition = 10;
-    room[10][2]->verticalPosition = 2;
-    room[11][2]->horizontalPosition = 11;
-    room[11][2]->verticalPosition = 2;
-    room[9][2]->horizontalPosition = 9;
-    room[9][2]->verticalPosition = 2;
-    room[10][3]->horizontalPosition = 10;
-    room[10][3]->verticalPosition = 3;
+    
+    
+    ifstream roomFile;
+    char num[5];
+    int args[4];
+    char row1 = '0';
+    char row2 = '2';
+    char column = '1';
+    char fileName[19] = "Rooms/room";
+    fileName[18] = 0;
+    for (int i = 0; i < 5; i++){
+        for (int j = 0; j < 4; j++){
+            row1 = (char) (i / 10) + 48;
+            row2 = (char) (i % 10) + 48;
+            column = (char)j + 48;
+            fileName[10] = row1;
+            fileName[11] = row2;
+            fileName[12] = '0';
+            fileName[13] = column;
+            cout << row1 << " " << row2 << " " << column << endl;
+            fileName[14] = '.';
+            fileName[15] = 't';
+            fileName[16] = 'x';
+            fileName[17] = 't';
 
-    room[10][2]->objects.push_back(new platform(500,50,450,50));
-    room[10][2]->objects.push_back(new platform(100,25,200,150));
-    room[10][2]->objects.push_back(new platform(100,25,500,150));
-    room[10][2]->objects.push_back(new platform(100,15,600,180));
-    room[10][2]->objects.push_back(new platform(15,15,650,260));
-
+            cout << fileName << endl;
+            roomFile.open(fileName);
+            room[row2-48][column-48] = new Level(0,0);
+            while (true){
+                roomFile >> num;
+                if (roomFile.eof())
+                    break;
+                args[0] = atoi(num);
+                roomFile >> num;
+                if (roomFile.eof())
+                    break;
+                args[1] = atoi(num);
+                roomFile >> num;
+                if (roomFile.eof())
+                    break;
+                args[2] = atoi(num);
+                roomFile >> num;
+                if (roomFile.eof())
+                    break;
+                args[3] = atoi(num);
+                room[row2-48][column-48]->objects.push_back(new platform(args[0], args[1], args[2], args[3]));
+                room[row2-48][column-48]->numPlatforms++;
+            }
+            roomFile.close();
+        }
+    }
+    
     return room;
 }

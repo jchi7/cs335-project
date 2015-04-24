@@ -3,7 +3,7 @@
 
 #include "gameObject.h"
 enum CharacterState {STANDING, WALKING, JUMPING};
-class hero : public gameObject
+class Hero : public gameObject
 {
     public:
         CharacterState state;        
@@ -16,13 +16,17 @@ class hero : public gameObject
         int maxBullets;
         // jumpInitiated is set to 1 when the jump key is pressed
         int jumpInitiated;
+        int initialJump;
+        int secondJump;
+        int jumpCount;
+        int jumpRelease;
         // jumpFinished is used to prevent the hero from double jumping or
         // jumping after falling off of a platform
         int jumpFinished;
         int bulletVelocity;
         // Temp for colors
-        hero();
-        virtual ~hero();
+        Hero();
+        virtual ~Hero();
         void update();
         void movement();
         void onCollision(gameObject* platform);

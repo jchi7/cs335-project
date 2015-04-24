@@ -1,6 +1,6 @@
 #include "hero.h"
 
-hero::hero()
+Hero::Hero()
 {
     numBullets = 0;
     maxBullets = 3;
@@ -16,6 +16,10 @@ hero::hero()
     velocity[1] = 0;
     facing = 1;
     jumpInitiated = 0;
+    initialJump = 0;
+    secondJump = 0;
+    jumpCount = 0;
+    jumpRelease = 1;
     jumpFinished = 0;
     rgb[0] = 200;
     rgb[1] = 200;
@@ -26,37 +30,53 @@ hero::hero()
 
 }
 
-hero::~hero()
+Hero::~Hero()
 {
     //dtor
 }
 
-void hero::update()
+void Hero::update()
 {
 
 }
-void hero::movement(){
+void Hero::movement(){
+    prevPosition[0] = body.center[0];
+    prevPosition[1] = body.center[1];
+    if (jumpRelease > 0)
+        jumpRelease--;
     if (leftPressed == 1){
         body.center[0] += -3;
     }
     if (rightPressed == 1){
         body.center[0] += 3;
     }
-    if (jumpInitiated == 1){
-        velocity[1] = 8;
+    if (initialJump == 1){
+        velocity[1] = 7;
         state = JUMPING;
-        jumpInitiated = 0;
+        initialJump = 0;
+        jumpCount++;
+    }
+    if (secondJump == 1){
+        velocity[1] = 7;
+        state = JUMPING;
+        secondJump = 0;
+        jumpCount++;
     }
     body.center[1] += velocity[1];
     velocity[1] += gravity;
-    prevPosition[0] = body.center[0];
-    prevPosition[1] = body.center[1];
+    if (prevPosition[1] > body.center[1] && (state == STANDING || state == WALKING)){
+        state = JUMPING;
+        jumpCount = 1;
+    }
 
 }
-void hero::onCollision(gameObject * platform){
+void Hero::onCollision(gameObject * platform){
 
-    if (prevPosition[0] + body.width < platform->body.center[0] - platform->body.width){
-        body.center[0] = platform->body.center[0] - platform->body.width - body.width - 10;
+    if (prevPosition[0]  < platform->body.center[0] - platform->body.width){
+        body.center[0] = platform->body.center[0] - platform->body.width - body.width;
+    }
+    if (prevPosition[0]  > platform->body.center[0] + platform->body.width){
+        body.center[0] = platform->body.center[0] + platform->body.width + body.width;
     }
 
     if (body.center[1] < platform->body.center[1] &&
@@ -66,7 +86,6 @@ void hero::onCollision(gameObject * platform){
         body.center[1] = platform->body.center[1] - platform->body.height - body.height;
         velocity[1] = 0;
     }
-
     if (body.center[1] > platform->body.center[1] &&
             body.center[0] + body.width > platform->body.center[0] - platform->body.width &&
             body.center[0] - body.width < platform->body.center[0] + platform->body.width 
@@ -74,10 +93,9 @@ void hero::onCollision(gameObject * platform){
         body.center[1] = platform->body.center[1] + platform->body.height + body.height;
         velocity[1] = 0;
         state = STANDING;
-            if (leftPressed == 1){
-            state = WALKING;
-        }
-        if (rightPressed == 1){
+        jumpCount = 0;
+
+        if (leftPressed == 1 || rightPressed == 1){
             state = WALKING;
         }
     }
