@@ -18,6 +18,8 @@ class game
 
         game(Level*** newlevel);
         ~game();
+
+        void checkRoom();
     protected:
     private:
 };
