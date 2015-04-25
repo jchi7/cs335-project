@@ -17,6 +17,7 @@
 #include "platform.h"
 #include "Level.h"
 #include "game.h"
+#include "ppm.h"
 #include "collisions.h"
 //#include "initializeLevels.h"
 
@@ -47,6 +48,14 @@ void physics(game * game);
 Display *dpy;
 Window win;
 GLXContext glc;
+//Following Declarations are for the Image importing...
+Ppmimage *rockImage = NULL;
+Ppmimage *heroImage = NULL;
+Ppmimage *backgroundImage = NULL;
+GLuint rockTexture;
+GLuint heroTexture;
+GLuint backgroundTexture;
+bool backgroundImageSet=true;
 
 Button button[MAXBUTTONS];
 int nbuttons=0;
@@ -64,7 +73,6 @@ int main()
     Level*** levels = initializeLevels();
     game newgame(levels);
     newgame.hero = new Hero();
-
     while(g_gamestate != EXIT_GAME) {
         switch (g_gamestate) {
             case MAIN_MENU:
@@ -134,6 +142,43 @@ void init_opengl(void) {
     glOrtho(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT, -1, 1);
     //Set the screen background color
     glClearColor(0.1, 0.1, 0.1, 1.0);
+    
+    //Importing the images 
+    heroImage = ppm6GetImage("./images/HeroSpriteSheet.ppm");
+    backgroundImage = ppm6GetImage("./images/Background1.ppm");
+    rockImage = ppm6GetImage("./images/Rock.ppm");
+
+    //Preparing the images to render..
+    glGenTextures(1, &heroTexture);
+    glGenTextures(1, &backgroundTexture);
+    glGenTextures(1, &rockTexture);
+    
+    int w = heroImage->width;
+    int y = heroImage->height;
+    //Setting up the hero textures
+    glBindTexture(GL_TEXTURE_2D,heroTexture);
+    
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w,y, 0,
+               GL_RGB, GL_UNSIGNED_BYTE, heroImage->data);
+
+    //Setting up the Rock Platforms Texture....
+    w = rockImage->width;
+    y = rockImage->height;
+    glBindTexture(GL_TEXTURE_2D,rockTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, y, 0,
+               GL_RGB, GL_UNSIGNED_BYTE, rockImage->data);
+
+    //Setting up the background image
+    glBindTexture(GL_TEXTURE_2D,backgroundTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, backgroundImage->width, backgroundImage->height, 0,
+               GL_RGB, GL_UNSIGNED_BYTE, backgroundImage->data);
+
 }
 
 void cleanupXWindows(void) {
@@ -193,10 +238,12 @@ void init_MainMenuButtons(void) {
 	nbuttons++;
 }
 
+
+//Add the Main Menu background to this function....
 void render_MainMenu(void) {
     //Rect r;
     glClear(GL_COLOR_BUFFER_BIT);
-    glColor3ub(200,200,200);
+    glColor3f(1.0,1.0,1.0);
     glPushMatrix();
     for (int i=0; i<nbuttons; i++) {
 		if (button[i].over) {
@@ -364,10 +411,25 @@ void physics(game * game){
 
 void render_game(game* game)
 {
-    Level* current_level = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
-
     glClear(GL_COLOR_BUFFER_BIT);
     float w, h;
+    
+    Level* current_level = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
+    
+    //Rendering the first back ground image if the flag is true.
+    glColor3f(1.0,1.0,1.0);
+    if(backgroundImageSet==true){
+        glPushMatrix();
+        glBindTexture(GL_TEXTURE_2D,backgroundTexture);
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0,1.0f); glVertex2i(0,0);
+            glTexCoord2f(0.0,0.0); glVertex2i(0,WINDOW_HEIGHT);
+            glTexCoord2f(1.0,0.0); glVertex2i(WINDOW_WIDTH,WINDOW_HEIGHT);
+            glTexCoord2f(1.0f,1.0f); glVertex2i(WINDOW_WIDTH,0);
+        glPopMatrix();
+        glEnd();
+    }
+
 
     // Draw the Hero to the screen
     glColor3ub(200,200,200);
@@ -382,6 +444,20 @@ void render_game(game* game)
     glVertex2i(w,h);
     glEnd();
     glPopMatrix();
+
+    //Draws the Hero to the Screen
+    glEnable(GL_TEXTURE_2D);
+    glColor4ub(255,255,255,255);
+    glPushMatrix();
+    glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
+    glBindTexture(GL_TEXTURE_2D,heroTexture);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f,.2f); glVertex2i(-20,-30);
+    glTexCoord2f(0.0f,0.0f); glVertex2i(-20,30);
+    glTexCoord2f(.15f,0.0f); glVertex2i(20,30);
+    glTexCoord2f(.15f,.2f); glVertex2i(20,-30);
+    glEnd();
+    glPopMatrix();    
 
     for(auto &entity : current_level->enemies) {
         glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
@@ -420,7 +496,27 @@ void render_game(game* game)
         glVertex2i(entity->body.width,-entity->body.height);
         glEnd();
         glPopMatrix();
+
+        w = entity->body.width;
+        h = entity->body.height;
+
+        //The following code is to draw the platforms
+        glEnable(GL_TEXTURE_2D);
+        glColor4ub(255,255,255,255);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBindTexture(GL_TEXTURE_2D, rockTexture);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
+        glTexCoord2f(0.1f,0.0f); glVertex2i(-w,h);
+        glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
+        glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
+        glEnd();
+        glPopMatrix();    
+
+
     }
+
 }
 
 Level*** initializeLevels()
