@@ -4,6 +4,7 @@
 #include "Level.h"
 #include "hero.h"
 
+//enum GameState {PLAYING, EXIT_GAME, MAIN_MENU, LEVEL_EDITOR}; 
 
 class game
 {
@@ -15,6 +16,8 @@ class game
         int currentVerticalLevel;
         Level*** level;
         Hero* hero;
+
+        GameState state;
 
         game(Level*** newlevel);
         ~game();

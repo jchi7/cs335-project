@@ -28,6 +28,9 @@
 #define GRAVITY -0.35
 #define MAXBUTTONS 4
 
+#define MAX_HORIZONTAL_LEVELS 12
+#define MAX_VERTICAL_LEVELS 4
+
 using namespace std;
 
 void initXWindows(void);
@@ -36,7 +39,7 @@ void cleanupXWindows(void);
 void set_title(void);
 void init_MainMenuButtons(void);
 void render_MainMenu(void);
-void check_menu_button(XEvent *e);
+void check_menu_button(XEvent *e, game * game);
 void render_game(game* game);
 Level*** initializeLevels();
 
@@ -51,10 +54,15 @@ GLXContext glc;
 Button button[MAXBUTTONS];
 int nbuttons=0;
 
-enum GameState {MAIN_MENU, PLAYING, EXIT_GAME};
 GameState g_gamestate = MAIN_MENU;
 
 int numCollisions;
+
+struct timeval Gthrottle;
+int GoldMilliSec = 0;
+int GtimeLapse = 0;
+int Gthreshold = 10000;
+
 
 int main()
 {
@@ -64,16 +72,32 @@ int main()
     Level*** levels = initializeLevels();
     game newgame(levels);
     newgame.hero = new Hero();
+    bool render = true;
+    bool doPhysics = true;
 
     while(g_gamestate != EXIT_GAME) {
+        cout << GoldMilliSec << " " << GtimeLapse << endl;
+        gettimeofday(&Gthrottle, NULL);
+        GtimeLapse = (Gthrottle.tv_usec >= GoldMilliSec) ? Gthrottle.tv_usec - GoldMilliSec :
+            (1000000 - GoldMilliSec) + Gthrottle.tv_usec;
+        if (GtimeLapse >= Gthreshold){
+            GoldMilliSec = Gthrottle.tv_usec;
+            render = true;
+        }
+        else{
+            render = false;
+        }
         switch (g_gamestate) {
             case MAIN_MENU:
                 while(XPending(dpy)) {
                     XEvent e;
                     XNextEvent(dpy, &e);
-                    check_menu_button(&e);
+                    check_menu_button(&e, &newgame);
                 }
-                render_MainMenu();
+                if (render == true){
+                    render_MainMenu();
+                    glXSwapBuffers(dpy, win);
+                }
                 break;
             case PLAYING:
                 while(XPending(dpy)) {
@@ -81,15 +105,39 @@ int main()
                     XNextEvent(dpy, &e);
                     check_game_input(&e, &newgame);
                 }
-                physics(&newgame);
-                render_game(&newgame);
+                if (doPhysics == true){
+                    physics(&newgame);
+                    doPhysics = false;
+                }
+                if (render == true){
+                    doPhysics = true;
+                    render_game(&newgame);
+                    glXSwapBuffers(dpy, win);
+                }
+                break;
+            case LEVEL_EDITOR:
+                while(XPending(dpy)) {
+                    XEvent e;
+                    XNextEvent(dpy, &e);
+                    check_game_input(&e, &newgame);
+                }
+                if (doPhysics == true){
+                    physics(&newgame);
+                    doPhysics = false;
+                }
+                if (render == true){
+                    doPhysics = true;
+                    render_game(&newgame);
+                    glXSwapBuffers(dpy, win);
+                }
                 break;
             case EXIT_GAME:
                 break;
             default:
                 break;
         }
-        glXSwapBuffers(dpy, win);
+ //       glXSwapBuffers(dpy, win);
+        
     }
     cleanupXWindows();
     return 0;
@@ -156,7 +204,7 @@ void init_MainMenuButtons(void) {
 	button[nbuttons].r.width = 380;
 	button[nbuttons].r.height = 60;
 	button[nbuttons].r.left = 290;
-	button[nbuttons].r.bot = 320;
+	button[nbuttons].r.bot = 480;
 	button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
 	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
 	button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
@@ -172,6 +220,25 @@ void init_MainMenuButtons(void) {
 	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
 	button[nbuttons].text_color = 0x00ffffff;
 	nbuttons++;
+	button[nbuttons].r.width = 380;
+	button[nbuttons].r.height = 60;
+	button[nbuttons].r.left = 290;
+	button[nbuttons].r.bot = 320;
+	button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
+	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
+	button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
+	button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
+	strcpy(button[nbuttons].text, "Level Editor");
+	button[nbuttons].down = 0;
+	button[nbuttons].click = 0;
+	button[nbuttons].color[0] = 0.3f;
+	button[nbuttons].color[1] = 0.3f;
+	button[nbuttons].color[2] = 0.6f;
+	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
+	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
+	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
+	button[nbuttons].text_color = 0x00ffffff;
+    nbuttons++;
 	button[nbuttons].r.width = 380;
 	button[nbuttons].r.height = 60;
 	button[nbuttons].r.left = 290;
@@ -238,7 +305,7 @@ void render_MainMenu(void) {
 	}
 }
 
-void check_menu_button(XEvent *e) {
+void check_menu_button(XEvent *e, game * game) {
     static int savex = 0;
 	static int savey = 0;
 	int i,x,y;
@@ -277,8 +344,13 @@ void check_menu_button(XEvent *e) {
 					switch(i) {
 						case 0:
 							g_gamestate = PLAYING;
+                            game->state = PLAYING;
 							break;
 						case 1:
+							g_gamestate = LEVEL_EDITOR;
+                            game->state = LEVEL_EDITOR;
+							break;
+						case 2:
 							g_gamestate = EXIT_GAME;
 							break;
 					}
@@ -311,21 +383,36 @@ void check_game_input(XEvent *e, game *game){
                 game->hero->secondJump = 1;
             }
         }
-        if (key == XK_j){
-            game->currentHorizontalLevel--;
-        }
-        if (key == XK_l){
-            game->currentHorizontalLevel++;
-        }
-        if (key == XK_k){
-            game->currentVerticalLevel--;
-        }
-        if (key == XK_i){
-            game->currentVerticalLevel++;
-        }
-        if (key == XK_5){
-            game->hero->body.center[0] = e->xbutton.x;
-            game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+        if (game->state == LEVEL_EDITOR){
+            if (key == XK_j){
+                if (game->currentHorizontalLevel > 0){
+                    game->currentHorizontalLevel--;
+                }
+            }
+            if (key == XK_l){
+                if (game->currentHorizontalLevel < MAX_HORIZONTAL_LEVELS - 1){
+                    game->currentHorizontalLevel++;
+                }
+            }
+            if (key == XK_k){
+                if (game->currentVerticalLevel > 0){
+                    game->currentVerticalLevel--;
+                }
+            }
+            if (key == XK_i){
+                if (game->currentVerticalLevel < MAX_VERTICAL_LEVELS - 1){
+                    game->currentVerticalLevel++;
+                }
+            }
+            if (key == XK_5){
+                game->hero->body.center[0] = e->xbutton.x;
+                game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+            }
+            if (key == XK_z){
+                Level * room = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
+                room->objects.push_back(new platform(100,20,100,300));
+                room->numPlatforms++;
+            }
         }
         /*
         if (key == XK_e && shootPressed == 0){
@@ -425,11 +512,11 @@ void render_game(game* game)
 
 Level*** initializeLevels()
 {
-    Level*** room = (Level***)malloc(20 * sizeof(Level**));
+    Level*** room = (Level***)malloc(MAX_HORIZONTAL_LEVELS * sizeof(Level**));
     int count = 0;
-    while (count < 20)
+    while (count < MAX_HORIZONTAL_LEVELS)
     {
-        room[count] = (Level**)malloc( 5 * sizeof(void*));
+        room[count] = (Level**)malloc( MAX_VERTICAL_LEVELS * sizeof(void*));
         count++;
     }
     //Level* temp;
@@ -444,10 +531,11 @@ Level*** initializeLevels()
     char column = '1';
     char fileName[19] = "Rooms/room";
     fileName[18] = 0;
-    for (int i = 0; i < 5; i++){
-        for (int j = 0; j < 4; j++){
+    for (int i = 0; i < MAX_HORIZONTAL_LEVELS; i++){
+        for (int j = 0; j < MAX_VERTICAL_LEVELS; j++){
+            cout << i << endl;
             row1 = (char) (i / 10) + 48;
-            row2 = (char) (i % 10) + 48;
+            row2 = (char) ( i % 10) + 48;
             column = (char)j + 48;
             fileName[10] = row1;
             fileName[11] = row2;
@@ -459,9 +547,9 @@ Level*** initializeLevels()
             fileName[16] = 'x';
             fileName[17] = 't';
 
-            cout << fileName << endl;
+            cout << fileName << " " << row1 << " " << row2 << endl;
             roomFile.open(fileName);
-            room[row2-48][column-48] = new Level(0,0);
+            room[row2-48 + (row1-48)*10][column-48] = new Level(0,0);
             while (true){
                 roomFile >> num;
                 if (roomFile.eof())
@@ -479,8 +567,9 @@ Level*** initializeLevels()
                 if (roomFile.eof())
                     break;
                 args[3] = atoi(num);
-                room[row2-48][column-48]->objects.push_back(new platform(args[0], args[1], args[2], args[3]));
-                room[row2-48][column-48]->numPlatforms++;
+
+                room[row2-48 + (row1-48) * 10][column-48]->objects.push_back(new platform(args[0], args[1], args[2], args[3]));
+                room[row2-48 + (row1-48) * 10][column-48]->numPlatforms++;
             }
             roomFile.close();
         }

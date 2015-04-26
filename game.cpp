@@ -11,6 +11,7 @@ game::game(Level *** newlevel)
     this->level = newlevel;
     this->currentHorizontalLevel = 3;
     this->currentVerticalLevel = 1;
+    this->state = PLAYING;
 }
 
 game::~game()
