@@ -19,7 +19,8 @@ game::~game()
     delete hero;
     //dtor
 }
-void game::checkRoom(){
+void game::checkRoom()
+{
     if (hero->body.center[0] > WINDOW_WIDTH){
         currentHorizontalLevel++;
         hero->body.center[0] = 0 + hero->body.width;
@@ -36,5 +37,4 @@ void game::checkRoom(){
         currentVerticalLevel--;
         hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
     }
-
-} 
+}

@@ -63,6 +63,7 @@ int GoldMilliSec = 0;
 int GtimeLapse = 0;
 int Gthreshold = 10000;
 
+bool GisPlatformMovable = false;
 
 int main()
 {
@@ -409,9 +410,17 @@ void check_game_input(XEvent *e, game *game){
                 game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
             }
             if (key == XK_z){
-                Level * room = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
-                room->objects.push_back(new platform(100,20,100,300));
-                room->numPlatforms++;
+                if (!GisPlatformMovable){
+                    Level * room = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
+                    room->objects.push_back(new platform(100,20,e->xbutton.x, WINDOW_HEIGHT - e->xbutton.y));
+                    room->numPlatforms++;
+                    GisPlatformMovable = true;
+                }
+            }
+            if (key == XK_x){
+                if (GisPlatformMovable){
+                    GisPlatformMovable = false;
+                }
             }
         }
         /*
@@ -447,6 +456,9 @@ void physics(game * game){
         }
     }
     game->checkRoom();
+    if (game->state = LEVEL_EDITOR && GisPlatformMovable == true){
+        game->updatePlatform()
+    }
 }
 
 void render_game(game* game)
