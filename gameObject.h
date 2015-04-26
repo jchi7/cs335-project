@@ -3,14 +3,14 @@
 
 #include "InputComponent.h"
 
-class gameObject
+class GameObject
 {
     public:
         Shape body;
         int rgb[3];
         float gravity;
-        gameObject();
-        virtual ~gameObject();
+        GameObject();
+        virtual ~GameObject();
         virtual void update();
     protected:
     private:

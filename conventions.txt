@@ -1,0 +1,63 @@
+List of conventions to follow while writing/maintaining code:
+
+
+-- Commenting --
+  Every module (function, class) should start a comment stating the original author, and another stating modifications made to the module (and who made them).
+  Explain what complicated or confusing pieces of code are doing. Others who rely on that code should be able to figure out how what it is doing. Using meaningful variable names and keeping the code simple helps make self-documenting code that requires fewer comments to understand.
+
+
+-- Indentation --
+K&R style variant:
+  Opening & closing curly braces for funtions get their own line. Opening curly braces for control statements inside functions, however, remain on the same line as the control statement. No limit to line length, let line be as long as it needs to be, and have the text editor handle arbitrarily breaking stuff up onto new lines. Indent 2 spaces (don't use tabs).
+
+  example:
+  void func (const int * alpha, const string beta, const double * delta, const char * gamma)
+{
+  switch (alpha) {
+    label1:
+      stuff();
+    label2:
+      stuff2();
+    default:
+      stuffdef();
+  }
+
+  if (beta) {
+    stuff3(delta);
+  }
+  else {
+    stuff4(delta);
+  }
+
+  while (gamma) {
+    stuff5(gamma);
+  }
+}
+
+
+-- Naming --
+Java Style (with some variation):
+  CLASSES:
+    Uppercase first character of word, no spaces
+    ex: MyClassName
+  FUNCTIONS:
+    Camel case
+    ex: fooBar
+  VARIABLES:
+    Local: Camel case, short & meaningful
+      ex: itr, mySum
+    Global: Camel case, start with uppercase G
+      ex: GglobalVar
+  CONSTANTS:
+    All uppercase letters separated by underscores
+      ex: const int BUF_SIZE
+
+
+-- Code Building --
+  Daily Integration: merge developer working copies with main branch once a day
+  Automate Build: one command should perform all actions necessary to merge into a single branch
+  Self-Testing Build: functions to test should already be written, and only need to be called (ideally through a single command)
+  Build Results: should be easy for everyone to know if a build broke, and who wrote the code that needs to fixed
+
+-- Testing --
+  Unit Testing: every module will have a test function written for it, these test functions should easily be called from a main test function/file

@@ -1,10 +1,10 @@
-#ifndef LEVEL_H
-#define LEVEL_H
+#ifndef ROOM_H
+#define ROOM_H
 #include <vector>
 #include "gameObject.h"
 
 
-class Level
+class Room
 {
     public:
         int horizontalPosition;
@@ -13,14 +13,15 @@ class Level
         int numBasicEnemies;
         int currentPlatform;
         int currentBasicEnemy;
-        std::vector<gameObject*> enemies;
-        std::vector<gameObject*> bullet;
-        std::vector<gameObject*> objects;
-        Level();
-        Level(int num, int numBasic);
-        ~Level();
+        std::vector<GameObject*> enemies;
+        std::vector<GameObject*> bullet;
+        std::vector<GameObject*> objects;
+
+        Room();
+        Room(int nPlatform, int numBasic);
+        ~Room();
     protected:
     private:
 };
 
-#endif // LEVEL_H
+#endif // ROOM_H
