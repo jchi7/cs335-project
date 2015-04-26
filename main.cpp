@@ -456,9 +456,9 @@ void physics(game * game){
         }
     }
     game->checkRoom();
-    if (game->state = LEVEL_EDITOR && GisPlatformMovable == true){
-        game->updatePlatform()
-    }
+    //if (game->state = LEVEL_EDITOR && GisPlatformMovable == true){
+    //    game->updatePlatform()
+    //}
 }
 
 void render_game(game* game)
