@@ -1,5 +1,5 @@
 version 1.1
-(Sunny)
+(Sunny/Mark)
 
 
 
@@ -40,9 +40,13 @@ CHANGES:
 --- main.cpp:
   removed 'initializeLevels()', and the corresponding call, from main.cpp and place it in game.cpp as 'initLevels()'
 
+  abstracted level access and room changing to Game class
+
 
 
 --- game.h:
+  changed structure of level array to make more sense
+
   removed the Levels*** parameter, since 'initLevels()' is now called directly in the constructor
 
   added 'initLevel()' and 'fillLevel()' which are called in the constructor
@@ -50,6 +54,8 @@ CHANGES:
   changed the Level*** to a 2D-vector
 
   added 'totalVertial' and 'totalHorizontal' to store the dimensions of the level in one place
+
+  added methods for for changing rooms, and returning pointer to current room
 
 
 

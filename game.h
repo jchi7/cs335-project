@@ -19,17 +19,17 @@ class Game
         int currentVerticalLevel;
 
         // level dimensions:
-        int totalHorizontal;  //number of columns
-        int totalVertical;  // number of rows
+        int totalHorizontal;  //number of rows
+        int totalVertical;  // number of columns
 
         std::vector< std::vector<Room> > level;
         /* Structure of level array:
                    col0 col1 col2 ... col#
-            row0:  0-0  0-1  0-2  ... 0-totalHorizontal
-            row1:  1-0  ...
-            row2:  2-0  ...
-            ...    ...
             row#:  totalVertical-0  ...
+            ...    ...
+            row2:  2-0  ...
+            row1:  1-0  ...
+            row0:  0-0  0-1  0-2  ... 0-totalHorizontal
         */
         Hero* hero;
 
@@ -37,6 +37,11 @@ class Game
         ~Game();
 
         void checkRoom();
+        Room * getRoomPtr();
+        void moveRoomLeft();
+        void moveRoomRight();
+        void moveRoomUp();
+        void moveRoomDown();
         void initLevel();
         void fillLevel();
     protected:

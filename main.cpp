@@ -302,7 +302,7 @@ void check_game_input(XEvent *e, Game *game){
             g_gamestate = MAIN_MENU;
         }
         
-        if ((key == XK_w || key == XK_space) && game->hero->jumpRelease == 0){
+        if ((key == XK_Up || key == XK_w || key == XK_space) && game->hero->jumpRelease == 0){
             if (game->hero->state == WALKING || game->hero->state == STANDING){
                 game->hero->initialJump = 1;
             }
@@ -311,16 +311,16 @@ void check_game_input(XEvent *e, Game *game){
             }
         }
         if (key == XK_j){
-            game->currentHorizontalLevel--;
+            game->moveRoomLeft();
         }
         if (key == XK_l){
-            game->currentHorizontalLevel++;
+            game->moveRoomRight();
         }
         if (key == XK_k){
-            game->currentVerticalLevel--;
+            game->moveRoomDown();
         }
         if (key == XK_i){
-            game->currentVerticalLevel++;
+            game->moveRoomUp();
         }
         if (key == XK_5){
             game->hero->body.center[0] = e->xbutton.x;
@@ -340,7 +340,7 @@ void check_game_input(XEvent *e, Game *game){
         if ( key == XK_Right){
             game->hero->rightPressed = 0;
         }
-        if ( key == XK_w ){
+        if ( key == XK_w || key == XK_Up || key == XK_space){
             game->hero->jumpRelease = 4;
         }
     }
@@ -350,7 +350,7 @@ void check_game_input(XEvent *e, Game *game){
 void physics(Game * game){
 
     bool isCollision = false;
-    Room * room = &game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
+    Room * room = game->getRoomPtr();
 
     game->hero->movement();
     for (int i = 0; i < room->numPlatforms; i++){
@@ -364,7 +364,7 @@ void physics(Game * game){
 
 void render_game(Game* game)
 {
-    Room* current_level = &game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
+    Room* current_level = game->getRoomPtr();
 
     glClear(GL_COLOR_BUFFER_BIT);
     float w, h;
