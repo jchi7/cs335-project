@@ -1,6 +1,6 @@
 #include "basicEnemy.h"
 
-basicEnemy::basicEnemy(int x, int y, int left, int right)
+BasicEnemy::BasicEnemy(int x, int y, int left, int right)
 {
     this.body.width = 10;
     this.body.height = 20;
@@ -15,12 +15,12 @@ basicEnemy::basicEnemy(int x, int y, int left, int right)
     this.rgb[2] = 100;
 }
 
-basicEnemy::~basicEnemy()
+BasicEnemy::~BasicEnemy()
 {
     //dtor
 }
 
-void basicEnemy::update(game* game, gameObject* entity)
+void BasicEnemy::update(game* game, gameObject* entity)
 {
     //InputComponent->update(game, entity);
 }

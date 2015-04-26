@@ -3,6 +3,6 @@
 #include "gameObject.h"
 
 
-extern bool collision(gameObject* entity1, gameObject* entity2);
+extern bool collision(GameObject* entity1, GameObject* entity2);
 
 #endif // COLLISIONS_H

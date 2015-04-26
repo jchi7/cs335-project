@@ -4,7 +4,7 @@
 #include "gameObject.h"
 
 
-class basicEnemy : public gameObject
+class BasicEnemy : public GameObject
 {
     public:
         Shape prevPosition;
@@ -12,8 +12,8 @@ class basicEnemy : public gameObject
         int facing;
         int leftBoundary;
         int rightBoundary;
-        basicEnemy();
-        virtual ~basicEnemy();
+        BasicEnemy();
+        virtual ~BasicEnemy();
     protected:
     private:
 };

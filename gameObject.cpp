@@ -1,17 +1,17 @@
 #include "gameObject.h"
 
 
-gameObject::gameObject()
+GameObject::GameObject()
 {
     gravity = -0.35;
 }
 
-gameObject::~gameObject()
+GameObject::~GameObject()
 {
     //dtor
 }
 
-void gameObject::update()
+void GameObject::update()
 {
 
 }
