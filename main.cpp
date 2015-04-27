@@ -37,8 +37,14 @@ void set_title(void);
 
 void init_MainMenuButtons(void);
 void render_MainMenu(void);
+<<<<<<< HEAD
 void check_menu_button(XEvent *e);
 void check_game_input(XEvent *e, Game * game);
+=======
+void check_menu_button(XEvent *e, Game * game);
+void check_game_input(XEvent *e, Game * game);
+void movePlatform(XEvent *e, Game * game);
+>>>>>>> Mark
 void physics(Game * game);
 void render_game(Game* game);
 
@@ -50,10 +56,14 @@ GLXContext glc;
 Button button[MAXBUTTONS];
 int nbuttons=0;
 
-enum GameState {MAIN_MENU, PLAYING, EXIT_GAME};
 GameState g_gamestate = MAIN_MENU;
 
 int numCollisions;
+
+struct timeval Gthrottle;
+int GoldMilliSec = 0;
+int GtimeLapse = 0;
+int Gthreshold = 10000;
 
 int main()
 {
@@ -63,16 +73,36 @@ int main()
     //Game newgame();  //says newgame is non-class type 'Game()'
     Game newgame;
     newgame.hero = new Hero();
+<<<<<<< HEAD
+=======
+
+    bool render = true;
+    bool doPhysics = true;
+>>>>>>> Mark
 
     while(g_gamestate != EXIT_GAME) {
+        gettimeofday(&Gthrottle, NULL);
+        GtimeLapse = (Gthrottle.tv_usec >= GoldMilliSec) ? Gthrottle.tv_usec - GoldMilliSec :
+            (1000000 - GoldMilliSec) + Gthrottle.tv_usec;
+        if (GtimeLapse >= Gthreshold){
+            GoldMilliSec = Gthrottle.tv_usec;
+            render = true;
+        }
+        else{
+            render = false;
+        }
+ 
         switch (g_gamestate) {
             case MAIN_MENU:
                 while(XPending(dpy)) {
                     XEvent e;
                     XNextEvent(dpy, &e);
-                    check_menu_button(&e);
+                    check_menu_button(&e,&newgame);
                 }
-                render_MainMenu();
+                if (render == true){
+                    render_MainMenu();
+                    glXSwapBuffers(dpy, win);
+                }
                 break;
             case PLAYING:
                 while(XPending(dpy)) {
@@ -80,15 +110,40 @@ int main()
                     XNextEvent(dpy, &e);
                     check_game_input(&e, &newgame);
                 }
-                physics(&newgame);
-                render_game(&newgame);
+                if (doPhysics == true){
+                    physics(&newgame);
+                    doPhysics = false;
+                }
+                if (render == true){
+                    doPhysics = true;
+                    render_game(&newgame);
+                    glXSwapBuffers(dpy, win);
+                }
+                break;
+            case LEVEL_EDITOR:
+                while(XPending(dpy)) {
+                    XEvent e;
+                    XNextEvent(dpy, &e);
+                    check_game_input(&e, &newgame);
+                    if (newgame.isPlatformMovable == true)
+                        movePlatform(&e, &newgame);
+                }
+                if (doPhysics == true){
+                    physics(&newgame);
+                    doPhysics = false;
+
+                }
+                if (render == true){
+                    doPhysics = true;
+                    render_game(&newgame);
+                    glXSwapBuffers(dpy, win);
+                }
                 break;
             case EXIT_GAME:
                 break;
             default:
                 break;
         }
-        glXSwapBuffers(dpy, win);
     }
     cleanupXWindows();
     return 0;
@@ -152,45 +207,66 @@ void init_MainMenuButtons(void) {
 	//initialize buttons...
 	nbuttons=0;
 	//size and position
-	button[nbuttons].r.width = 380;
-	button[nbuttons].r.height = 60;
-	button[nbuttons].r.left = 290;
-	button[nbuttons].r.bot = 320;
-	button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
-	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
-	button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
-	button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
-	strcpy(button[nbuttons].text, "Reset");
-	button[nbuttons].down = 0;
-	button[nbuttons].click = 0;
-	button[nbuttons].color[0] = 0.4f;
-	button[nbuttons].color[1] = 0.4f;
-	button[nbuttons].color[2] = 0.7f;
-	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
-	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
-	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
-	button[nbuttons].text_color = 0x00ffffff;
-	nbuttons++;
-	button[nbuttons].r.width = 380;
-	button[nbuttons].r.height = 60;
-	button[nbuttons].r.left = 290;
-	button[nbuttons].r.bot = 160;
-	button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
-	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
-	button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
-	button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
-	strcpy(button[nbuttons].text, "Quit");
-	button[nbuttons].down = 0;
-	button[nbuttons].click = 0;
-	button[nbuttons].color[0] = 0.3f;
-	button[nbuttons].color[1] = 0.3f;
-	button[nbuttons].color[2] = 0.6f;
-	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
-	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
-	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
-	button[nbuttons].text_color = 0x00ffffff;
-	nbuttons++;
+    button[nbuttons].r.width = 380;
+    button[nbuttons].r.height = 60;
+    button[nbuttons].r.left = 290;
+    button[nbuttons].r.bot = 480;
+    button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
+    button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
+    button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
+    button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
+    strcpy(button[nbuttons].text, "Reset");
+    button[nbuttons].down = 0;
+    button[nbuttons].click = 0;
+    button[nbuttons].color[0] = 0.4f;
+    button[nbuttons].color[1] = 0.4f;
+    button[nbuttons].color[2] = 0.7f;
+    button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
+    button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
+    button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
+    button[nbuttons].text_color = 0x00ffffff;
+    nbuttons++;
+    button[nbuttons].r.width = 380;
+    button[nbuttons].r.height = 60;
+    button[nbuttons].r.left = 290;
+    button[nbuttons].r.bot = 320;
+    button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
+    button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
+    button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
+    button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
+    strcpy(button[nbuttons].text, "Level Editor");
+    button[nbuttons].down = 0;
+    button[nbuttons].click = 0;
+    button[nbuttons].color[0] = 0.3f;
+    button[nbuttons].color[1] = 0.3f;
+    button[nbuttons].color[2] = 0.6f;
+    button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
+    button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
+    button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
+    button[nbuttons].text_color = 0x00ffffff;
+    nbuttons++;
+    button[nbuttons].r.width = 380;
+    button[nbuttons].r.height = 60;
+    button[nbuttons].r.left = 290;
+    button[nbuttons].r.bot = 160;
+    button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
+    button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
+    button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
+    button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
+    strcpy(button[nbuttons].text, "Quit");
+    button[nbuttons].down = 0;
+    button[nbuttons].click = 0;
+    button[nbuttons].color[0] = 0.3f;
+    button[nbuttons].color[1] = 0.3f;
+    button[nbuttons].color[2] = 0.6f;
+    button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
+    button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
+    button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
+    button[nbuttons].text_color = 0x00ffffff;
+    nbuttons++;
+
 }
+
 
 void render_MainMenu(void) {
     //Rect r;
@@ -236,8 +312,16 @@ void render_MainMenu(void) {
 		glPopMatrix();
 	}
 }
+void movePlatform(XEvent *e, Game *game){
 
-void check_menu_button(XEvent *e) {
+
+    Room * currentRoom = game->getRoomPtr();
+    currentRoom->objects[game->movablePlatformIndex]->body.center[0] = e->xbutton.x;
+    currentRoom->objects[game->movablePlatformIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+
+}
+
+void check_menu_button(XEvent *e, Game * game) {
     static int savex = 0;
 	static int savey = 0;
 	int i,x,y;
@@ -276,10 +360,15 @@ void check_menu_button(XEvent *e) {
 					switch(i) {
 						case 0:
 							g_gamestate = PLAYING;
+                            game->state = PLAYING;
 							break;
 						case 1:
-							g_gamestate = EXIT_GAME;
+							g_gamestate = LEVEL_EDITOR;
+                            game->state = LEVEL_EDITOR;
 							break;
+                        case 2:
+                            g_gamestate = EXIT_GAME;
+                            break;
 					}
 				}
 			}
@@ -291,6 +380,7 @@ void check_menu_button(XEvent *e) {
 void check_game_input(XEvent *e, Game *game){
 
     if (e->type == KeyPress){
+        cout << e->xbutton.x << endl;
         int key = XLookupKeysym(&e->xkey,0);
         if (key == XK_Left){
             game->hero->leftPressed = 1;
@@ -310,6 +400,7 @@ void check_game_input(XEvent *e, Game *game){
                 game->hero->secondJump = 1;
             }
         }
+<<<<<<< HEAD
         if (key == XK_j){
             game->moveRoomLeft();
         }
@@ -325,6 +416,75 @@ void check_game_input(XEvent *e, Game *game){
         if (key == XK_5){
             game->hero->body.center[0] = e->xbutton.x;
             game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+=======
+        if (game->state == LEVEL_EDITOR){
+            if (key == XK_b){
+                game->saveRooms();
+            }
+            if (key == XK_j){
+                game->moveRoomLeft();
+            }
+            if (key == XK_l){
+                game->moveRoomRight();
+            }
+            if (key == XK_k){
+                game->moveRoomDown();
+            }
+            if (key == XK_i){
+                game->moveRoomUp();
+            }
+            if (key == XK_5){
+                game->hero->body.center[0] = e->xbutton.x;
+                game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+            }
+            if (key == XK_Shift_L){
+                if (!game->isPlatformMovable && game->isPlatformResizable == false){
+                    Room * room = game->getRoomPtr();
+                    room->objects.push_back(new Platform(game->textureWidth,game->textureHeight,e->xbutton.x, WINDOW_HEIGHT - e->xbutton.y,"GROUND"));
+                    room->numPlatforms++;
+                    game->isPlatformMovable = true;
+                    game->movablePlatformIndex = room->objects.size() - 1;
+                }
+            }
+            if (key == XK_x){
+                if (game->isPlatformMovable && game->isPlatformResizable == false){
+                    game->isPlatformMovable = false;
+                }
+            }
+            if (key == XK_z){
+                if (!game->isPlatformMovable && game->isPlatformResizable == false){
+                    Room * room = game->getRoomPtr();
+                    GameObject mouse;
+                    mouse.body.center[0] = e->xbutton.x;
+                    mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+                    cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
+                    for (int k = 0; k < room->objects.size(); k++){
+                        if (collision(&mouse,room->objects[k])){
+                            game->movablePlatformIndex = k;
+                            game->isPlatformMovable = true;
+                            cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
+                            cout << k << endl;
+                        }
+                    }
+                }   
+            }
+            if (key == XK_c && game->isPlatformMovable == false && game->isPlatformMovable == false){
+                Room * room = game->getRoomPtr();
+                GameObject mouse;
+                mouse.body.center[0] = e->xbutton.x;
+                mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+                for (int k = 0; k < room->objects.size(); k++){
+                    if (collision(&mouse,room->objects[k])){
+                        game->resizablePlatformIndex = k;
+                        game->isPlatformResizable = true;
+                    }
+                }
+            }
+            if (key == XK_v && game->isPlatformMovable == false && game->isPlatformResizable == true){
+                game->isPlatformResizable = false;
+            }
+
+>>>>>>> Mark
         }
         /*
         if (key == XK_e && shootPressed == 0){
@@ -345,6 +505,16 @@ void check_game_input(XEvent *e, Game *game){
         }
     }
 
+    if (game->isPlatformResizable){
+        Room * room = game->getRoomPtr();
+        GameObject mouse;
+        mouse.body.center[0] = e->xbutton.x;
+        mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+        game->resizePlatform(&mouse);
+    }
+    Room * roomer = game->getRoomPtr();
+    cout << game->isPlatformMovable << " " << game->isPlatformResizable <<  " "  << roomer->objects.size() << endl;
+
 }
 
 void physics(Game * game){
@@ -360,6 +530,10 @@ void physics(Game * game){
         }
     }
     game->checkRoom();
+<<<<<<< HEAD
+=======
+
+>>>>>>> Mark
 }
 
 void render_game(Game* game)

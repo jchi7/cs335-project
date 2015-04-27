@@ -5,7 +5,12 @@ version 1.1
 
 TO DO:
 1. set up functionality for different platform types
+<<<<<<< HEAD
 2. disallow switching to a room if it has not been initialized (to prevent segfault) - being implemented by Mark in the level editor
+=======
+2. ensure the room are in their correct places in the grid
+3. disallow switching to a room if it has not been initialized (to prevent segfault)
+>>>>>>> Mark
 
 
 
@@ -20,8 +25,11 @@ CHANGES:
     (int)width,(int)height,(int)center-x,(int)center-y,(str)type
     - where type may currently be GROUND or SPIKE (no difference yet in functionality)
 
+<<<<<<< HEAD
   main.cpp and the Game class has been fixed to ensure rooms are loaded in the correct positions, and that switching between rooms is consistent
 
+=======
+>>>>>>> Mark
 
 
 --- platform.h:

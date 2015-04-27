@@ -13,14 +13,29 @@ class Game
         int leftPressed;
         int rightPressed;
         int shootPressed;
+<<<<<<< HEAD
+=======
+        GameState state;
+        bool isPlatformMovable;
+        bool isPlatformResizable;
+        int movablePlatformIndex;
+        int resizablePlatformIndex;
+        int textureWidth;
+        int textureHeight;
+>>>>>>> Mark
 
         // position of current room:
         int currentHorizontalLevel;
         int currentVerticalLevel;
 
         // level dimensions:
+<<<<<<< HEAD
         int totalHorizontal;  //number of columns (level width)
         int totalVertical;  // number of rows (level height)
+=======
+        int totalHorizontal;  //number of rows
+        int totalVertical;  // number of columns
+>>>>>>> Mark
 
         std::vector< std::vector<Room> > level;
         /* Structure of level array:
@@ -44,6 +59,11 @@ class Game
         void moveRoomDown();
         void initLevel();
         void fillLevel();
+<<<<<<< HEAD
+=======
+        void saveRooms();
+        void resizePlatform(GameObject * mouse);
+>>>>>>> Mark
     protected:
     private:
 };
