@@ -19,8 +19,8 @@ class Game
         int currentVerticalLevel;
 
         // level dimensions:
-        int totalHorizontal;  //number of rows
-        int totalVertical;  // number of columns
+        int totalHorizontal;  //number of columns (level width)
+        int totalVertical;  // number of rows (level height)
 
         std::vector< std::vector<Room> > level;
         /* Structure of level array:

@@ -116,10 +116,12 @@ void Game::fillLevel()
 
             file.open(filename.c_str());
             if (!file.is_open()) {
+                // DEBUG:
                 cout << "Error: Could not open input file '" << filename << "'\n";
                 continue;
             }
             else {
+                // DEBUG:
                 cout << "Reading: " << filename << endl;
             }
 
@@ -146,7 +148,8 @@ void Game::fillLevel()
                 // create platform
                 level[vert][horz].objects.push_back(new Platform(convVal[0], convVal[1], convVal[2], convVal[3], roomType.c_str()));
                 level[vert][horz].numPlatforms++;
-cout << "Created [" << vert << "][" << horz <<"]\n";
+                // DEBUG:
+                cout << "Created [" << vert << "][" << horz <<"]\n";
             }
             file.close();
         }
