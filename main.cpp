@@ -486,6 +486,8 @@ void check_game_input(XEvent *e, Game *game){
         mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
         game->resizePlatform(&mouse);
     }
+    Room * roomer = game->getRoomPtr();
+    cout << game->isPlatformMovable << " " << game->isPlatformResizable <<  " "  << roomer->objects.size() << endl;
 
 }
 

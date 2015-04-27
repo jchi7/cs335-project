@@ -85,10 +85,20 @@ void Game::moveRoomDown()
 }
 void Game::resizePlatform(GameObject * mouse)
 {
+    int height;
     Room * room = this->getRoomPtr();
     room->objects[this->resizablePlatformIndex]->body.width = (((int)mouse->body.center[0] - 
         (int)room->objects[this->resizablePlatformIndex]->body.center[0]) / 
-           (2* this->textureWidth)) * this->textureWidth;
+           (2* this->textureWidth)) * this->textureWidth + this->textureWidth;
+    if ( ( height = ((((int)mouse->body.center[1] - 
+        (int)room->objects[this->resizablePlatformIndex]->body.center[1]) / 
+           (2* this->textureHeight)) * this->textureHeight + this->textureHeight) ) < 0){
+        room->objects[this->resizablePlatformIndex]->body.height = this->textureHeight;
+    }
+    else{
+        room->objects[this->resizablePlatformIndex]->body.height = height;
+    }
+
         
 }
 void Game::initLevel()
@@ -209,14 +219,6 @@ void Game::saveRooms()
             }
 
             for (int i = 0; i < level[vert][horz].objects.size(); i++){
-            //while (getline(file, line)) {
-/*
-                if (!file.good()) {
-                    break;
-                }
-*/
-
-        //    stringstream iss(line);
 
                 convVal[0] = level[vert][horz].objects[i]->body.width;
                 convVal[1] = level[vert][horz].objects[i]->body.height;
@@ -226,37 +228,6 @@ void Game::saveRooms()
                 file << convVal[0] << "," << convVal[1] << "," << convVal[2] << "," << convVal[3] << ","
                     << "GROUND" << '\n';
 
-                /*
-                file.write(to_string(convVal[0]), to_string(convVal[0]).size());
-                file.write(',',1);
-                file.write(to_string(convVal[1]), to_string(convVal[1]).size());
-                file.write(',',1);
-                file.write(to_string(convVal[2]), to_string(convVal[2]).size());
-                file.write(',',1);
-                file.write(to_string(convVal[3]), to_string(convVal[3]).size());
-                file.write(',',1);
-                file.write("GROUND",6);
-                file.write('\n',1);
-*/
-                // read a single platform
-                /*
-                for (int col = 0; col < 5; ++col) {
-                    string val;
-                    getline(iss, val, ',');
-
-                    stringstream converter(val);
-                    if (col != 4)
-                        converter >> convVal[col];
-                    else
-                        roomType = converter.str();
-                }
-                */
-                // create platform
-                /*
-                level[vert][horz].objects.push_back(new Platform(convVal[0], convVal[1], convVal[2], convVal[3], roomType.c_str()));
-                level[vert][horz].numPlatforms++;
-cout << "Created [" << vert << "][" << horz <<"]\n";
-            */
             
             }
             file.close();
