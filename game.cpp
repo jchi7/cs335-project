@@ -76,8 +76,8 @@ void Game::moveRoomDown()
 void Game::initLevel()
 {
     std::vector<Room> tempRow;
-    for (int vertical = 0; vertical < 6; vertical++) {
-        for (int horizontal = 0; horizontal < 20; horizontal++) {
+    for (int vertical = 0; vertical < totalVertical; vertical++) {
+        for (int horizontal = 0; horizontal < totalHorizontal; horizontal++) {
             tempRow.push_back(Room());
         }
         level.push_back(tempRow);
@@ -100,8 +100,8 @@ void Game::fillLevel()
 
     filename.append(roomNum);
     filename.append(".txt");
-    for (int vert = 0; vert < 6; vert++) {
-        for (int horz = 0; horz < 20; horz++) {
+    for (int vert = 0; vert < totalVertical; vert++) {
+        for (int horz = 0; horz < totalHorizontal; horz++) {
             // remove previous room number
             filename.erase(pathsize,4);
 
