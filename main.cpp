@@ -45,6 +45,7 @@ Level*** initializeLevels();
 
 void check_game_input(XEvent *e, game * game);
 void physics(game * game);
+void check_mouse(XEvent *e, game * game);
 
 //X Windows variables
 Display *dpy;
@@ -65,6 +66,7 @@ int Gthreshold = 10000;
 
 bool GisPlatformMovable = false;
 
+int mousex = 0;
 int main()
 {
     initXWindows();
@@ -77,7 +79,7 @@ int main()
     bool doPhysics = true;
 
     while(g_gamestate != EXIT_GAME) {
-        cout << GoldMilliSec << " " << GtimeLapse << endl;
+    //    cout << GoldMilliSec << " " << GtimeLapse << endl;
         gettimeofday(&Gthrottle, NULL);
         GtimeLapse = (Gthrottle.tv_usec >= GoldMilliSec) ? Gthrottle.tv_usec - GoldMilliSec :
             (1000000 - GoldMilliSec) + Gthrottle.tv_usec;
@@ -121,10 +123,13 @@ int main()
                     XEvent e;
                     XNextEvent(dpy, &e);
                     check_game_input(&e, &newgame);
+                    if (GisPlatformMovable == true)
+                        check_mouse(&e, &newgame);
                 }
                 if (doPhysics == true){
                     physics(&newgame);
                     doPhysics = false;
+                    
                 }
                 if (render == true){
                     doPhysics = true;
@@ -361,7 +366,14 @@ void check_menu_button(XEvent *e, game * game) {
 	}
 	return;
 }
+void check_mouse(XEvent *e, game *game){
 
+    
+    Level * currentRoom = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
+    currentRoom->objects[currentRoom->objects.size()-1]->body.center[0] = e->xbutton.x;
+    currentRoom->objects[currentRoom->objects.size()-1]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+
+}
 void check_game_input(XEvent *e, game *game){
 
     if (e->type == KeyPress){
@@ -456,9 +468,9 @@ void physics(game * game){
         }
     }
     game->checkRoom();
-    //if (game->state = LEVEL_EDITOR && GisPlatformMovable == true){
-    //    game->updatePlatform()
-    //}
+//    if (game->state = LEVEL_EDITOR && GisPlatformMovable == true){
+//        game->updatePlatform()
+//    }
 }
 
 void render_game(game* game)
