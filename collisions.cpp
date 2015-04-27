@@ -1,6 +1,6 @@
 #include "collisions.h"
 
-bool collision(gameObject* entity1, gameObject* entity2)
+bool collision(GameObject* entity1, GameObject* entity2)
 {
     if (entity1->body.center[0] + entity1->body.width >= entity2->body.center[0] - entity2->body.width &&
                 entity1->body.center[0] - entity1->body.width <= entity2->body.center[0] + entity2->body.width &&

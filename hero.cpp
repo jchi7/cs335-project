@@ -39,6 +39,7 @@ void Hero::update()
 {
 
 }
+
 void Hero::movement(){
     prevPosition[0] = body.center[0];
     prevPosition[1] = body.center[1];
@@ -70,7 +71,8 @@ void Hero::movement(){
     }
 
 }
-void Hero::onCollision(gameObject * platform){
+
+void Hero::onCollision(GameObject * platform){
 
     if (prevPosition[0]  < platform->body.center[0] - platform->body.width){
         body.center[0] = platform->body.center[0] - platform->body.width - body.width;
@@ -100,3 +102,4 @@ void Hero::onCollision(gameObject * platform){
         }
     }
 }
+

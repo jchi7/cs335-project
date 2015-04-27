@@ -7,6 +7,7 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+#include <string>
 #include <sys/time.h>
 #include <typeinfo>
 #include <vector>
@@ -15,10 +16,9 @@
 #include "hero.h"
 #include "basicEnemy.h"
 #include "platform.h"
-#include "Level.h"
+#include "room.h"
 #include "game.h"
 #include "collisions.h"
-//#include "initializeLevels.h"
 
 #include <fstream>
 
@@ -34,14 +34,13 @@ void initXWindows(void);
 void init_opengl(void);
 void cleanupXWindows(void);
 void set_title(void);
+
 void init_MainMenuButtons(void);
 void render_MainMenu(void);
 void check_menu_button(XEvent *e);
-void render_game(game* game);
-Level*** initializeLevels();
-
-void check_game_input(XEvent *e, game * game);
-void physics(game * game);
+void check_game_input(XEvent *e, Game * game);
+void physics(Game * game);
+void render_game(Game* game);
 
 //X Windows variables
 Display *dpy;
@@ -61,8 +60,8 @@ int main()
     initXWindows();
     init_opengl();
     init_MainMenuButtons();
-    Level*** levels = initializeLevels();
-    game newgame(levels);
+    //Game newgame();  //says newgame is non-class type 'Game()'
+    Game newgame;
     newgame.hero = new Hero();
 
     while(g_gamestate != EXIT_GAME) {
@@ -289,7 +288,7 @@ void check_menu_button(XEvent *e) {
 	return;
 }
 
-void check_game_input(XEvent *e, game *game){
+void check_game_input(XEvent *e, Game *game){
 
     if (e->type == KeyPress){
         int key = XLookupKeysym(&e->xkey,0);
@@ -303,7 +302,7 @@ void check_game_input(XEvent *e, game *game){
             g_gamestate = MAIN_MENU;
         }
         
-        if ((key == XK_w || key == XK_space) && game->hero->jumpRelease == 0){
+        if ((key == XK_Up || key == XK_w || key == XK_space) && game->hero->jumpRelease == 0){
             if (game->hero->state == WALKING || game->hero->state == STANDING){
                 game->hero->initialJump = 1;
             }
@@ -312,16 +311,16 @@ void check_game_input(XEvent *e, game *game){
             }
         }
         if (key == XK_j){
-            game->currentHorizontalLevel--;
+            game->moveRoomLeft();
         }
         if (key == XK_l){
-            game->currentHorizontalLevel++;
+            game->moveRoomRight();
         }
         if (key == XK_k){
-            game->currentVerticalLevel--;
+            game->moveRoomDown();
         }
         if (key == XK_i){
-            game->currentVerticalLevel++;
+            game->moveRoomUp();
         }
         if (key == XK_5){
             game->hero->body.center[0] = e->xbutton.x;
@@ -341,17 +340,18 @@ void check_game_input(XEvent *e, game *game){
         if ( key == XK_Right){
             game->hero->rightPressed = 0;
         }
-        if ( key == XK_w ){
+        if ( key == XK_w || key == XK_Up || key == XK_space){
             game->hero->jumpRelease = 4;
         }
     }
 
 }
 
-void physics(game * game){
+void physics(Game * game){
 
     bool isCollision = false;
-    Level * room = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
+    Room * room = game->getRoomPtr();
+
     game->hero->movement();
     for (int i = 0; i < room->numPlatforms; i++){
         isCollision = collision(game->hero, room->objects[i]);
@@ -362,9 +362,9 @@ void physics(game * game){
     game->checkRoom();
 }
 
-void render_game(game* game)
+void render_game(Game* game)
 {
-    Level* current_level = game->level[game->currentHorizontalLevel][game->currentVerticalLevel];
+    Room* current_level = game->getRoomPtr();
 
     glClear(GL_COLOR_BUFFER_BIT);
     float w, h;
@@ -423,68 +423,4 @@ void render_game(game* game)
     }
 }
 
-Level*** initializeLevels()
-{
-    Level*** room = (Level***)malloc(20 * sizeof(Level**));
-    int count = 0;
-    while (count < 20)
-    {
-        room[count] = (Level**)malloc( 5 * sizeof(void*));
-        count++;
-    }
-    //Level* temp;
-    //temp = new Level(13,1);
-    
-    
-    ifstream roomFile;
-    char num[5];
-    int args[4];
-    char row1 = '0';
-    char row2 = '2';
-    char column = '1';
-    char fileName[19] = "Rooms/room";
-    fileName[18] = 0;
-    for (int i = 0; i < 5; i++){
-        for (int j = 0; j < 4; j++){
-            row1 = (char) (i / 10) + 48;
-            row2 = (char) (i % 10) + 48;
-            column = (char)j + 48;
-            fileName[10] = row1;
-            fileName[11] = row2;
-            fileName[12] = '0';
-            fileName[13] = column;
-            cout << row1 << " " << row2 << " " << column << endl;
-            fileName[14] = '.';
-            fileName[15] = 't';
-            fileName[16] = 'x';
-            fileName[17] = 't';
 
-            cout << fileName << endl;
-            roomFile.open(fileName);
-            room[row2-48][column-48] = new Level(0,0);
-            while (true){
-                roomFile >> num;
-                if (roomFile.eof())
-                    break;
-                args[0] = atoi(num);
-                roomFile >> num;
-                if (roomFile.eof())
-                    break;
-                args[1] = atoi(num);
-                roomFile >> num;
-                if (roomFile.eof())
-                    break;
-                args[2] = atoi(num);
-                roomFile >> num;
-                if (roomFile.eof())
-                    break;
-                args[3] = atoi(num);
-                room[row2-48][column-48]->objects.push_back(new platform(args[0], args[1], args[2], args[3]));
-                room[row2-48][column-48]->numPlatforms++;
-            }
-            roomFile.close();
-        }
-    }
-    
-    return room;
-}
