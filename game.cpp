@@ -56,22 +56,26 @@ Room * Game::getRoomPtr()
 
 void Game::moveRoomLeft()
 {
-    currentHorizontalLevel--;
+    if (currentHorizontalLevel > 0)
+        currentHorizontalLevel--;
 }
 
 void Game::moveRoomRight()
 {
-    currentHorizontalLevel++;
+    if (currentHorizontalLevel < 19)
+        currentHorizontalLevel++;
 }
 
 void Game::moveRoomUp()
 {
-    currentVerticalLevel++;
+    if (currentVerticalLevel < 4)
+        currentVerticalLevel++;
 }
 
 void Game::moveRoomDown()
 {
-    currentVerticalLevel--;
+    if (currentVerticalLevel > 0 )
+        currentVerticalLevel--;
 }
 
 void Game::initLevel()
