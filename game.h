@@ -45,6 +45,7 @@ class Game
         void moveRoomDown();
         void initLevel();
         void fillLevel();
+        void saveRooms();
     protected:
     private:
 };

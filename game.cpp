@@ -127,7 +127,6 @@ void Game::fillLevel()
             else {
                 cout << "Reading: " << filename << endl;
             }
-
             while (getline(file, line)) {
 
                 if (!file.good()) {
@@ -158,4 +157,97 @@ cout << "Created [" << vert << "][" << horz <<"]\n";
     }
 }
 
+void Game::saveRooms()
+{
+    string line, roomType;
+    string filename = "Rooms/room";
+    ofstream file;
+    int convVal[4]; //four
+    const int pathsize = filename.length();
+    char roomNum[] = "0000";
+
+    // Room file format:
+    // file name: roomCCRR.txt, RR = row number, CC = col number
+    // line:  (int)width,(int)height,(int)center-x,(int)center-y,(str)type  
+
+    filename.append(roomNum);
+    filename.append(".txt");
+    for (int vert = 0; vert < 1; vert++) {
+        for (int horz = 0; horz < 1; horz++) {
+            // remove previous room number
+            filename.erase(pathsize,4);
+
+            // increment room numbers
+            roomNum[0] = (char)((horz/10) + 48);
+            roomNum[1] = (char)((horz%10) + 48);
+            roomNum[2] = (char)((vert/10) + 48);
+            roomNum[3] = (char)((vert%10) + 48);
+
+            // insert new room number
+            filename.insert(pathsize,roomNum);
+
+            file.open(filename.c_str(),std::ofstream::out);
+            if (!file.is_open()) {
+                cout << "Error: Could not open input file '" << filename << "'\n";
+                continue;
+            }
+            else {
+                cout << "Writing: " << filename << endl;
+            }
+
+            for (int i = 0; i < level[vert][horz].objects.size(); i++){
+            //while (getline(file, line)) {
+/*
+                if (!file.good()) {
+                    break;
+                }
+*/
+
+        //    stringstream iss(line);
+
+                convVal[0] = level[vert][horz].objects[i]->body.width;
+                convVal[1] = level[vert][horz].objects[i]->body.height;
+                convVal[2] = level[vert][horz].objects[i]->body.center[0];
+                convVal[3] = level[vert][horz].objects[i]->body.center[1];
+  
+                file << convVal[0] << "," << convVal[1] << "," << convVal[2] << "," << convVal[3] << ","
+                    << "GROUND" << '\n';
+
+                /*
+                file.write(to_string(convVal[0]), to_string(convVal[0]).size());
+                file.write(',',1);
+                file.write(to_string(convVal[1]), to_string(convVal[1]).size());
+                file.write(',',1);
+                file.write(to_string(convVal[2]), to_string(convVal[2]).size());
+                file.write(',',1);
+                file.write(to_string(convVal[3]), to_string(convVal[3]).size());
+                file.write(',',1);
+                file.write("GROUND",6);
+                file.write('\n',1);
+*/
+                // read a single platform
+                /*
+                for (int col = 0; col < 5; ++col) {
+                    string val;
+                    getline(iss, val, ',');
+
+                    stringstream converter(val);
+                    if (col != 4)
+                        converter >> convVal[col];
+                    else
+                        roomType = converter.str();
+                }
+                */
+                // create platform
+                /*
+                level[vert][horz].objects.push_back(new Platform(convVal[0], convVal[1], convVal[2], convVal[3], roomType.c_str()));
+                level[vert][horz].numPlatforms++;
+cout << "Created [" << vert << "][" << horz <<"]\n";
+            */
+            
+            }
+            file.close();
+        }
+    }
+}
 

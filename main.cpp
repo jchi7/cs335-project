@@ -74,6 +74,8 @@ int main()
     bool render = true;
     bool doPhysics = true;
 
+    newgame.saveRooms();
+
     while(g_gamestate != EXIT_GAME) {
         gettimeofday(&Gthrottle, NULL);
         GtimeLapse = (Gthrottle.tv_usec >= GoldMilliSec) ? Gthrottle.tv_usec - GoldMilliSec :
