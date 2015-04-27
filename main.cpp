@@ -39,7 +39,7 @@ void init_MainMenuButtons(void);
 void render_MainMenu(void);
 void check_menu_button(XEvent *e, Game * game);
 void check_game_input(XEvent *e, Game * game);
-void check_mouse(XEvent *e, Game * game);
+void movePlatform(XEvent *e, Game * game);
 void physics(Game * game);
 void render_game(Game* game);
 
@@ -60,8 +60,6 @@ int GoldMilliSec = 0;
 int GtimeLapse = 0;
 int Gthreshold = 10000;
 
-bool GisPlatformMovable = false;
-
 int main()
 {
     initXWindows();
@@ -73,8 +71,6 @@ int main()
 
     bool render = true;
     bool doPhysics = true;
-
-    newgame.saveRooms();
 
     while(g_gamestate != EXIT_GAME) {
         gettimeofday(&Gthrottle, NULL);
@@ -121,8 +117,8 @@ int main()
                     XEvent e;
                     XNextEvent(dpy, &e);
                     check_game_input(&e, &newgame);
-                    if (GisPlatformMovable == true)
-                        check_mouse(&e, &newgame);
+                    if (newgame.isPlatformMovable == true)
+                        movePlatform(&e, &newgame);
                 }
                 if (doPhysics == true){
                     physics(&newgame);
@@ -308,12 +304,12 @@ void render_MainMenu(void) {
 		glPopMatrix();
 	}
 }
-void check_mouse(XEvent *e, Game *game){
+void movePlatform(XEvent *e, Game *game){
 
 
     Room * currentRoom = game->getRoomPtr();
-    currentRoom->objects[currentRoom->objects.size()-1]->body.center[0] = e->xbutton.x;
-    currentRoom->objects[currentRoom->objects.size()-1]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+    currentRoom->objects[game->movablePlatformIndex]->body.center[0] = e->xbutton.x;
+    currentRoom->objects[game->movablePlatformIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
 
 }
 
@@ -376,6 +372,7 @@ void check_menu_button(XEvent *e, Game * game) {
 void check_game_input(XEvent *e, Game *game){
 
     if (e->type == KeyPress){
+        cout << e->xbutton.x << endl;
         int key = XLookupKeysym(&e->xkey,0);
         if (key == XK_Left){
             game->hero->leftPressed = 1;
@@ -396,6 +393,9 @@ void check_game_input(XEvent *e, Game *game){
             }
         }
         if (game->state == LEVEL_EDITOR){
+            if (key == XK_b){
+                game->saveRooms();
+            }
             if (key == XK_j){
                 game->moveRoomLeft();
             }
@@ -412,18 +412,51 @@ void check_game_input(XEvent *e, Game *game){
                 game->hero->body.center[0] = e->xbutton.x;
                 game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
             }
-            if (key == XK_z){
-                if (!GisPlatformMovable){
+            if (key == XK_Shift_L){
+                if (!game->isPlatformMovable && game->isPlatformResizable == false){
                     Room * room = game->getRoomPtr();
-                    room->objects.push_back(new Platform(100,20,e->xbutton.x, WINDOW_HEIGHT - e->xbutton.y,"GROUND"));
+                    room->objects.push_back(new Platform(game->textureWidth,game->textureHeight,e->xbutton.x, WINDOW_HEIGHT - e->xbutton.y,"GROUND"));
                     room->numPlatforms++;
-                    GisPlatformMovable = true;
+                    game->isPlatformMovable = true;
+                    game->movablePlatformIndex = room->objects.size() - 1;
                 }
             }
             if (key == XK_x){
-                if (GisPlatformMovable){
-                    GisPlatformMovable = false;
+                if (game->isPlatformMovable && game->isPlatformResizable == false){
+                    game->isPlatformMovable = false;
                 }
+            }
+            if (key == XK_z){
+                if (!game->isPlatformMovable && game->isPlatformResizable == false){
+                    Room * room = game->getRoomPtr();
+                    GameObject mouse;
+                    mouse.body.center[0] = e->xbutton.x;
+                    mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+                    cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
+                    for (int k = 0; k < room->objects.size(); k++){
+                        if (collision(&mouse,room->objects[k])){
+                            game->movablePlatformIndex = k;
+                            game->isPlatformMovable = true;
+                            cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
+                            cout << k << endl;
+                        }
+                    }
+                }   
+            }
+            if (key == XK_c && game->isPlatformMovable == false && game->isPlatformMovable == false){
+                Room * room = game->getRoomPtr();
+                GameObject mouse;
+                mouse.body.center[0] = e->xbutton.x;
+                mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+                for (int k = 0; k < room->objects.size(); k++){
+                    if (collision(&mouse,room->objects[k])){
+                        game->resizablePlatformIndex = k;
+                        game->isPlatformResizable = true;
+                    }
+                }
+            }
+            if (key == XK_v && game->isPlatformMovable == false && game->isPlatformResizable == true){
+                game->isPlatformResizable = false;
             }
 
         }
@@ -446,6 +479,14 @@ void check_game_input(XEvent *e, Game *game){
         }
     }
 
+    if (game->isPlatformResizable){
+        Room * room = game->getRoomPtr();
+        GameObject mouse;
+        mouse.body.center[0] = e->xbutton.x;
+        mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+        game->resizePlatform(&mouse);
+    }
+
 }
 
 void physics(Game * game){
@@ -461,6 +502,7 @@ void physics(Game * game){
         }
     }
     game->checkRoom();
+
 }
 
 void render_game(Game* game)

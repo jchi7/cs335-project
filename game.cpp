@@ -18,6 +18,12 @@ Game::Game()
     this->totalHorizontal = 20;
     this->totalVertical = 5;
     this->state = MAIN_MENU;
+    this->isPlatformMovable = false;
+    this->isPlatformResizable = false;
+    this->movablePlatformIndex = 0;
+    this->resizablePlatformIndex = 0;
+    this->textureHeight = 15;
+    this->textureWidth = 15;
     initLevel();
     fillLevel();
 }
@@ -77,7 +83,14 @@ void Game::moveRoomDown()
     if (currentVerticalLevel > 0 )
         currentVerticalLevel--;
 }
-
+void Game::resizePlatform(GameObject * mouse)
+{
+    Room * room = this->getRoomPtr();
+    room->objects[this->resizablePlatformIndex]->body.width = (((int)mouse->body.center[0] - 
+        (int)room->objects[this->resizablePlatformIndex]->body.center[0]) / 
+           (2* this->textureWidth)) * this->textureWidth;
+        
+}
 void Game::initLevel()
 {
     std::vector<Room> tempRow;

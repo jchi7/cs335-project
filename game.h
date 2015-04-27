@@ -14,6 +14,12 @@ class Game
         int rightPressed;
         int shootPressed;
         GameState state;
+        bool isPlatformMovable;
+        bool isPlatformResizable;
+        int movablePlatformIndex;
+        int resizablePlatformIndex;
+        int textureWidth;
+        int textureHeight;
 
         // position of current room:
         int currentHorizontalLevel;
@@ -46,6 +52,7 @@ class Game
         void initLevel();
         void fillLevel();
         void saveRooms();
+        void resizePlatform(GameObject * mouse);
     protected:
     private:
 };
