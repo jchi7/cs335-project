@@ -5,8 +5,7 @@ version 1.1
 
 TO DO:
 1. set up functionality for different platform types
-2. ensure the room are in their correct places in the grid
-3. disallow switching to a room if it has not been initialized (to prevent segfault)
+2. disallow switching to a room if it has not been initialized (to prevent segfault) - being implemented by Mark in the level editor
 
 
 
@@ -20,6 +19,8 @@ CHANGES:
   File format has been changed so that each platform's information is stored on one line, with each piece of information separated by a comma (CSV file). The format for a single line (platform) is as follows:
     (int)width,(int)height,(int)center-x,(int)center-y,(str)type
     - where type may currently be GROUND or SPIKE (no difference yet in functionality)
+
+  main.cpp and the Game class has been fixed to ensure rooms are loaded in the correct positions, and that switching between rooms is consistent
 
 
 
