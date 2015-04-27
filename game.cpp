@@ -17,6 +17,7 @@ Game::Game()
     this->currentVerticalLevel = 1;
     this->totalHorizontal = 20;
     this->totalVertical = 5;
+    this->state = MAIN_MENU;
     initLevel();
     fillLevel();
 }
@@ -83,7 +84,6 @@ void Game::initLevel()
         level.push_back(tempRow);
         tempRow.clear();
     }
-    cout << level[0][0]. << " " << endl;
 }
 
 void Game::fillLevel()
@@ -101,7 +101,7 @@ void Game::fillLevel()
 
     filename.append(roomNum);
     filename.append(".txt");
-    for (int vert = 0; vert < 6; vert++) {
+    for (int vert = 0; vert < 5; vert++) {
         for (int horz = 0; horz < 20; horz++) {
             // remove previous room number
             filename.erase(pathsize,4);

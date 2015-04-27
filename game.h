@@ -13,6 +13,7 @@ class Game
         int leftPressed;
         int rightPressed;
         int shootPressed;
+        GameState state;
 
         // position of current room:
         int currentHorizontalLevel;

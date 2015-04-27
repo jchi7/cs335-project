@@ -35,6 +35,8 @@ struct Shape {
     Vec velocity;
 };
 
+enum GameState {MAIN_MENU, PLAYING, EXIT_GAME, LEVEL_EDITOR};
+
 //External Global Variables
 extern int leftPressed ;
 extern int rightPressed ;
