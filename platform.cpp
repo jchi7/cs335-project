@@ -1,6 +1,8 @@
+#include <cstring>
 #include "platform.h"
 
-platform::platform(int width, int height, int x, int y)
+/* --------------- Platform Class --------------- */
+Platform::Platform(int width, int height, int x, int y, const char * ptype)
 {
     body.center[0] = x;
     body.center[1] = y;
@@ -10,14 +12,23 @@ platform::platform(int width, int height, int x, int y)
     rgb[0] = 90;
     rgb[1] = 140;
     rgb[2] = 90;
+
+    if (strcmp(ptype,"SPIKE") == 0) {
+        type = SPIKE;
+    }
+    else {
+        type = GROUND;
+    }
 }
 
-platform::~platform()
+Platform::~Platform()
 {
     //dtor
 }
 
-void platform::update()
+void Platform::update()
 {
 }
+/* --------------- End Platform Class --------------- */
+
 

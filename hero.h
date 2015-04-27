@@ -3,7 +3,7 @@
 
 #include "gameObject.h"
 enum CharacterState {STANDING, WALKING, JUMPING};
-class Hero : public gameObject
+class Hero : public GameObject
 {
     public:
         CharacterState state;        
@@ -25,11 +25,13 @@ class Hero : public gameObject
         int jumpFinished;
         int bulletVelocity;
         // Temp for colors
+
         Hero();
         virtual ~Hero();
+
         void update();
         void movement();
-        void onCollision(gameObject* platform);
+        void onCollision(GameObject* platform);
     protected:
     private:
 };

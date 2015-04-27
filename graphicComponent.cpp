@@ -1,16 +1,16 @@
-#include "graphicComponent.h"
+#include "GraphicComponent.h"
 
-graphicComponent::graphicComponent()
+GraphicComponent::GraphicComponent()
 {
     //ctor
 }
 
-graphicComponent::~graphicComponent()
+GraphicComponent::~GraphicComponent()
 {
     //dtor
 }
 
-graphicComponent::update(gameObject* entity , int r, int g, int b)
+GraphicComponent::update(gameObject* entity , int r, int g, int b)
 {
     glColor3ub(r, g, b);
     glPushMatrix();

@@ -34,14 +34,14 @@ struct Shape {
     Vec center;
     Vec velocity;
 };
-enum  GameState {MAIN_MENU, PLAYING, EXIT_GAME, LEVEL_EDITOR};
+
 //External Global Variables
-//extern int leftPressed ;
-//extern int rightPressed ;
-//extern int shootPressed ;
-//extern int jumpInitiated ;
-//extern int jumpFinished ;
+extern int leftPressed ;
+extern int rightPressed ;
+extern int shootPressed ;
+extern int jumpInitiated ;
+extern int jumpFinished ;
 extern int numCollisions;
-//extern int currentHorizontalLevel;
-//extern int currentVerticalLevel;
+extern int currentHorizontalLevel;
+extern int currentVerticalLevel;
 #endif // STUCTS_H_INCLUDED
