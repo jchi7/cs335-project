@@ -46,13 +46,38 @@ void Game::checkRoom()
         hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
     }
 
-} 
+}
+
+Room * Game::getRoomPtr()
+{
+    return &level[currentVerticalLevel][currentHorizontalLevel];
+}
+
+void Game::moveRoomLeft()
+{
+    currentHorizontalLevel--;
+}
+
+void Game::moveRoomRight()
+{
+    currentHorizontalLevel++;
+}
+
+void Game::moveRoomUp()
+{
+    currentVerticalLevel++;
+}
+
+void Game::moveRoomDown()
+{
+    currentVerticalLevel--;
+}
 
 void Game::initLevel()
 {
     std::vector<Room> tempRow;
-    for (int row = 0; row < totalVertical; row++) {
-        for (int col = 0; col < totalHorizontal; col++) {
+    for (int vertical = 0; vertical < totalVertical; vertical++) {
+        for (int horizontal = 0; horizontal < totalHorizontal; horizontal++) {
             tempRow.push_back(Room());
         }
         level.push_back(tempRow);
@@ -67,30 +92,44 @@ void Game::fillLevel()
     ifstream file;
     int convVal[4]; //four
     const int pathsize = filename.length();
-    char roomNum[] = "0000"; //four zeros
+    char roomNum[] = "0000";
 
     // Room file format:
-    // file name: roomRRCC.txt, RR = row number, CC = col number
+    // file name: roomCCRR.txt, RR = row number, CC = col number
     // line:  (int)width,(int)height,(int)center-x,(int)center-y,(str)type  
 
     filename.append(roomNum);
     filename.append(".txt");
-    for (int roomRow = 0; roomRow < 5; roomRow++) {
-        for (int roomCol = 0; roomCol < 4; roomCol++) { // j from zero to four
+    for (int vert = 0; vert < totalVertical; vert++) {
+        for (int horz = 0; horz < totalHorizontal; horz++) {
+            // remove previous room number
+            filename.erase(pathsize,4);
+
+            // increment room numbers
+            roomNum[0] = (char)((horz/10) + 48);
+            roomNum[1] = (char)((horz%10) + 48);
+            roomNum[2] = (char)((vert/10) + 48);
+            roomNum[3] = (char)((vert%10) + 48);
+
+            // insert new room number
+            filename.insert(pathsize,roomNum);
 
             file.open(filename.c_str());
             if (!file.is_open()) {
+                // DEBUG:
                 cout << "Error: Could not open input file '" << filename << "'\n";
                 continue;
             }
             else {
+                // DEBUG:
                 cout << "Reading: " << filename << endl;
             }
 
             while (getline(file, line)) {
 
-                if (!file.good())
+                if (!file.good()) {
                     break;
+                }
 
                 stringstream iss(line);
 
@@ -107,22 +146,12 @@ void Game::fillLevel()
                 }
 
                 // create platform
-                level[roomRow][roomCol].objects.push_back(new Platform(convVal[0], convVal[1], convVal[2], convVal[3], roomType.c_str()));
-                level[roomRow][roomCol].numPlatforms++;
+                level[vert][horz].objects.push_back(new Platform(convVal[0], convVal[1], convVal[2], convVal[3], roomType.c_str()));
+                level[vert][horz].numPlatforms++;
+                // DEBUG:
+                cout << "Created [" << vert << "][" << horz <<"]\n";
             }
             file.close();
-
-            // remove previous room number
-            filename.erase(pathsize,4);
-
-            // increment room numbers
-            roomNum[0] = (char)((roomRow/10) + 48);
-            roomNum[1] = (char)(roomRow + 48);
-            roomNum[2] = (char)((roomCol/10) + 48);
-            roomNum[3] = (char)(roomCol + 48);
-
-            // insert new room number
-            filename.insert(pathsize,roomNum);
         }
     }
 }
