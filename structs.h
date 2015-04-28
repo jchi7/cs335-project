@@ -35,6 +35,11 @@ struct Shape {
     Vec velocity;
 };
 
+//Coordinate structure used to represent the texture coordinates of the sprite image
+struct Coordinates {
+    float x1,x2,y1,y2;
+};
+
 //External Global Variables
 extern int leftPressed ;
 extern int rightPressed ;

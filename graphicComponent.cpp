@@ -23,3 +23,17 @@ graphicComponent::update(gameObject* entity , int r, int g, int b)
     glEnd();
     glPopMatrix();
 }
+
+graphicComponent::renderBackground(GLuint backgroundTexture)
+{    
+    PushhMatrix();
+    glBindTexture(GL_TEXTURE_2D,backgroundTexture);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0,1.0f); glVertex2i(0,0);
+    glTexCoord2f(0.0,0.0); glVertex2i(0,WINDOW_HEIGHT);
+    glTexCoord2f(1.0,0.0); glVertex2i(WINDOW_WIDTH,WINDOW_HEIGHT);
+    glTexCoord2f(1.0f,1.0f); glVertex2i(WINDOW_WIDTH,0);
+    glPopMatrix();
+    glEnd();
+}
+

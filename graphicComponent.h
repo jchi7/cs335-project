@@ -8,6 +8,7 @@ class graphicComponent
         graphicComponent();
         virtual ~graphicComponent();
         virtual void update(gameObject* entity, int r, int g, int b);
+        void renderBackground(GLuint backgroundTexture);
     protected:
     private:
 };

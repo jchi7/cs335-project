@@ -1,4 +1,5 @@
 #include "hero.h"
+#include<iostream>
 
 Hero::Hero()
 {
@@ -49,6 +50,7 @@ void Hero::movement(){
     }
     if (rightPressed == 1){
         body.center[0] += 3;
+        std::cout<<"Walking Right\n";
     }
     if (initialJump == 1){
         velocity[1] = 7;
