@@ -22,6 +22,8 @@ Game::Game()
     this->isPlatformResizable = false;
     this->movablePlatformIndex = 0;
     this->resizablePlatformIndex = 0;
+    this->resizablePlatformX = 0;
+    this->resizablePlatformY = 0;
     this->textureHeight = 15;
     this->textureWidth = 15;
     initLevel();
@@ -85,20 +87,25 @@ void Game::moveRoomDown()
 }
 void Game::resizePlatform(GameObject * mouse)
 {
-    int height;
     Room * room = this->getRoomPtr();
-    room->objects[this->resizablePlatformIndex]->body.width = (((int)mouse->body.center[0] - 
-        (int)room->objects[this->resizablePlatformIndex]->body.center[0]) / 
-           (2* this->textureWidth)) * this->textureWidth + this->textureWidth;
-    if ( ( height = ((((int)mouse->body.center[1] - 
-        (int)room->objects[this->resizablePlatformIndex]->body.center[1]) / 
-           (2* this->textureHeight)) * this->textureHeight + this->textureHeight) ) < 0){
+    int mouseX = (int)mouse->body.center[0];
+    int mouseY = (int)mouse->body.center[1];
+    int height = (( ( mouseY - this->resizablePlatformY) / ( this->textureHeight)) * this->textureHeight + this->textureHeight);
+    int width = (( ( mouseX - this->resizablePlatformX) / ( this->textureWidth)) * this->textureWidth + this->textureWidth);
+
+    if ( width <= 0){
+        room->objects[this->resizablePlatformIndex]->body.width = this->textureWidth;
+    }
+    else{
+        room->objects[this->resizablePlatformIndex]->body.width = width;
+    }
+    if ( height <= 0){
         room->objects[this->resizablePlatformIndex]->body.height = this->textureHeight;
     }
     else{
         room->objects[this->resizablePlatformIndex]->body.height = height;
     }
-
+    cout << "mouseX: " << mouseX << "mouseY: " << mouseY << "width: " << width << "height: " << height << endl;
         
 }
 void Game::initLevel()

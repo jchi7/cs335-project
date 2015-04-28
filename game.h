@@ -18,6 +18,8 @@ class Game
         bool isPlatformResizable;
         int movablePlatformIndex;
         int resizablePlatformIndex;
+        int resizablePlatformX;
+        int resizablePlatformY;
         int textureWidth;
         int textureHeight;
 

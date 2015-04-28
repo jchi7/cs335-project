@@ -58,7 +58,7 @@ int numCollisions;
 struct timeval Gthrottle;
 int GoldMilliSec = 0;
 int GtimeLapse = 0;
-int Gthreshold = 10000;
+int Gthreshold = 15000;
 
 int main()
 {
@@ -452,14 +452,35 @@ void check_game_input(XEvent *e, Game *game){
                     if (collision(&mouse,room->objects[k])){
                         game->resizablePlatformIndex = k;
                         game->isPlatformResizable = true;
+                        game->resizablePlatformX = room->objects[k]->body.center[0];
+                        game->resizablePlatformY = room->objects[k]->body.center[1];
                     }
                 }
             }
             if (key == XK_v && game->isPlatformMovable == false && game->isPlatformResizable == true){
                 game->isPlatformResizable = false;
             }
-
+            if (key == XK_d && game->isPlatformMovable == false && game->isPlatformResizable == false){
+                Room * room = game->getRoomPtr();
+                int platformToRemove = 0;
+                bool isCollision = false;
+                GameObject mouse;
+                mouse.body.center[0] = e->xbutton.x;
+                mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+                for (int k = 0; k < room->objects.size(); k++){
+                    if (collision(&mouse,room->objects[k])){
+                        platformToRemove = k;
+                        isCollision = true;
+                    }
+                }
+                if (isCollision){
+                    room->objects.erase(room->objects.begin() + platformToRemove);
+                    room->numPlatforms--;
+                }
+            }
+        
         }
+    
         /*
         if (key == XK_e && shootPressed == 0){
             game->hero->shootPressed = 5;
@@ -486,8 +507,6 @@ void check_game_input(XEvent *e, Game *game){
         mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
         game->resizePlatform(&mouse);
     }
-    Room * roomer = game->getRoomPtr();
-    cout << game->isPlatformMovable << " " << game->isPlatformResizable <<  " "  << roomer->objects.size() << endl;
 
 }
 
