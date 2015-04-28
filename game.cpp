@@ -105,7 +105,6 @@ void Game::resizePlatform(GameObject * mouse)
     else{
         room->objects[this->resizablePlatformIndex]->body.height = height;
     }
-    cout << "mouseX: " << mouseX << "mouseY: " << mouseY << "width: " << width << "height: " << height << endl;
         
 }
 void Game::initLevel()
