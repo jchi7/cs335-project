@@ -2,7 +2,7 @@
 # to compile your project, type make and press enter
 CFLAGS = -I ./include
 LIB    = 
-LFLAGS = -std=c++0x -lX11 -lGLU -lGL -lm #-lXrandr
+LFLAGS = -std=c++0x -lX11 -lGLU -lglut -lGL -lm #-lXrandr
 
 all: game.o hero.o Level.o gameObject.o platform.o main
 

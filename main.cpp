@@ -18,6 +18,7 @@
 #include "Level.h"
 #include "game.h"
 #include "ppm.h"
+//#include "bpm.h"
 #include "collisions.h"
 //#include "initializeLevels.h"
 
@@ -51,6 +52,7 @@ Display *dpy;
 Window win;
 GLXContext glc;
 //Following Declarations are for the Image importing...
+GLuint getBMP(const char *path);
 Ppmimage *guiBackgroundImage = NULL;
 Ppmimage *rockImage = NULL;
 Ppmimage *heroImage = NULL;
@@ -162,6 +164,8 @@ void init_opengl(void) {
     guiBackgroundImage = ppm6GetImage("./images/GuiBackground.ppm");
     mainMenuButtonsExitImage = ppm6GetImage("./images/exit.ppm");
     //Preparing the images to render..
+    //Next line is a call to Roy code.  But i commented out.
+    //heroTexture = getBMP("./images/HeroSpriteSheet.bmp");
     glGenTextures(1, &heroTexture);
     glGenTextures(1, &forestTexture);
     glGenTextures(1, &rockTexture);
@@ -181,6 +185,7 @@ void init_opengl(void) {
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w,y, 0,
                GL_RGB, GL_UNSIGNED_BYTE, heroImage->data);
     glDisable(GL_ALPHA);
+
 
     //Setting up the Main menu buttons texture...
     w = mainMenuButtonsImage->width;
@@ -242,8 +247,8 @@ void init_MainMenuButtons(void) {
 	//initialize buttons...
 	nbuttons=0;
 	//size and position
-	button[nbuttons].r.width = 380;
-	button[nbuttons].r.height = 60;
+	button[nbuttons].r.width = 100;
+	button[nbuttons].r.height = 40;
 	button[nbuttons].r.left = 290;
 	button[nbuttons].r.bot = 320;
 	button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
@@ -261,10 +266,10 @@ void init_MainMenuButtons(void) {
 	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
 	button[nbuttons].text_color = 0x00ffffff;
 	nbuttons++;
-	button[nbuttons].r.width = 380;
-	button[nbuttons].r.height = 60;
+	button[nbuttons].r.width = 100;
+	button[nbuttons].r.height = 40;
 	button[nbuttons].r.left = 290;
-	button[nbuttons].r.bot = 160;
+	button[nbuttons].r.bot = 240;
 	button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
 	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
 	button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
@@ -290,7 +295,9 @@ void render_MainMenu(void) {
     glColor3f(1.0,1.0,1.0);
     
     //Rendering the main menu background
+    glEnable(GL_TEXTURE_2D);
     renderBackground(guiBackgroundTexture);
+    glDisable(GL_TEXTURE_2D);
 
     glPushMatrix();
     for (int i=0; i<nbuttons; i++) {
@@ -335,10 +342,10 @@ void render_MainMenu(void) {
             glTranslatef(button[i].r.centerx,button[i].r.centery, 0.0f);
             glBindTexture(GL_TEXTURE_2D,mainMenuButtonsTexture);
             glBegin(GL_QUADS);
-            glTexCoord2f(0.1f,.9f); glVertex2i(-200,-30);
-            glTexCoord2f(0.1f,0.1f); glVertex2i(-200,30); //smenu
-            glTexCoord2f(.9f,0.1f); glVertex2i(200,30);
-            glTexCoord2f(.9f,.9f); glVertex2i(200,-30);
+            glTexCoord2f(0.1f,.9f); glVertex2i(-50,-20);
+            glTexCoord2f(0.1f,0.1f); glVertex2i(-50,20); //smenu
+            glTexCoord2f(.9f,0.1f); glVertex2i(50,20);
+            glTexCoord2f(.9f,.9f); glVertex2i(50,-20);
             glEnd();
             glPopMatrix();
         }
@@ -354,10 +361,10 @@ void render_MainMenu(void) {
             glTranslatef(button[i].r.centerx,button[i].r.centery, 0.0f);
             glBindTexture(GL_TEXTURE_2D,mainMenuButtonsExitTexture);
             glBegin(GL_QUADS);
-            glTexCoord2f(0.1f,.9f); glVertex2i(-200,-30);
-            glTexCoord2f(0.1f,0.1f); glVertex2i(-200,30); //smenu
-            glTexCoord2f(.9f,0.1f); glVertex2i(200,30);
-            glTexCoord2f(.9f,.9f); glVertex2i(200,-30);
+            glTexCoord2f(0.1f,.9f); glVertex2i(-50,-20);
+            glTexCoord2f(0.1f,0.1f); glVertex2i(-50,20); //smenu
+            glTexCoord2f(.9f,0.1f); glVertex2i(50,20);
+            glTexCoord2f(.9f,.9f); glVertex2i(50,-20);
             glEnd();
             glPopMatrix();
         }
@@ -528,25 +535,27 @@ void render_game(game* game)
 
     //Draws the Hero to the Screen
     glEnable(GL_TEXTURE_2D);
-    glColor4ub(255,255,255,255);
+    glColor4f(1.0f, 1.0f, 1.0f, 0.8f);
+
     glPushMatrix();
     glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
-    glEnable(GL_BLEND);
-    //glBlendFunc (GL_SRC_ALPHA, GL_ONE);
-    //glEnable(GL_ALPHA);
-    //glAlphaFunc(GL_GEQUAL,1.0f);
+    //glEnable(GL_BLEND);
     glBindTexture(GL_TEXTURE_2D,heroTexture);
-    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);    
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER,0.0f);
+    //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);    
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f,.4f); glVertex2i(-60,-90);
     glTexCoord2f(0.0f,.2f); glVertex2i(-60,90); //here
     glTexCoord2f(.09f,0.2f); glVertex2i(60,90);
     glTexCoord2f(.09f,0.4f); glVertex2i(60,-90);
     glEnd();
-    //glDisable(GL_ALPHA);
-    glDisable(GL_BLEND);
+    //glDisable(GL_ALPHA_TEST);
+    //glDisable(GL_BLEND);
 
     //glMatrixMode(GL_TEXTURE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
     glPopMatrix();    
 
     //glMatrixMode(GL_MODELVIEW);
@@ -703,4 +712,76 @@ void renderTexture(GLuint imageTexture, float x1,float x2,float y1, float y2, in
     glTexCoord2f(x2,y1); glVertex2i(width,-height);
     glPopMatrix();
     glEnd();
+}
+
+//Used to import BMP images..
+
+GLuint getBMP(const char *path)
+{
+    unsigned char header[54];
+    unsigned int dataPos;
+    unsigned int width, height;
+    unsigned int imageSize, wAlpha;
+    int pixel;
+
+    FILE * file = fopen(path,"rb");
+    if(!file){
+        printf("UNABLE TO OPEN %s\n", path);
+        return 0;
+    }
+
+    if(fread(header,1,54,file) != 54){
+        printf("NOT A BMP FILE\n");
+        return 0;
+    }
+    if(header[0] != 'B' || header[1] != 'M'){
+        printf("NOT A BMP FILE\n");
+        return 0;
+    }
+    // read image header imformation
+    dataPos = *(int*)&(header[0x0A]);
+    imageSize = *(int*)&(header[0x22]);
+    width = *(int*)&(header[0x12]);
+    height = *(int*)&(header[0x16]);
+
+    // if the image header is corupted somehow
+    if(imageSize == 0){
+        imageSize = width * height * 3;
+    }
+    if(dataPos == 0)
+        dataPos = 54;
+
+    // get image data
+    pixel = width * height;
+    wAlpha = width * height * 4;
+    unsigned char data[imageSize];
+    unsigned char data_A[wAlpha];
+    fread(data, 1, imageSize, file);
+    fclose(file);
+
+    // apply apha channel
+    for(int i=0; i< pixel; i++){
+        data_A[i*4] = data[i*3];
+        data_A[i*4+1] = data[i*3+1];
+        data_A[i*4+2] = data[i*3+2];
+        if(data[i*3]== 9 and data[i*3+1]== 249 and data[i*3+2]== 31){
+            data_A[i*4+3] = 0;
+        }else
+            data_A[i*4+3] = 250;
+    }
+
+    // format image to gl format
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, data_A);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+
+    return textureID;
 }
