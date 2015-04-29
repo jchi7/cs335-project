@@ -52,6 +52,7 @@ Display *dpy;
 Window win;
 GLXContext glc;
 //Following Declarations are for the Image importing...
+unsigned char *buildAlphaData(Ppmimage *img);
 GLuint getBMP(const char *path);
 Ppmimage *guiBackgroundImage = NULL;
 Ppmimage *rockImage = NULL;
@@ -176,15 +177,17 @@ void init_opengl(void) {
     int w = heroImage->width;
     int y = heroImage->height;
     //Setting up the hero textures
-    glEnable(GL_ALPHA);
-    glAlphaFunc(GL_GREATER,1.0f);
     glBindTexture(GL_TEXTURE_2D,heroTexture);
     
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w,y, 0,
                GL_RGB, GL_UNSIGNED_BYTE, heroImage->data);
-    glDisable(GL_ALPHA);
+
+    unsigned char *silhouetteData = buildAlphaData(heroImage);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, y, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, silhouetteData);
+    delete [] silhouetteData;
 
 
     //Setting up the Main menu buttons texture...
@@ -535,7 +538,7 @@ void render_game(game* game)
 
     //Draws the Hero to the Screen
     glEnable(GL_TEXTURE_2D);
-    glColor4f(1.0f, 1.0f, 1.0f, 0.8f);
+    glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 
     glPushMatrix();
     glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
@@ -549,6 +552,10 @@ void render_game(game* game)
     glTexCoord2f(0.0f,.2f); glVertex2i(-60,90); //here
     glTexCoord2f(.09f,0.2f); glVertex2i(60,90);
     glTexCoord2f(.09f,0.4f); glVertex2i(60,-90);
+   /* glTexCoord2f(0.0f,.4f); glVertex2i(-w,-h);
+    glTexCoord2f(0.0f,.2f); glVertex2i(-w,h); //here
+    glTexCoord2f(.09f,0.2f); glVertex2i(w,h);
+    glTexCoord2f(.09f,0.4f); glVertex2i(w,-h);*/
     glEnd();
     //glDisable(GL_ALPHA_TEST);
     //glDisable(GL_BLEND);
@@ -785,3 +792,44 @@ GLuint getBMP(const char *path)
 
     return textureID;
 }
+
+//Grabbed this code from Gordons rainforest program.
+unsigned char *buildAlphaData(Ppmimage *img)
+{
+    //add 4th component to RGB stream...
+    int a,b,c;
+    unsigned char *newdata, *ptr;
+    unsigned char *data = (unsigned char *)img->data;
+    //newdata = (unsigned char *)malloc(img->width * img->height * 4);
+    newdata = new unsigned char[img->width * img->height * 4];
+    ptr = newdata;
+    for (int i=0; i<img->width * img->height * 3; i+=3) {
+        a = *(data+0);
+        b = *(data+1);
+        c = *(data+2);
+        *(ptr+0) = a;
+        *(ptr+1) = b;
+        *(ptr+2) = c;
+        //
+        //get the alpha value
+        //
+        //original code
+        //get largest color component...
+        //*(ptr+3) = (unsigned char)((
+        //      (int)*(ptr+0) +
+        //      (int)*(ptr+1) +
+        //      (int)*(ptr+2)) / 3);
+        //d = a;
+        //if (b >= a && b >= c) d = b;
+        //if (c >= a && c >= b) d = c;
+        //*(ptr+3) = d;
+        //
+        //new code, suggested by Chris Smith, Fall 2013
+        *(ptr+3) = (a|b|c);
+        //
+        ptr += 4;
+        data += 3;
+    }
+    return newdata;
+}
+
