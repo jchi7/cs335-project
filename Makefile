@@ -12,6 +12,9 @@ mac:
 mac2:
 	g++ main.cpp game.cpp hero.cpp room.cpp gameObject.cpp platform.cpp collisions.cpp -Wall -oGame -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11
 
+315:
+	g++ main.cpp game.cpp hero.cpp room.cpp gameObject.cpp platform.cpp collisions.cpp -Wall -oGame -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -L/usr/lib/nvidia-331/ -lX11 -std=c++11
+
 linux:
 	g++ main.cpp -Wall -oGame -lX11 -lGL -lGLU -lm
 main:  main.cpp

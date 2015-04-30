@@ -46,7 +46,7 @@ void Hero::movement(){
     if (jumpRelease > 0)
         jumpRelease--;
     if (leftPressed == 1){
-        body.center[0] += -3;
+        body.center[0] += -8;
     }
     if (rightPressed == 1){
         body.center[0] += 3;

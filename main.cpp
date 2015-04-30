@@ -534,7 +534,7 @@ void render_game(Game* game)
     float w, h;
 
     // Draw the Hero to the screen
-    glColor3ub(200,200,200);
+    glColor3ub(100,100,100);
     glPushMatrix();
     glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
     w = game->hero->body.width;
