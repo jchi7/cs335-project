@@ -24,8 +24,8 @@ Game::Game()
     this->resizablePlatformIndex = 0;
     this->resizablePlatformX = 0;
     this->resizablePlatformY = 0;
-    this->textureHeight = 15;
-    this->textureWidth = 15;
+    this->platformTextureHeight = 15;
+    this->platformTextureWidth = 15;
     initLevel();
     fillLevel();
 }
@@ -88,22 +88,25 @@ void Game::moveRoomDown()
 void Game::resizePlatform(GameObject * mouse)
 {
     Room * room = this->getRoomPtr();
+    GameObject * platform = room->objects[this->resizablePlatformIndex];
     int mouseX = (int)mouse->body.center[0];
     int mouseY = (int)mouse->body.center[1];
-    int height = (( ( mouseY - this->resizablePlatformY) / ( this->textureHeight)) * this->textureHeight + this->textureHeight);
-    int width = (( ( mouseX - this->resizablePlatformX) / ( this->textureWidth)) * this->textureWidth + this->textureWidth);
+    int height = (( ( mouseY - this->resizablePlatformY) / ( platform->textureHeight)) * platform->textureHeight + platform->textureHeight);
+    int width = (( ( mouseX - this->resizablePlatformX) / ( platform->textureWidth)) * platform->textureWidth + platform->textureWidth);
 
     if ( width <= 0){
-        room->objects[this->resizablePlatformIndex]->body.width = this->textureWidth;
+        platform->body.width = platform->textureWidth;
     }
     else{
-        room->objects[this->resizablePlatformIndex]->body.width = width;
+        platform->body.width = width;
+        platform->horizontalTiles = platform->body.width / platform->textureWidth;
     }
     if ( height <= 0){
-        room->objects[this->resizablePlatformIndex]->body.height = this->textureHeight;
+        platform->body.height = platform->textureHeight;
     }
     else{
-        room->objects[this->resizablePlatformIndex]->body.height = height;
+        platform->body.height = height;
+        platform->verticalTiles = platform->body.height / platform->textureHeight;
     }
         
 }
@@ -178,7 +181,13 @@ void Game::fillLevel()
 
                 // create platform
                 level[vert][horz].objects.push_back(new Platform(convVal[0], convVal[1], convVal[2], convVal[3], roomType.c_str()));
+                int numPlat = level[vert][horz].numPlatforms;
+                level[vert][horz].objects[numPlat]->horizontalTiles = level[vert][horz].objects[numPlat]->body.width / 
+                    level[vert][horz].objects[numPlat]->textureWidth;
+                level[vert][horz].objects[numPlat]->verticalTiles = level[vert][horz].objects[numPlat]->body.height / 
+                    level[vert][horz].objects[numPlat]->textureHeight;
                 level[vert][horz].numPlatforms++;
+
 cout << "Created [" << vert << "][" << horz <<"]\n";
             }
             file.close();

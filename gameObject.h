@@ -9,6 +9,10 @@ class GameObject
         Shape body;
         int rgb[3];
         float gravity;
+        int textureWidth;
+        int textureHeight;
+        int horizontalTiles;
+        int verticalTiles;
         GameObject();
         virtual ~GameObject();
         virtual void update();

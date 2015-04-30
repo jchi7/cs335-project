@@ -20,8 +20,8 @@ class Game
         int resizablePlatformIndex;
         int resizablePlatformX;
         int resizablePlatformY;
-        int textureWidth;
-        int textureHeight;
+        int platformTextureWidth;
+        int platformTextureHeight;
 
         // position of current room:
         int currentHorizontalLevel;

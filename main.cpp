@@ -372,7 +372,7 @@ void check_menu_button(XEvent *e, Game * game) {
 void check_game_input(XEvent *e, Game *game){
 
     if (e->type == KeyPress){
-        cout << e->xbutton.x << endl;
+        //cout << e->xbutton.x << endl;
         int key = XLookupKeysym(&e->xkey,0);
         if (key == XK_Left){
             game->hero->leftPressed = 1;
@@ -415,7 +415,7 @@ void check_game_input(XEvent *e, Game *game){
             if (key == XK_Shift_L){
                 if (!game->isPlatformMovable && game->isPlatformResizable == false){
                     Room * room = game->getRoomPtr();
-                    room->objects.push_back(new Platform(game->textureWidth,game->textureHeight,e->xbutton.x, WINDOW_HEIGHT - e->xbutton.y,"GROUND"));
+                    room->objects.push_back(new Platform(game->platformTextureWidth,game->platformTextureHeight,e->xbutton.x, WINDOW_HEIGHT - e->xbutton.y,"GROUND"));
                     room->numPlatforms++;
                     game->isPlatformMovable = true;
                     game->movablePlatformIndex = room->objects.size() - 1;
