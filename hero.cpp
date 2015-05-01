@@ -28,7 +28,59 @@ Hero::Hero()
     leftPressed = 0;
     rightPressed = 0;
     state = STANDING;
+    //Setting up the hero jump texture coordinates.
+    heroJump[0].x1 = 0.0;
+    heroJump[0].x2 = 0.07;
+    heroJump[0].y1 = 0.0;
+    heroJump[0].y2 = 0.2;
 
+    heroJump[1].x1 = 0.1;
+    heroJump[1].x2 = 0.17;
+    heroJump[1].y1 = 0.0;
+    heroJump[1].y2 = 0.2;
+    
+    heroJump[2].x1 = 0.2;
+    heroJump[2].x2 = 0.28;
+    heroJump[2].y1 = 0.0;
+    heroJump[2].y2 = 0.2;
+
+    heroJump[3].x1 = 0.3;
+    heroJump[3].x2 = 0.38;
+    heroJump[3].y1 = 0.0;
+    heroJump[3].y2 = 0.2;
+
+    heroJump[4].x1 = 0.4;
+    heroJump[4].x2 = 0.49;
+    heroJump[4].y1 = 0.0;
+    heroJump[4].y2 = 0.2;
+    
+
+    heroJump[5].x1 = 0.5;
+    heroJump[5].x2 = 0.59;
+    heroJump[5].y1 = 0.0;
+    heroJump[5].y2 = 0.2;
+    
+    heroJump[6].x1 = 0.6;
+    heroJump[6].x2 = 0.69;
+    heroJump[6].y1 = 0.0;
+    heroJump[6].y2 = 0.2;
+
+
+    heroJump[7].x1 = 0.7;
+    heroJump[7].x2 = 0.8;
+    heroJump[7].y1 = 0.0;
+    heroJump[7].y2 = 0.2;
+
+    heroJump[8].x1 = 0.8;
+    heroJump[8].x2 = 0.9;
+    heroJump[8].y1 = 0.0;
+    heroJump[8].y2 = 0.2;
+
+
+    heroJump[9].x1 = 0.9;
+    heroJump[9].x2 = 1.0;
+    heroJump[9].y1 = 0.0;
+    heroJump[9].y2 = 0.2;
 }
 
 Hero::~Hero()

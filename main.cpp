@@ -18,6 +18,7 @@
 #include "Level.h"
 #include "game.h"
 #include "ppm.h"
+#include<time.h>
 //#include "bpm.h"
 #include "collisions.h"
 //#include "initializeLevels.h"
@@ -67,7 +68,7 @@ GLuint forestTexture;
 GLuint mainMenuButtonsTexture;
 GLuint mainMenuButtonsExitTexture;
 bool forestBackgroundSet=true;
-Coordinates textCoord[10];
+CharacterState prevPositon;
 //End
 
 Button button[MAXBUTTONS];
@@ -86,6 +87,7 @@ int main()
     Level*** levels = initializeLevels();
     game newgame(levels);
     newgame.hero = new Hero();
+    //prevPosition = hero->state;
     while(g_gamestate != EXIT_GAME) {
         switch (g_gamestate) {
             case MAIN_MENU:
@@ -158,15 +160,11 @@ void init_opengl(void) {
     
     //Importing the images 
     heroImage = ppm6GetImage("./images/HeroSpriteSheet.ppm");
-    //heroImage = ppm6GetImage("./images/HeroWalk.ppm");
     backgroundImage = ppm6GetImage("./images/Background1.ppm");
     rockImage = ppm6GetImage("./images/Rock.ppm");
     mainMenuButtonsImage = ppm6GetImage("./images/start.ppm");
     guiBackgroundImage = ppm6GetImage("./images/GuiBackground.ppm");
     mainMenuButtonsExitImage = ppm6GetImage("./images/exit.ppm");
-    //Preparing the images to render..
-    //Next line is a call to Roy code.  But i commented out.
-    //heroTexture = getBMP("./images/HeroSpriteSheet.bmp");
     glGenTextures(1, &heroTexture);
     glGenTextures(1, &forestTexture);
     glGenTextures(1, &rockTexture);
@@ -523,50 +521,47 @@ void render_game(game* game)
 
 
     // Draw the Hero to the screen
-    glColor3ub(200,200,200);
-    glPushMatrix();
-    glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
+    //glColor3ub(200,200,200);
+    //glPushMatrix();
+    //glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
     w = game->hero->body.width;
     h = game->hero->body.height;
-    glBegin(GL_QUADS);
-    glVertex2i(-w,-h);
-    glVertex2i(-w,h);
-    glVertex2i(w,-h);
-    glVertex2i(w,h);
-    glEnd();
-    glPopMatrix();
+    //glBegin(GL_QUADS);
+    //glVertex2i(-w,-h);
+    //glVertex2i(-w,h);
+    //glVertex2i(w,-h);
+    //glVertex2i(w,h);
+    //glEnd();
+    //glPopMatrix();
 
     //Draws the Hero to the Screen
     glEnable(GL_TEXTURE_2D);
     glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 
+    for (int i = 0; i<10; i++){
     glPushMatrix();
     glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
-    //glEnable(GL_BLEND);
+    //renderTexture(heroTexture, game->hero->heroJump[i].x1,game->hero->heroJump[i].x2,game->hero->heroJump[i].y1,game->hero->heroJump[i].y2,w,h);
     glBindTexture(GL_TEXTURE_2D,heroTexture);
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER,0.0f);
-    //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);    
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f,.4f); glVertex2i(-60,-90);
-    glTexCoord2f(0.0f,.2f); glVertex2i(-60,90); //here
-    glTexCoord2f(.09f,0.2f); glVertex2i(60,90);
-    glTexCoord2f(.09f,0.4f); glVertex2i(60,-90);
-   /* glTexCoord2f(0.0f,.4f); glVertex2i(-w,-h);
-    glTexCoord2f(0.0f,.2f); glVertex2i(-w,h); //here
-    glTexCoord2f(.09f,0.2f); glVertex2i(w,h);
-    glTexCoord2f(.09f,0.4f); glVertex2i(w,-h);*/
-    glEnd();
-    //glDisable(GL_ALPHA_TEST);
-    //glDisable(GL_BLEND);
+    glTexCoord2f(game->hero->heroJump[i].x1,game->hero->heroJump[i].y2); glVertex2i(-60,-90);
+    glTexCoord2f(game->hero->heroJump[i].x1,game->hero->heroJump[i].y1); glVertex2i(-60,90); //here
+    glTexCoord2f(game->hero->heroJump[i].x2,game->hero->heroJump[i].y1); glVertex2i(60,90);
+    glTexCoord2f(game->hero->heroJump[i].x2,game->hero->heroJump[i].y2); glVertex2i(60,-90);
 
-    //glMatrixMode(GL_TEXTURE);
+    /*glTexCoord2f(0.8f,.4f); glVertex2i(-w-5,-h-5);
+    glTexCoord2f(0.8f,.2f); glVertex2i(-w-5,h+5); //here
+    glTexCoord2f(.9f,0.2f); glVertex2i(w+5,h+5);
+    glTexCoord2f(.9f,0.4f); glVertex2i(w+5,-h-5);
+    glEnd();*/
+
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
     glPopMatrix();    
+    }
 
-    //glMatrixMode(GL_MODELVIEW);
-    //glDisable(GL_BLEND);
 
     for(auto &entity : current_level->enemies) {
         glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
@@ -710,87 +705,18 @@ void renderBackground(GLuint backgroundTexture)
 
 void renderTexture(GLuint imageTexture, float x1,float x2,float y1, float y2, int width, int height)
 {
-    glPushMatrix();
+    //glPushMatrix();
     glBindTexture(GL_TEXTURE_2D,imageTexture);
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER,0.0f);
     glBegin(GL_QUADS);
     glTexCoord2f(x1,y1); glVertex2i(width,height);
     glTexCoord2f(x1,y2); glVertex2i(-width,height);
     glTexCoord2f(x2,y2); glVertex2i(width,height);
     glTexCoord2f(x2,y1); glVertex2i(width,-height);
+    glBindTexture(GL_TEXTURE_2D,0);
     glPopMatrix();
     glEnd();
-}
-
-//Used to import BMP images..
-
-GLuint getBMP(const char *path)
-{
-    unsigned char header[54];
-    unsigned int dataPos;
-    unsigned int width, height;
-    unsigned int imageSize, wAlpha;
-    int pixel;
-
-    FILE * file = fopen(path,"rb");
-    if(!file){
-        printf("UNABLE TO OPEN %s\n", path);
-        return 0;
-    }
-
-    if(fread(header,1,54,file) != 54){
-        printf("NOT A BMP FILE\n");
-        return 0;
-    }
-    if(header[0] != 'B' || header[1] != 'M'){
-        printf("NOT A BMP FILE\n");
-        return 0;
-    }
-    // read image header imformation
-    dataPos = *(int*)&(header[0x0A]);
-    imageSize = *(int*)&(header[0x22]);
-    width = *(int*)&(header[0x12]);
-    height = *(int*)&(header[0x16]);
-
-    // if the image header is corupted somehow
-    if(imageSize == 0){
-        imageSize = width * height * 3;
-    }
-    if(dataPos == 0)
-        dataPos = 54;
-
-    // get image data
-    pixel = width * height;
-    wAlpha = width * height * 4;
-    unsigned char data[imageSize];
-    unsigned char data_A[wAlpha];
-    fread(data, 1, imageSize, file);
-    fclose(file);
-
-    // apply apha channel
-    for(int i=0; i< pixel; i++){
-        data_A[i*4] = data[i*3];
-        data_A[i*4+1] = data[i*3+1];
-        data_A[i*4+2] = data[i*3+2];
-        if(data[i*3]== 9 and data[i*3+1]== 249 and data[i*3+2]== 31){
-            data_A[i*4+3] = 0;
-        }else
-            data_A[i*4+3] = 250;
-    }
-
-    // format image to gl format
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, data_A);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-
-    return textureID;
 }
 
 //Grabbed this code from Gordons rainforest program.

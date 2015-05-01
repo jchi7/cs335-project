@@ -14,6 +14,7 @@ class Hero : public gameObject
         int facing;
         int numBullets;
         int maxBullets;
+        Coordinates heroJump[10];
         // jumpInitiated is set to 1 when the jump key is pressed
         int jumpInitiated;
         int initialJump;
