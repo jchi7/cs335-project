@@ -430,9 +430,11 @@ void check_game_input(XEvent *e, Game *game){
                 if (!game->isPlatformMovable && game->isPlatformResizable == false){
                     Room * room = game->getRoomPtr();
                     GameObject mouse;
+                    mouse.body.width = 1;
+                    mouse.body.height = 1;
                     mouse.body.center[0] = e->xbutton.x;
                     mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
-                    cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
+            //        cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
                     for (int k = 0; k < room->objects.size(); k++){
                         if (collision(&mouse,room->objects[k])){
                             game->movablePlatformIndex = k;
@@ -446,6 +448,8 @@ void check_game_input(XEvent *e, Game *game){
             if (key == XK_c && game->isPlatformMovable == false && game->isPlatformMovable == false){
                 Room * room = game->getRoomPtr();
                 GameObject mouse;
+                mouse.body.width = 1;
+                mouse.body.height = 1;
                 mouse.body.center[0] = e->xbutton.x;
                 mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
                 for (int k = 0; k < room->objects.size(); k++){
@@ -465,6 +469,8 @@ void check_game_input(XEvent *e, Game *game){
                 int platformToRemove = 0;
                 bool isCollision = false;
                 GameObject mouse;
+                mouse.body.width = 1;
+                mouse.body.height = 1;
                 mouse.body.center[0] = e->xbutton.x;
                 mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
                 for (int k = 0; k < room->objects.size(); k++){
@@ -503,6 +509,8 @@ void check_game_input(XEvent *e, Game *game){
     if (game->isPlatformResizable){
         Room * room = game->getRoomPtr();
         GameObject mouse;
+        mouse.body.width = 1;
+        mouse.body.height = 1;
         mouse.body.center[0] = e->xbutton.x;
         mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
         game->resizePlatform(&mouse);
