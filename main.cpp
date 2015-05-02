@@ -60,6 +60,8 @@ int GoldMilliSec = 0;
 int GtimeLapse = 0;
 int Gthreshold = 15000;
 
+GameObject mouse;
+
 int main()
 {
     initXWindows();
@@ -429,7 +431,6 @@ void check_game_input(XEvent *e, Game *game){
             if (key == XK_z){
                 if (!game->isPlatformMovable && game->isPlatformResizable == false){
                     Room * room = game->getRoomPtr();
-                    GameObject mouse;
                     mouse.body.width = 1;
                     mouse.body.height = 1;
                     mouse.body.center[0] = e->xbutton.x;
@@ -447,7 +448,6 @@ void check_game_input(XEvent *e, Game *game){
             }
             if (key == XK_c && game->isPlatformMovable == false && game->isPlatformMovable == false){
                 Room * room = game->getRoomPtr();
-                GameObject mouse;
                 mouse.body.width = 1;
                 mouse.body.height = 1;
                 mouse.body.center[0] = e->xbutton.x;
@@ -468,7 +468,6 @@ void check_game_input(XEvent *e, Game *game){
                 Room * room = game->getRoomPtr();
                 int platformToRemove = 0;
                 bool isCollision = false;
-                GameObject mouse;
                 mouse.body.width = 1;
                 mouse.body.height = 1;
                 mouse.body.center[0] = e->xbutton.x;
@@ -508,7 +507,6 @@ void check_game_input(XEvent *e, Game *game){
 
     if (game->isPlatformResizable){
         Room * room = game->getRoomPtr();
-        GameObject mouse;
         mouse.body.width = 1;
         mouse.body.height = 1;
         mouse.body.center[0] = e->xbutton.x;
