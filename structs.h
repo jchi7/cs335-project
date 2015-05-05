@@ -46,7 +46,7 @@ typedef struct t_button
 	unsigned int text_color;
 } Button;
 
-enum ShapeType {RECTANGLE, TRIANGLE, CIRCLE};
+enum ShapeType {RECTANGLE, TRIANGLE/*, CIRCLE*/};
 
 // Shape structure used to represent dimensions and position on the screen
 struct Shape

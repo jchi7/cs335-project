@@ -26,8 +26,8 @@ string GameObject::debugReport()
             report << "RECTANGLE"; break;
         case TRIANGLE:
             report << "TRIANGLE"; break;
-        case CIRCLE:
-            report << "CIRCLE"; break;
+//        case CIRCLE:
+//            report << "CIRCLE"; break;
         default:
             report << "none assigned"; break;
     }
