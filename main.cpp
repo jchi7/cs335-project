@@ -19,6 +19,7 @@
 #include "game.h"
 #include "ppm.h"
 #include<time.h>
+#include <chrono>  //Library used to count the microseconds when rendering sprites
 //#include "bpm.h"
 #include "collisions.h"
 //#include "initializeLevels.h"
@@ -54,6 +55,7 @@ Window win;
 GLXContext glc;
 //Following Declarations are for the Image importing...
 unsigned char *buildAlphaData(Ppmimage *img);
+void renderHero(GLuint heroTexture,game* game  ,Coordinates* heroSprite,int index,int w, int h);
 GLuint getBMP(const char *path);
 Ppmimage *guiBackgroundImage = NULL;
 Ppmimage *rockImage = NULL;
@@ -68,7 +70,9 @@ GLuint forestTexture;
 GLuint mainMenuButtonsTexture;
 GLuint mainMenuButtonsExitTexture;
 bool forestBackgroundSet=true;
-CharacterState prevPositon;
+CharacterState prevPosition;
+int numAnimation = 0;
+auto start = std::chrono::high_resolution_clock::now();
 //End
 
 Button button[MAXBUTTONS];
@@ -87,7 +91,7 @@ int main()
     Level*** levels = initializeLevels();
     game newgame(levels);
     newgame.hero = new Hero();
-    //prevPosition = hero->state;
+    prevPosition = newgame.hero->state;
     while(g_gamestate != EXIT_GAME) {
         switch (g_gamestate) {
             case MAIN_MENU:
@@ -95,6 +99,8 @@ int main()
                     XEvent e;
                     XNextEvent(dpy, &e);
                     check_menu_button(&e);
+                    //If they go back to main menu the previous position will be Standing.
+                    prevPosition = STANDING;
                 }
                 render_MainMenu();
                 break;
@@ -487,6 +493,7 @@ void check_game_input(XEvent *e, game *game){
         }
         if ( key == XK_w ){
             game->hero->jumpRelease = 4;
+            numAnimation = 0;
         }
     }
 
@@ -535,10 +542,25 @@ void render_game(game* game)
     //glPopMatrix();
 
     //Draws the Hero to the Screen
-    glEnable(GL_TEXTURE_2D);
+    auto elapsed = std::chrono::high_resolution_clock::now() - start;
+    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+    if(microseconds > 80000) {
+        if (game->hero->state == WALKING && game->hero->rightPressed && game->hero->leftPressed == 0) { 
+            renderHero(heroTexture,game  ,game->hero->heroWalkingR,numAnimation,w, h);
+            std::cout<<"Num: "<<numAnimation<<endl;
+        }
+        else if (game->hero->state == WALKING && game->hero->leftPressed && game -> hero->rightPressed == 0) { 
+            renderHero(heroTexture,game  ,game->hero->heroWalkingL,numAnimation,w, h);
+        }
+        else if (game->hero->state == JUMPING) { 
+            renderHero(heroTexture,game  ,game->hero->heroJump,numAnimation,w, h);
+        }
+        else {
+            renderHero(heroTexture,game  ,game->hero->heroIdleR,numAnimation,w, h);
+        }
+    /*glEnable(GL_TEXTURE_2D);
     glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 
-    for (int i = 0; i<10; i++){
     glPushMatrix();
     glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
     //renderTexture(heroTexture, game->hero->heroJump[i].x1,game->hero->heroJump[i].x2,game->hero->heroJump[i].y1,game->hero->heroJump[i].y2,w,h);
@@ -546,23 +568,63 @@ void render_game(game* game)
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER,0.0f);
     glBegin(GL_QUADS);
-    glTexCoord2f(game->hero->heroJump[i].x1,game->hero->heroJump[i].y2); glVertex2i(-60,-90);
-    glTexCoord2f(game->hero->heroJump[i].x1,game->hero->heroJump[i].y1); glVertex2i(-60,90); //here
-    glTexCoord2f(game->hero->heroJump[i].x2,game->hero->heroJump[i].y1); glVertex2i(60,90);
-    glTexCoord2f(game->hero->heroJump[i].x2,game->hero->heroJump[i].y2); glVertex2i(60,-90);
+    glTexCoord2f(game->hero->heroWalkingR[numAnimation%10].x1,game->hero->heroWalkingR[numAnimation%10].y2); glVertex2i(-w-5,-h-5);
+    glTexCoord2f(game->hero->heroWalkingR[numAnimation%10].x1,game->hero->heroWalkingR[numAnimation%10].y1); glVertex2i(-w-5,h+5); //here
+    glTexCoord2f(game->hero->heroWalkingR[numAnimation%10].x2,game->hero->heroWalkingR[numAnimation%10].y1); glVertex2i(w+5,h+5);
+    glTexCoord2f(game->hero->heroWalkingR[numAnimation%10].x2,game->hero->heroWalkingR[numAnimation%10].y2); glVertex2i(w+5,-h-5);
 
-    /*glTexCoord2f(0.8f,.4f); glVertex2i(-w-5,-h-5);
+    //glTexCoord2f(0.8f,.4f); glVertex2i(-w-5,-h-5);
     glTexCoord2f(0.8f,.2f); glVertex2i(-w-5,h+5); //here
     glTexCoord2f(.9f,0.2f); glVertex2i(w+5,h+5);
     glTexCoord2f(.9f,0.4f); glVertex2i(w+5,-h-5);
-    glEnd();*/
+    glEnd();//
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
-    glPopMatrix();    
+    glPopMatrix();*/    
+    numAnimation = (numAnimation + 1) % 10;
+    start = std::chrono::high_resolution_clock::now();
     }
+    else { 
+        if (game->hero->state == WALKING && game->hero->rightPressed && game->hero->leftPressed == 0) { 
+            renderHero(heroTexture,game  ,game->hero->heroWalkingR,numAnimation,w, h);
+            std::cout<<"Num: "<<numAnimation<<endl;
+        }
+        else if (game->hero->state == WALKING && game->hero->leftPressed && game -> hero->rightPressed == 0) { 
+            renderHero(heroTexture,game  ,game->hero->heroWalkingL,numAnimation,w, h);
+        }
+        else if (game->hero->state == JUMPING) { 
+            renderHero(heroTexture,game  ,game->hero->heroJump,numAnimation,w, h);
+        }
+        else {
+            renderHero(heroTexture,game  ,game->hero->heroIdleR,numAnimation,w, h);
+        }
+    /*glEnable(GL_TEXTURE_2D);
+    glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 
+    glPushMatrix();
+    glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
+    //renderTexture(heroTexture, game->hero->heroJump[i].x1,game->hero->heroJump[i].x2,game->hero->heroJump[i].y1,game->hero->heroJump[i].y2,w,h);
+    glBindTexture(GL_TEXTURE_2D,heroTexture);
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER,0.0f);
+    glBegin(GL_QUADS);
+    glTexCoord2f(game->hero->heroWalkingR[numAnimation%10].x1,game->hero->heroWalkingR[numAnimation%10].y2); glVertex2i(-w-5,-h-5);
+    glTexCoord2f(game->hero->heroWalkingR[numAnimation%10].x1,game->hero->heroWalkingR[numAnimation%10].y1); glVertex2i(-w-5,h+5); //here
+    glTexCoord2f(game->hero->heroWalkingR[numAnimation%10].x2,game->hero->heroWalkingR[numAnimation%10].y1); glVertex2i(w+5,h+5);
+    glTexCoord2f(game->hero->heroWalkingR[numAnimation%10].x2,game->hero->heroWalkingR[numAnimation%10].y2); glVertex2i(w+5,-h-5);
+    glEnd();
 
+    //glTexCoord2f(0.344f,0.4f); glVertex2i(-60,-90);
+    //glTexCoord2f(0.344f,0.2f); glVertex2i(-60,90); //here
+    //glTexCoord2f(.430f,.2f); glVertex2i(60,90);
+    //glTexCoord2f(.430f,0.4f); glVertex2i(60,-90);
+    //glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
+    glPopMatrix();*/    
+    } 
     for(auto &entity : current_level->enemies) {
         glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
@@ -758,4 +820,23 @@ unsigned char *buildAlphaData(Ppmimage *img)
     }
     return newdata;
 }
+void renderHero(GLuint heroTexture,game* game  ,Coordinates* heroSprite,int index,int w, int h)
+{
+    glEnable(GL_TEXTURE_2D);
+    glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 
+    glPushMatrix();
+    glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
+    glBindTexture(GL_TEXTURE_2D,heroTexture);
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER,0.0f);
+    glBegin(GL_QUADS);
+    glTexCoord2f(heroSprite[index%10].x1,heroSprite[index%10].y2); glVertex2i(-w-5,-h-5);
+    glTexCoord2f(heroSprite[index%10].x1,heroSprite[index%10].y1); glVertex2i(-w-5,h+5); //here
+    glTexCoord2f(heroSprite[index%10].x2,heroSprite[index%10].y1); glVertex2i(w+5,h+5);
+    glTexCoord2f(heroSprite[index%10].x2,heroSprite[index%10].y2); glVertex2i(w+5,-h-5);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
+    glPopMatrix();    
+}

@@ -28,6 +28,50 @@ Hero::Hero()
     leftPressed = 0;
     rightPressed = 0;
     state = STANDING;
+    //setting up hero idle texture coordinates
+    for ( int i = 0; i < 10; i++) {
+        heroIdleR[i].x1 = 0.0;
+        heroIdleR[i].x2 = 0.0;
+        heroIdleR[i].y1 = 0.6;
+        heroIdleR[i].y2 = 0.8;
+        
+        heroIdleL[i].x1 = 0.0;
+        heroIdleL[i].x2 = 0.0;
+        heroIdleL[i].y1 = 0.8;
+        heroIdleL[i].y2 = 1.0;
+
+        heroWalkingR[i].x1 = 0.0;
+        heroWalkingR[i].x2 = 0.0;
+        heroWalkingR[i].y1 = 0.2;
+        heroWalkingR[i].y2 = 0.4;
+        
+        heroWalkingL[i].x1 = 0.0;
+        heroWalkingL[i].x2 = 0.0;
+        heroWalkingL[i].y1 = 0.4;
+        heroWalkingL[i].y2 = 0.6;
+    }
+    for (int i = 0; i < 10; i++) {
+        if(i == 0) {
+            heroIdleR[i].x1 = heroIdleR[i].x2;
+            heroIdleL[i].x1 = heroIdleL[i].x2;
+            heroWalkingR[i].x1 = heroWalkingR[i].x2;
+            heroWalkingL[i].x1 = heroWalkingL[i].x2;
+        }
+        else {
+            heroIdleR[i].x1 = heroIdleR[i-1].x2;
+            heroIdleL[i].x1 = heroIdleL[i-1].x2;
+            heroWalkingR[i].x1 = heroWalkingR[i-1].x2;
+            heroWalkingL[i].x1 = heroWalkingL[i-1].x2;
+        }
+        heroIdleR[i].x2 = idleIncrementor;
+        heroIdleL[i].x2 = idleIncrementor;
+        heroWalkingR[i].x2 = walkingIncrementor;
+        heroWalkingL[i].x2 = walkingIncrementor;
+        idleIncrementor += .068;
+        walkingIncrementor += .0872;
+    }
+
+
     //Setting up the hero jump texture coordinates.
     heroJump[0].x1 = 0.0;
     heroJump[0].x2 = 0.07;
