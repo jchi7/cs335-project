@@ -7,13 +7,16 @@
 class BasicEnemy : public GameObject
 {
     public:
-        Shape prevPosition;
+        Vec prevPosition;
         Vec velocity;
         int facing;
         int leftBoundary;
         int rightBoundary;
-        BasicEnemy();
+
+        BasicEnemy(int, int, int, int);
         virtual ~BasicEnemy();
+        void update(GameObject*);
+        string debugReport();
     protected:
     private:
 };

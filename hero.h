@@ -2,18 +2,23 @@
 #define HERO_H
 
 #include "gameObject.h"
-enum CharacterState {STANDING, WALKING, JUMPING};
+enum CharacterState {STANDING, WALKING, JUMPING, DEATH};
 class Hero : public GameObject
 {
     public:
-        CharacterState state;        
+        CharacterState state;
+
         int leftPressed;
         int rightPressed;
         Vec prevPosition;
         Vec velocity;
         int facing;
+
         int numBullets;
         int maxBullets;
+        int bulletVelocity;
+        // Temp for colors
+
         // jumpInitiated is set to 1 when the jump key is pressed
         int jumpInitiated;
         int initialJump;
@@ -23,15 +28,13 @@ class Hero : public GameObject
         // jumpFinished is used to prevent the hero from double jumping or
         // jumping after falling off of a platform
         int jumpFinished;
-        int bulletVelocity;
-        // Temp for colors
 
         Hero();
         virtual ~Hero();
 
         void update();
         void movement();
-        void onCollision(GameObject* platform);
+        void onCollision(GameObject * obj);
     protected:
     private:
 };

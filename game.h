@@ -1,9 +1,10 @@
 #ifndef GAME_H
 #define GAME_H
-#include <vector>
+
 #include "gameObject.h"
 #include "room.h"
 #include "platform.h"
+#include "spike.h"
 #include "hero.h"
 
 

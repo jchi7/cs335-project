@@ -1,26 +1,12 @@
-#include <iostream>
-#include <cstdlib>
-#include <cstdio>
-#include <ctime>
-#include <cstring>
-#include <cmath>
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
-#include <GL/glx.h>
-#include <string>
-#include <sys/time.h>
-#include <typeinfo>
-#include <vector>
 #include "structs.h"
 #include "gameObject.h"
 #include "hero.h"
 #include "basicEnemy.h"
 #include "platform.h"
+#include "spike.h"
 #include "room.h"
 #include "game.h"
 #include "collisions.h"
-
-#include <fstream>
 
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
@@ -193,11 +179,11 @@ void init_MainMenuButtons(void) {
 }
 
 void render_MainMenu(void) {
-    //Rect r;
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3ub(200,200,200);
-    glPushMatrix();
-    for (int i=0; i<nbuttons; i++) {
+  //Rect r;
+  glClear(GL_COLOR_BUFFER_BIT);
+  glColor3ub(200,200,200);
+  glPushMatrix();
+  for (int i=0; i<nbuttons; i++) {
 		if (button[i].over) {
 			int w=2;
 			glColor3f(1.0f, 1.0f, 0.0f);
@@ -234,11 +220,12 @@ void render_MainMenu(void) {
 		}
 		*/
 		glPopMatrix();
-	}
+  }
 }
 
-void check_menu_button(XEvent *e) {
-    static int savex = 0;
+void check_menu_button(XEvent *e)
+{
+  static int savex = 0;
 	static int savey = 0;
 	int i,x,y;
 	int lbutton=0;
@@ -288,10 +275,10 @@ void check_menu_button(XEvent *e) {
 	return;
 }
 
-void check_game_input(XEvent *e, Game *game){
-
+void check_game_input(XEvent *e, Game *game)
+{
+    int key = XLookupKeysym(&e->xkey,0);
     if (e->type == KeyPress){
-        int key = XLookupKeysym(&e->xkey,0);
         if (key == XK_Left){
             game->hero->leftPressed = 1;
         }
@@ -333,7 +320,6 @@ void check_game_input(XEvent *e, Game *game){
 
     }
     if (e->type == KeyRelease){
-        int key = XLookupKeysym(&e->xkey,0);
         if ( key == XK_Left){
             game->hero->leftPressed = 0;
         }
@@ -347,17 +333,46 @@ void check_game_input(XEvent *e, Game *game){
 
 }
 
-void physics(Game * game){
-
+void physics(Game * game)
+{
     bool isCollision = false;
     Room * room = game->getRoomPtr();
 
     game->hero->movement();
-    for (int i = 0; i < room->numPlatforms; i++){
-        isCollision = collision(game->hero, room->objects[i]);
-        if (isCollision == true){
-            game->hero->onCollision(room->objects[i]);
+    for (int i = 0; i < room->numPlatforms; i++) {
+        isCollision = collisionRectRect(&game->hero->body, &room->platforms[i]->body);
+        if (isCollision == true) {
+            game->hero->onCollision(room->platforms[i]);
         }
+    }
+    if (isCollision == false) {
+        for (int i = 0; i < room->numSpikes; i++) {
+            isCollision = collisionRectTri(&game->hero->body, &room->spikes[i]->body);
+            if (isCollision == true) {
+                game->hero->onCollision(room->spikes[i]);
+            }
+        }
+    }
+
+    if (game->hero->state == DEATH) {
+        // TEMPORARY: return hero to start
+        game->hero->state = JUMPING;
+        game->hero->jumpInitiated = 0;
+        game->hero->initialJump = 0;
+        game->hero->secondJump = 0;
+        game->hero->jumpCount = 0;
+        game->hero->jumpRelease = 1;
+        game->hero->jumpFinished = 0;
+        game->hero->body.center[0] = 400;
+        game->hero->body.center[1] = 250;
+        game->hero->body.center[2] = 0;
+        game->hero->prevPosition[0] = 400;
+        game->hero->prevPosition[1] = 250;
+        game->hero->prevPosition[2] = 0;
+        game->hero->velocity[0] = 0;
+        game->hero->velocity[1] = 0;
+        game->currentHorizontalLevel = 3;
+        game->currentVerticalLevel = 1;
     }
     game->checkRoom();
 }
@@ -376,10 +391,10 @@ void render_game(Game* game)
     w = game->hero->body.width;
     h = game->hero->body.height;
     glBegin(GL_QUADS);
-    glVertex2i(-w,-h);
-    glVertex2i(-w,h);
-    glVertex2i(w,-h);
-    glVertex2i(w,h);
+        glVertex2i(-w,-h);
+        glVertex2i(-w,h);
+        glVertex2i(w,-h);
+        glVertex2i(w,h);
     glEnd();
     glPopMatrix();
 
@@ -388,10 +403,10 @@ void render_game(Game* game)
         glPushMatrix();
         glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_QUADS);
-        glVertex2i(-entity->body.width,-entity->body.height);
-        glVertex2i(-entity->body.width,entity->body.height);
-        glVertex2i(entity->body.width,-entity->body.height);
-        glVertex2i(entity->body.width,entity->body.height);
+            glVertex2i(-entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,-entity->body.height);
+            glVertex2i(entity->body.width,entity->body.height);
         glEnd();
         glPopMatrix();
     }
@@ -401,23 +416,35 @@ void render_game(Game* game)
         glPushMatrix();
         glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_QUADS);
-        glVertex2i(-entity->body.width,-entity->body.height);
-        glVertex2i(-entity->body.width,entity->body.height);
-        glVertex2i(entity->body.width,entity->body.height);
-        glVertex2i(entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,-entity->body.height);
         glEnd();
         glPopMatrix();
     }
 
-    for(auto entity : current_level->objects) {
+    for(auto entity : current_level->platforms) {
         glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
         glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_QUADS);
-        glVertex2i(-entity->body.width,-entity->body.height);
-        glVertex2i(-entity->body.width,entity->body.height);
-        glVertex2i(entity->body.width,entity->body.height);
-        glVertex2i(entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,-entity->body.height);
+        glEnd();
+        glPopMatrix();
+    }
+
+    for(auto entity : current_level->spikes) {
+        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBegin(GL_TRIANGLES);
+            glVertex3fv(entity->body.corners[0]);
+            glVertex3fv(entity->body.corners[1]);
+            glVertex3fv(entity->body.corners[2]);
         glEnd();
         glPopMatrix();
     }
