@@ -1,26 +1,12 @@
-#include <iostream>
-#include <cstdlib>
-#include <cstdio>
-#include <ctime>
-#include <cstring>
-#include <cmath>
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
-#include <GL/glx.h>
-#include <string>
-#include <sys/time.h>
-#include <typeinfo>
-#include <vector>
 #include "structs.h"
 #include "gameObject.h"
 #include "hero.h"
 #include "basicEnemy.h"
 #include "platform.h"
+#include "spike.h"
 #include "room.h"
 #include "game.h"
 #include "collisions.h"
-
-#include <fstream>
 
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
@@ -37,8 +23,9 @@ void set_title(void);
 
 void init_MainMenuButtons(void);
 void render_MainMenu(void);
-void check_menu_button(XEvent *e);
+void check_menu_button(XEvent *e, Game * game);
 void check_game_input(XEvent *e, Game * game);
+void movePlatform(XEvent *e, Game * game);
 void physics(Game * game);
 void render_game(Game* game);
 
@@ -50,10 +37,16 @@ GLXContext glc;
 Button button[MAXBUTTONS];
 int nbuttons=0;
 
-enum GameState {MAIN_MENU, PLAYING, EXIT_GAME};
 GameState g_gamestate = MAIN_MENU;
 
 int numCollisions;
+
+struct timeval Gthrottle;
+int GoldMilliSec = 0;
+int GtimeLapse = 0;
+int Gthreshold = 15000;
+
+GameObject mouse;
 
 int main()
 {
@@ -64,15 +57,32 @@ int main()
     Game newgame;
     newgame.hero = new Hero();
 
+    bool render = true;
+    bool doPhysics = true;
+
     while(g_gamestate != EXIT_GAME) {
+        gettimeofday(&Gthrottle, NULL);
+        GtimeLapse = (Gthrottle.tv_usec >= GoldMilliSec) ? Gthrottle.tv_usec - GoldMilliSec :
+            (1000000 - GoldMilliSec) + Gthrottle.tv_usec;
+        if (GtimeLapse >= Gthreshold){
+            GoldMilliSec = Gthrottle.tv_usec;
+            render = true;
+        }
+        else{
+            render = false;
+        }
+ 
         switch (g_gamestate) {
             case MAIN_MENU:
                 while(XPending(dpy)) {
                     XEvent e;
                     XNextEvent(dpy, &e);
-                    check_menu_button(&e);
+                    check_menu_button(&e,&newgame);
                 }
-                render_MainMenu();
+                if (render == true){
+                    render_MainMenu();
+                    glXSwapBuffers(dpy, win);
+                }
                 break;
             case PLAYING:
                 while(XPending(dpy)) {
@@ -80,15 +90,40 @@ int main()
                     XNextEvent(dpy, &e);
                     check_game_input(&e, &newgame);
                 }
-                physics(&newgame);
-                render_game(&newgame);
+                if (doPhysics == true){
+                    physics(&newgame);
+                    doPhysics = false;
+                }
+                if (render == true){
+                    doPhysics = true;
+                    render_game(&newgame);
+                    glXSwapBuffers(dpy, win);
+                }
+                break;
+            case LEVEL_EDITOR:
+                while(XPending(dpy)) {
+                    XEvent e;
+                    XNextEvent(dpy, &e);
+                    check_game_input(&e, &newgame);
+                    if (newgame.isPlatformMovable == true)
+                        movePlatform(&e, &newgame);
+                }
+                if (doPhysics == true){
+                    physics(&newgame);
+                    doPhysics = false;
+
+                }
+                if (render == true){
+                    doPhysics = true;
+                    render_game(&newgame);
+                    glXSwapBuffers(dpy, win);
+                }
                 break;
             case EXIT_GAME:
                 break;
             default:
                 break;
         }
-        glXSwapBuffers(dpy, win);
     }
     cleanupXWindows();
     return 0;
@@ -152,52 +187,71 @@ void init_MainMenuButtons(void) {
 	//initialize buttons...
 	nbuttons=0;
 	//size and position
-	button[nbuttons].r.width = 380;
-	button[nbuttons].r.height = 60;
-	button[nbuttons].r.left = 290;
-	button[nbuttons].r.bot = 320;
-	button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
-	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
-	button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
-	button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
-	strcpy(button[nbuttons].text, "Reset");
-	button[nbuttons].down = 0;
-	button[nbuttons].click = 0;
-	button[nbuttons].color[0] = 0.4f;
-	button[nbuttons].color[1] = 0.4f;
-	button[nbuttons].color[2] = 0.7f;
-	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
-	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
-	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
-	button[nbuttons].text_color = 0x00ffffff;
-	nbuttons++;
-	button[nbuttons].r.width = 380;
-	button[nbuttons].r.height = 60;
-	button[nbuttons].r.left = 290;
-	button[nbuttons].r.bot = 160;
-	button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
-	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
-	button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
-	button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
-	strcpy(button[nbuttons].text, "Quit");
-	button[nbuttons].down = 0;
-	button[nbuttons].click = 0;
-	button[nbuttons].color[0] = 0.3f;
-	button[nbuttons].color[1] = 0.3f;
-	button[nbuttons].color[2] = 0.6f;
-	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
-	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
-	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
-	button[nbuttons].text_color = 0x00ffffff;
-	nbuttons++;
+    button[nbuttons].r.width = 380;
+    button[nbuttons].r.height = 60;
+    button[nbuttons].r.left = 290;
+    button[nbuttons].r.bot = 480;
+    button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
+    button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
+    button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
+    button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
+    strcpy(button[nbuttons].text, "Reset");
+    button[nbuttons].down = 0;
+    button[nbuttons].click = 0;
+    button[nbuttons].color[0] = 0.4f;
+    button[nbuttons].color[1] = 0.4f;
+    button[nbuttons].color[2] = 0.7f;
+    button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
+    button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
+    button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
+    button[nbuttons].text_color = 0x00ffffff;
+    nbuttons++;
+    button[nbuttons].r.width = 380;
+    button[nbuttons].r.height = 60;
+    button[nbuttons].r.left = 290;
+    button[nbuttons].r.bot = 320;
+    button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
+    button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
+    button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
+    button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
+    strcpy(button[nbuttons].text, "Level Editor");
+    button[nbuttons].down = 0;
+    button[nbuttons].click = 0;
+    button[nbuttons].color[0] = 0.3f;
+    button[nbuttons].color[1] = 0.3f;
+    button[nbuttons].color[2] = 0.6f;
+    button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
+    button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
+    button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
+    button[nbuttons].text_color = 0x00ffffff;
+    nbuttons++;
+    button[nbuttons].r.width = 380;
+    button[nbuttons].r.height = 60;
+    button[nbuttons].r.left = 290;
+    button[nbuttons].r.bot = 160;
+    button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
+    button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
+    button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
+    button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
+    strcpy(button[nbuttons].text, "Quit");
+    button[nbuttons].down = 0;
+    button[nbuttons].click = 0;
+    button[nbuttons].color[0] = 0.3f;
+    button[nbuttons].color[1] = 0.3f;
+    button[nbuttons].color[2] = 0.6f;
+    button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
+    button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
+    button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
+    button[nbuttons].text_color = 0x00ffffff;
+    nbuttons++;
 }
 
 void render_MainMenu(void) {
-    //Rect r;
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3ub(200,200,200);
-    glPushMatrix();
-    for (int i=0; i<nbuttons; i++) {
+  //Rect r;
+  glClear(GL_COLOR_BUFFER_BIT);
+  glColor3ub(200,200,200);
+  glPushMatrix();
+  for (int i=0; i<nbuttons; i++) {
 		if (button[i].over) {
 			int w=2;
 			glColor3f(1.0f, 1.0f, 0.0f);
@@ -236,9 +290,17 @@ void render_MainMenu(void) {
 		glPopMatrix();
 	}
 }
+void movePlatform(XEvent *e, Game *game){
 
-void check_menu_button(XEvent *e) {
-    static int savex = 0;
+
+    Room * currentRoom = game->getRoomPtr();
+    currentRoom->platforms[game->movablePlatformIndex]->body.center[0] = e->xbutton.x;
+    currentRoom->platforms[game->movablePlatformIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+}
+
+void check_menu_button(XEvent *e, Game * game)
+{
+  static int savex = 0;
 	static int savey = 0;
 	int i,x,y;
 	int lbutton=0;
@@ -276,10 +338,15 @@ void check_menu_button(XEvent *e) {
 					switch(i) {
 						case 0:
 							g_gamestate = PLAYING;
+              game->state = PLAYING;
 							break;
 						case 1:
-							g_gamestate = EXIT_GAME;
+							g_gamestate = LEVEL_EDITOR;
+              game->state = LEVEL_EDITOR;
 							break;
+            case 2:
+              g_gamestate = EXIT_GAME;
+              break;
 					}
 				}
 			}
@@ -288,9 +355,14 @@ void check_menu_button(XEvent *e) {
 	return;
 }
 
-void check_game_input(XEvent *e, Game *game){
+void check_game_input(XEvent *e, Game *game)
+{
+    mouse.body.type = RECTANGLE;
+    mouse.body.width = 1;
+    mouse.body.height = 1;
 
     if (e->type == KeyPress){
+        //cout << e->xbutton.x << endl;
         int key = XLookupKeysym(&e->xkey,0);
         if (key == XK_Left){
             game->hero->leftPressed = 1;
@@ -310,22 +382,92 @@ void check_game_input(XEvent *e, Game *game){
                 game->hero->secondJump = 1;
             }
         }
-        if (key == XK_j){
-            game->moveRoomLeft();
+        if (game->state == LEVEL_EDITOR){
+            if (key == XK_b){
+                game->saveRooms();
+            }
+            if (key == XK_j){
+                game->moveRoomLeft();
+            }
+            if (key == XK_l){
+                game->moveRoomRight();
+            }
+            if (key == XK_k){
+                game->moveRoomDown();
+            }
+            if (key == XK_i){
+                game->moveRoomUp();
+            }
+            if (key == XK_5){
+                game->hero->body.center[0] = e->xbutton.x;
+                game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+            }
+            if (key == XK_Shift_L){
+                if (!game->isPlatformMovable && game->isPlatformResizable == false){
+                    Room * room = game->getRoomPtr();
+                    room->platforms.push_back(new Platform(game->platformTextureWidth,game->platformTextureHeight,e->xbutton.x, WINDOW_HEIGHT - e->xbutton.y));
+                    room->numPlatforms++;
+                    game->isPlatformMovable = true;
+                    game->movablePlatformIndex = room->platforms.size() - 1;
+                }
+            }
+            if (key == XK_x){
+                if (game->isPlatformMovable && game->isPlatformResizable == false){
+                    game->isPlatformMovable = false;
+                }
+            }
+            if (key == XK_z){
+                if (!game->isPlatformMovable && game->isPlatformResizable == false){
+                    Room * room = game->getRoomPtr();
+                    mouse.body.center[0] = e->xbutton.x;
+                    mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+            //        cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
+                    for (unsigned int k = 0; k < room->platforms.size(); k++){
+                        if (collisionRectRect(&mouse.body,&room->platforms[k]->body)){
+                            game->movablePlatformIndex = k;
+                            game->isPlatformMovable = true;
+                            cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
+                            cout << k << endl;
+                        }
+                    }
+                }   
+            }
+            if (key == XK_c && game->isPlatformMovable == false && game->isPlatformMovable == false){
+                Room * room = game->getRoomPtr();
+                mouse.body.center[0] = e->xbutton.x;
+                mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+                for (unsigned int k = 0; k < room->platforms.size(); k++){
+                    if (collisionRectRect(&mouse.body,&room->platforms[k]->body)){
+                        game->resizablePlatformIndex = k;
+                        game->isPlatformResizable = true;
+                        game->resizablePlatformX = room->platforms[k]->body.center[0];
+                        game->resizablePlatformY = room->platforms[k]->body.center[1];
+                    }
+                }
+            }
+            if (key == XK_v && game->isPlatformMovable == false && game->isPlatformResizable == true){
+                game->isPlatformResizable = false;
+            }
+            if (key == XK_d && game->isPlatformMovable == false && game->isPlatformResizable == false){
+                Room * room = game->getRoomPtr();
+                int platformToRemove = 0;
+                bool isCollision = false;
+                mouse.body.center[0] = e->xbutton.x;
+                mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+                for (unsigned int k = 0; k < room->platforms.size(); k++){
+                    if (collisionRectRect(&mouse.body,&room->platforms[k]->body)){
+                        platformToRemove = k;
+                        isCollision = true;
+                    }
+                }
+                if (isCollision){
+                    room->platforms.erase(room->platforms.begin() + platformToRemove);
+                    room->numPlatforms--;
+                }
+            }
+        
         }
-        if (key == XK_l){
-            game->moveRoomRight();
-        }
-        if (key == XK_k){
-            game->moveRoomDown();
-        }
-        if (key == XK_i){
-            game->moveRoomUp();
-        }
-        if (key == XK_5){
-            game->hero->body.center[0] = e->xbutton.x;
-            game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
-        }
+    
         /*
         if (key == XK_e && shootPressed == 0){
             game->hero->shootPressed = 5;
@@ -345,19 +487,54 @@ void check_game_input(XEvent *e, Game *game){
         }
     }
 
+    if (game->isPlatformResizable){
+        //Room * room = game->getRoomPtr(); // UNUSED!
+        mouse.body.center[0] = e->xbutton.x;
+        mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+        game->resizePlatform(&mouse);
+    }
 }
 
-void physics(Game * game){
-
+void physics(Game * game)
+{
     bool isCollision = false;
     Room * room = game->getRoomPtr();
 
     game->hero->movement();
-    for (int i = 0; i < room->numPlatforms; i++){
-        isCollision = collision(game->hero, room->objects[i]);
-        if (isCollision == true){
-            game->hero->onCollision(room->objects[i]);
+    for (int i = 0; i < room->numPlatforms; i++) {
+        isCollision = collisionRectRect(&game->hero->body, &room->platforms[i]->body);
+        if (isCollision == true) {
+            game->hero->onCollision(room->platforms[i]);
         }
+    }
+    if (isCollision == false) {
+        for (int i = 0; i < room->numSpikes; i++) {
+            isCollision = collisionRectTri(&game->hero->body, &room->spikes[i]->body);
+            if (isCollision == true) {
+                game->hero->onCollision(room->spikes[i]);
+            }
+        }
+    }
+
+    if (game->hero->state == DEATH) {
+        // TEMPORARY: return hero to start
+        game->hero->state = JUMPING;
+        game->hero->jumpInitiated = 0;
+        game->hero->initialJump = 0;
+        game->hero->secondJump = 0;
+        game->hero->jumpCount = 0;
+        game->hero->jumpRelease = 1;
+        game->hero->jumpFinished = 0;
+        game->hero->body.center[0] = 400;
+        game->hero->body.center[1] = 250;
+        game->hero->body.center[2] = 0;
+        game->hero->prevPosition[0] = 400;
+        game->hero->prevPosition[1] = 250;
+        game->hero->prevPosition[2] = 0;
+        game->hero->velocity[0] = 0;
+        game->hero->velocity[1] = 0;
+        game->currentHorizontalLevel = 3;
+        game->currentVerticalLevel = 1;
     }
     game->checkRoom();
 }
@@ -370,16 +547,16 @@ void render_game(Game* game)
     float w, h;
 
     // Draw the Hero to the screen
-    glColor3ub(200,200,200);
+    glColor3ub(100,100,100);
     glPushMatrix();
     glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
     w = game->hero->body.width;
     h = game->hero->body.height;
     glBegin(GL_QUADS);
-    glVertex2i(-w,-h);
-    glVertex2i(-w,h);
-    glVertex2i(w,-h);
-    glVertex2i(w,h);
+        glVertex2i(-w,-h);
+        glVertex2i(-w,h);
+        glVertex2i(w,-h);
+        glVertex2i(w,h);
     glEnd();
     glPopMatrix();
 
@@ -388,10 +565,10 @@ void render_game(Game* game)
         glPushMatrix();
         glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_QUADS);
-        glVertex2i(-entity->body.width,-entity->body.height);
-        glVertex2i(-entity->body.width,entity->body.height);
-        glVertex2i(entity->body.width,-entity->body.height);
-        glVertex2i(entity->body.width,entity->body.height);
+            glVertex2i(-entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,-entity->body.height);
+            glVertex2i(entity->body.width,entity->body.height);
         glEnd();
         glPopMatrix();
     }
@@ -401,23 +578,35 @@ void render_game(Game* game)
         glPushMatrix();
         glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_QUADS);
-        glVertex2i(-entity->body.width,-entity->body.height);
-        glVertex2i(-entity->body.width,entity->body.height);
-        glVertex2i(entity->body.width,entity->body.height);
-        glVertex2i(entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,-entity->body.height);
         glEnd();
         glPopMatrix();
     }
 
-    for(auto entity : current_level->objects) {
+    for(auto entity : current_level->platforms) {
         glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
         glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_QUADS);
-        glVertex2i(-entity->body.width,-entity->body.height);
-        glVertex2i(-entity->body.width,entity->body.height);
-        glVertex2i(entity->body.width,entity->body.height);
-        glVertex2i(entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,-entity->body.height);
+        glEnd();
+        glPopMatrix();
+    }
+
+    for(auto entity : current_level->spikes) {
+        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBegin(GL_TRIANGLES);
+            glVertex3fv(entity->body.corners[0]);
+            glVertex3fv(entity->body.corners[1]);
+            glVertex3fv(entity->body.corners[2]);
         glEnd();
         glPopMatrix();
     }
