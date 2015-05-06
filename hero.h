@@ -2,7 +2,7 @@
 #define HERO_H
 
 #include "gameObject.h"
-enum CharacterState {STANDING, WALKING, JUMPING, DEATH};
+
 class Hero : public GameObject
 {
     public:

@@ -13,6 +13,15 @@ Game::Game()
     this->currentVerticalLevel = 1;
     this->totalHorizontal = 20;
     this->totalVertical = 5;
+    this->state = MAIN_MENU;
+    this->isPlatformMovable = false;
+    this->isPlatformResizable = false;
+    this->movablePlatformIndex = 0;
+    this->resizablePlatformIndex = 0;
+    this->resizablePlatformX = 0;
+    this->resizablePlatformY = 0;
+    this->platformTextureHeight = 15;
+    this->platformTextureWidth = 15;
     initLevel();
     fillLevel();
 }
@@ -55,22 +64,52 @@ Room * Game::getRoomPtr()
 
 void Game::moveRoomLeft()
 {
-    currentHorizontalLevel--;
+    if (currentHorizontalLevel > 0)
+        currentHorizontalLevel--;
 }
 
 void Game::moveRoomRight()
 {
-    currentHorizontalLevel++;
+    if (currentHorizontalLevel < 19)
+        currentHorizontalLevel++;
 }
 
 void Game::moveRoomUp()
 {
-    currentVerticalLevel++;
+    if (currentVerticalLevel < 4)
+        currentVerticalLevel++;
 }
 
 void Game::moveRoomDown()
 {
-    currentVerticalLevel--;
+    if (currentVerticalLevel > 0 )
+        currentVerticalLevel--;
+}
+
+void Game::resizePlatform(GameObject * mouse)
+{
+    Room * room = this->getRoomPtr();
+    GameObject * platform = room->platforms[this->resizablePlatformIndex];
+    int mouseX = (int)mouse->body.center[0];
+    int mouseY = (int)mouse->body.center[1];
+    int height = (( ( mouseY - this->resizablePlatformY) / ( platform->textureHeight)) * platform->textureHeight + platform->textureHeight);
+    int width = (( ( mouseX - this->resizablePlatformX) / ( platform->textureWidth)) * platform->textureWidth + platform->textureWidth);
+
+    if ( width <= 0){
+        platform->body.width = platform->textureWidth;
+    }
+    else{
+        platform->body.width = width;
+        platform->horizontalTiles = platform->body.width / platform->textureWidth;
+    }
+    if ( height <= 0){
+        platform->body.height = platform->textureHeight;
+    }
+    else{
+        platform->body.height = height;
+        platform->verticalTiles = platform->body.height / platform->textureHeight;
+    }
+        
 }
 
 void Game::initLevel()
@@ -175,4 +214,55 @@ void Game::fillLevel()
     }
 }
 
+void Game::saveRooms()
+{
+    string line, roomType;
+    string filename = "Rooms/room";
+    ofstream file;
+    int convVal[4]; //four
+    const int pathsize = filename.length();
+    char roomNum[] = "0000";
+
+    // Room file format:
+    // file name: roomCCRR.txt, RR = row number, CC = col number
+    // line:  (int)width,(int)height,(int)center-x,(int)center-y,(str)type  
+
+    filename.append(roomNum);
+    filename.append(".txt");
+    for (int vert = 0; vert < 1; vert++) {
+        for (int horz = 0; horz < 1; horz++) {
+            // remove previous room number
+            filename.erase(pathsize,4);
+
+            // increment room numbers
+            roomNum[0] = (char)((horz/10) + 48);
+            roomNum[1] = (char)((horz%10) + 48);
+            roomNum[2] = (char)((vert/10) + 48);
+            roomNum[3] = (char)((vert%10) + 48);
+
+            // insert new room number
+            filename.insert(pathsize,roomNum);
+
+            file.open(filename.c_str(),std::ofstream::out);
+            if (!file.is_open()) {
+                cout << "Error: Could not open input file '" << filename << "'\n";
+                continue;
+            }
+            else {
+                cout << "Writing: " << filename << endl;
+            }
+
+            for (unsigned int i = 0; i < level[vert][horz].platforms.size(); i++){
+
+                convVal[0] = level[vert][horz].platforms[i]->body.width;
+                convVal[1] = level[vert][horz].platforms[i]->body.height;
+                convVal[2] = level[vert][horz].platforms[i]->body.center[0];
+                convVal[3] = level[vert][horz].platforms[i]->body.center[1];
+  
+                file << "GROUND," << convVal[0] << "," << convVal[1] << "," << convVal[2] << "," << convVal[3] << "\n";
+            }
+            file.close();
+        }
+    }
+}
 

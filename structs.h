@@ -21,6 +21,11 @@
 
 using namespace std;
 
+enum ShapeType {RECTANGLE, TRIANGLE/*, CIRCLE*/};
+enum GameState {MAIN_MENU, PLAYING, EXIT_GAME, LEVEL_EDITOR};
+enum ObjectType {HERO, ENEMY, SPIKE, PLATFORM};
+enum CharacterState {STANDING, WALKING, JUMPING, DEATH};
+
 typedef struct t_rect
 {
 	int left;
@@ -45,8 +50,6 @@ typedef struct t_button
 	float dcolor[3];
 	unsigned int text_color;
 } Button;
-
-enum ShapeType {RECTANGLE, TRIANGLE/*, CIRCLE*/};
 
 // Shape structure used to represent dimensions and position on the screen
 struct Shape

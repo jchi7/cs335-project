@@ -3,7 +3,6 @@
 
 #include "inputComponent.h"
 
-enum ObjectType {HERO, ENEMY, SPIKE, PLATFORM};
 class GameObject
 {
     public:
@@ -11,7 +10,10 @@ class GameObject
         ObjectType id;
         int rgb[3];
         float gravity;
-
+        int textureWidth;
+        int textureHeight;
+        int horizontalTiles;
+        int verticalTiles;
         GameObject();
         virtual ~GameObject();
         virtual void update();
