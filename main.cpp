@@ -549,6 +549,22 @@ void check_game_input(XEvent *e, Game *game)
                     game->movablePlatformIndex = room->platforms.size() - 1;
                 }
             }
+            if (key == XK_s){
+                Room * room = game->getRoomPtr();
+                Vec spike[3];
+                spike[0][0] = e->xbutton.x;
+                spike[0][1] = WINDOW_HEIGHT - e->xbutton.y;
+                spike[0][2] = 0;
+                spike[1][0] = e->xbutton.x + 40;
+                spike[1][1] = WINDOW_HEIGHT - e->xbutton.y;
+                spike[1][2] = 0;
+                spike[2][0] = e->xbutton.x + 20;
+                // (sqrt(3) / 2 ) * width  = height for equilateral triangle
+                spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 34.641;
+                spike[2][2] = 0;
+                room->spikes.push_back(new Spike(spike));
+                room->numSpikes++;
+            }
             if (key == XK_x){
                 if (game->isPlatformMovable && game->isPlatformResizable == false){
                     game->isPlatformMovable = false;
@@ -789,7 +805,7 @@ void render_game(Game* game)
     for(auto entity : current_level->spikes) {
         glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
-        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+ //     glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_TRIANGLES);
             glVertex3fv(entity->body.corners[0]);
             glVertex3fv(entity->body.corners[1]);
