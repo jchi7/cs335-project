@@ -61,6 +61,9 @@ struct Shape
   float radius;
 };
 
+struct Coordinates {
+    float x1,x2,y1,y2;
+};
 //External Global Variables
 // extern int leftPressed ;
 // extern int rightPressed ;

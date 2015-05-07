@@ -7,7 +7,7 @@ LFLAGS = -std=c++0x -lX11 -lGLU -lGL -lm #-lXrandr
 all: game.o hero.o basicEnemy.o room.o gameObject.o platform.o spikes.o vecFxns.o collisions.o main
 
 mac2:
-	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp gameObject.cpp platform.cpp spike.cpp collisions.cpp vecFxns.cpp -Wall -oGame -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11
+	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp gameObject.cpp platform.cpp spike.cpp ppm.cpp collisions.cpp vecFxns.cpp -Wall -oGame -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11
 
 315:
 	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp gameObject.cpp platform.cpp spike.cpp collisions.cpp vecFxns.cpp -Wall -oGame -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -L/usr/lib/nvidia-331/ -lX11 -std=c++11

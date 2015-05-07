@@ -17,7 +17,16 @@ class Hero : public GameObject
         int numBullets;
         int maxBullets;
         int bulletVelocity;
-        // Temp for colors
+        // These are the variables for the sprite sheets
+        float walkingIncrementor = .087;
+        float idleIncrementor = .068;
+        
+        Coordinates heroJump[10];
+        Coordinates heroIdleR[10];
+        Coordinates heroIdleL[10];
+        Coordinates heroWalkingR[10];
+        Coordinates heroWalkingL[10];
+
 
         // jumpInitiated is set to 1 when the jump key is pressed
         int jumpInitiated;
