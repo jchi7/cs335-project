@@ -811,23 +811,35 @@ void render_game(Game* game)
         glEnd();
         glPopMatrix();
 
-        w = entity -> body.width;
-        h = entity -> body.height;
+        w = entity -> textureWidth;
+        h = entity -> textureHeight;
+        //helloworld
+        
+        int cornerX = entity->body.center[0] - entity->body.width;
+        int cornerY = entity->body.center[1] + entity -> body.height;
 
-        //The follwoing code is to draw the platforms
-        glEnable(GL_TEXTURE_2D);
-        glColor4ub(255,255,255,255);
-        glPushMatrix();
-        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
-        glBindTexture(GL_TEXTURE_2D, rockTexture);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
-        glTexCoord2f(0.1f,0.0f); glVertex2i(-w,h);
-        glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
-        glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
-        glEnd();
-        glPopMatrix();
+        for (int row = 0; row < entity->verticalTiles; row++){
+            int rowOffset = cornerY - ((row * game->platformTextureHeight * 2) + game->platformTextureHeight);    
 
+            for (int column = 0; column < entity->horizontalTiles; column++){
+                //The follwoing code is to draw the platforms
+                int colOffset = cornerX + (column * game->platformTextureWidth * 2) + game -> platformTextureWidth;
+                glEnable(GL_TEXTURE_2D);
+                glColor4ub(255,255,255,255);
+                glPushMatrix();
+                //glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+                glTranslatef(colOffset, rowOffset, entity->body.center[2]);
+                glBindTexture(GL_TEXTURE_2D, rockTexture);
+                glBegin(GL_QUADS);
+                glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
+                glTexCoord2f(0.1f,0.0f); glVertex2i(-w,h);
+                glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
+                glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
+                glEnd();
+                glPopMatrix();
+
+            }
+        }
     }
 
     for(auto entity : current_level->spikes) {
