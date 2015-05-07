@@ -310,28 +310,28 @@ void moveSpike(XEvent *e, Game *game){
     spike[0][0] = e->xbutton.x;
     spike[0][1] = WINDOW_HEIGHT - e->xbutton.y;
     if (currentSpike->spikeOrientation == 0){
-        spike[1][0] = e->xbutton.x + 40;
+        spike[1][0] = e->xbutton.x + 30;
         spike[1][1] = WINDOW_HEIGHT - e->xbutton.y;
-        spike[2][0] = e->xbutton.x + 20;
-        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 34.641;
+        spike[2][0] = e->xbutton.x + 15;
+        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 25.981;
     }
     if (currentSpike->spikeOrientation == 1){
         spike[1][0] = e->xbutton.x;
-        spike[1][1] = WINDOW_HEIGHT - e->xbutton.y + 40;
-        spike[2][0] = e->xbutton.x - 34.641;
-        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 20;
+        spike[1][1] = WINDOW_HEIGHT - e->xbutton.y + 30;
+        spike[2][0] = e->xbutton.x - 25.981;
+        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 15;
     }
     if (currentSpike->spikeOrientation == 2){
-        spike[1][0] = e->xbutton.x - 40;
+        spike[1][0] = e->xbutton.x - 30;
         spike[1][1] = WINDOW_HEIGHT - e->xbutton.y;
-        spike[2][0] = e->xbutton.x - 20;
-        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y - 34.641;
+        spike[2][0] = e->xbutton.x - 15;
+        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y - 25.981;
     }
     if (currentSpike->spikeOrientation == 3){
         spike[1][0] = e->xbutton.x;
-        spike[1][1] = WINDOW_HEIGHT - e->xbutton.y - 40;
-        spike[2][0] = e->xbutton.x + 34.641;
-        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y - 20;
+        spike[1][1] = WINDOW_HEIGHT - e->xbutton.y - 30;
+        spike[2][0] = e->xbutton.x + 25.981;
+        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y - 15;
     }
 
     vecCopy(spike[0], currentRoom->spikes[game->movableSpikeIndex]->body.corners[0]);
@@ -462,28 +462,17 @@ void check_game_input(XEvent *e, Game *game)
                         room->spikes[game->movableSpikeIndex]->spikeOrientation++;
                     }
 
-                /*    spike[0][0] = e->xbutton.x;
-                    spike[0][1] = WINDOW_HEIGHT - e->xbutton.y;
-                    spike[0][2] = 0;
-                    spike[1][0] = e->xbutton.x + 40;
-                    spike[1][1] = WINDOW_HEIGHT - e->xbutton.y;
-                    spike[1][2] = 0;
-                    spike[2][0] = e->xbutton.x + 20;
-                    // (sqrt(3) / 2 ) * width  = height for equilateral triangle
-                    spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 34.641;
-                    spike[2][2] = 0;
-                  */  
                 }
                 if (!game->isSpikeMovable && !game->isPlatformMovable && !game->isPlatformMovable){
                     spike[0][0] = e->xbutton.x;
                     spike[0][1] = WINDOW_HEIGHT - e->xbutton.y;
                     spike[0][2] = 0;
-                    spike[1][0] = e->xbutton.x + 40;
+                    spike[1][0] = e->xbutton.x + 30;
                     spike[1][1] = WINDOW_HEIGHT - e->xbutton.y;
                     spike[1][2] = 0;
-                    spike[2][0] = e->xbutton.x + 20;
+                    spike[2][0] = e->xbutton.x + 15;
                     // (sqrt(3) / 2 ) * width  = height for equilateral triangle
-                    spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 34.641;
+                    spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 25.981;
                     spike[2][2] = 0;
                     room->spikes.push_back(new Spike(spike,0));
                     room->numSpikes++;
@@ -500,17 +489,24 @@ void check_game_input(XEvent *e, Game *game)
                 }
             }
             if (key == XK_z){
-                if (!game->isPlatformMovable && game->isPlatformResizable == false){
+                if (!game->isPlatformMovable && !game->isPlatformResizable && !game->isSpikeMovable){
                     Room * room = game->getRoomPtr();
                     mouse.body.center[0] = e->xbutton.x;
                     mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
-            //        cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
                     for (unsigned int k = 0; k < room->platforms.size(); k++){
                         if (collisionRectRect(&mouse.body,&room->platforms[k]->body)){
                             game->movablePlatformIndex = k;
                             game->isPlatformMovable = true;
                             cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
                             cout << k << endl;
+                            break;
+                        }
+                    }
+                    for (int k = 0; k < room->spikes.size(); k++){
+                        if (collisionRectTri(&mouse.body, &room->spikes[k]->body)){
+                            game->movableSpikeIndex = k;
+                            game->isSpikeMovable = true;
+                            break;
                         }
                     }
                 }   
@@ -571,7 +567,6 @@ void check_game_input(XEvent *e, Game *game)
     }
 
     if (game->isPlatformResizable){
-        //Room * room = game->getRoomPtr(); // UNUSED!
         mouse.body.center[0] = e->xbutton.x;
         mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
         game->resizePlatform(&mouse);

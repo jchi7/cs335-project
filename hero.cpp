@@ -58,19 +58,19 @@ void Hero::movement()
         body.center[0] += 3;
     }
     if (initialJump == 1){
-        velocity[1] = 7;
+        velocity[1] = 5.5;
         state = JUMPING;
         initialJump = 0;
         jumpCount++;
     }
     if (secondJump == 1) {
-        velocity[1] = 7;
+        velocity[1] = 5.5;
         state = JUMPING;
         secondJump = 0;
         jumpCount++;
     }
     body.center[1] += velocity[1];
-    if (velocity[1] > -10)
+    if (velocity[1] > -7)
         velocity[1] += gravity;
     if (prevPosition[1] > (body.center[1] + 2) && (state == STANDING || state == WALKING)){
         state = JUMPING;
