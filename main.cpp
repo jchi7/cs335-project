@@ -53,11 +53,13 @@ void renderHero(GLuint heroTexture,Game* game  ,Coordinates* heroSprite,int inde
 GLuint getBMP(const char *path);
 Ppmimage *guiBackgroundImage = NULL;
 Ppmimage *rockImage = NULL;
+Ppmimage *mainMenuButtonsEditImage = NULL;
 Ppmimage *heroImage = NULL;
 Ppmimage *backgroundImage = NULL;
 Ppmimage *mainMenuButtonsImage = NULL;
 Ppmimage *mainMenuButtonsExitImage = NULL;
 GLuint guiBackgroundTexture;
+GLuint mainMenuButtonsEditTexture;
 GLuint rockTexture;
 GLuint heroTexture;
 GLuint forestTexture;
@@ -195,12 +197,14 @@ void init_opengl(void) {
     //Importing Images
 
     heroImage = ppm6GetImage("./images/HeroSpriteSheet.ppm");
+    mainMenuButtonsEditImage = ppm6GetImage("./images/Leveleditor.ppm");
     backgroundImage = ppm6GetImage("./images/Background1.ppm");
     rockImage = ppm6GetImage("./images/Rock.ppm");
     mainMenuButtonsImage = ppm6GetImage("./images/start.ppm");
     guiBackgroundImage = ppm6GetImage("./images/GuiBackground.ppm");
     mainMenuButtonsExitImage = ppm6GetImage("./images/exit.ppm");
     glGenTextures(1, &heroTexture);
+    glGenTextures(1, &mainMenuButtonsEditTexture);
     glGenTextures(1, &forestTexture);
     glGenTextures(1, &rockTexture);
     glGenTextures(1, &mainMenuButtonsTexture);
@@ -241,7 +245,15 @@ void init_opengl(void) {
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w, y, 0,
             GL_RGB, GL_UNSIGNED_BYTE, mainMenuButtonsExitImage->data);
 
-
+    //Setting up the Level Editor button image texture....
+    w = mainMenuButtonsEditImage->width;
+    y = mainMenuButtonsEditImage->height;
+    glBindTexture(GL_TEXTURE_2D,mainMenuButtonsEditTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, y, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, mainMenuButtonsEditImage->data);
+    
     //Setting up the Rock Platforms Texture....
     w = rockImage->width;
     y = rockImage->height;
@@ -409,6 +421,22 @@ void render_MainMenu(void) {
             //BmainMenuButtonsTexture,0.1,0.9,0.1,0.9, 200, 30);
         }
 
+        if(i == 1) {
+            //This will be a call to the function to render.
+            //BmainMenuButtonsExitTexture,0.1,0.9,0.1,0.9,200,30);
+            glEnable(GL_TEXTURE_2D);
+            glColor4ub(255,255,255,255);
+            glPushMatrix();
+            glTranslatef(button[i].r.centerx,button[i].r.centery, 0.0f);
+            glBindTexture(GL_TEXTURE_2D,mainMenuButtonsEditTexture);
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.1f,.9f); glVertex2i(-50,-20);
+            glTexCoord2f(0.1f,0.1f); glVertex2i(-50,20); //smenu
+            glTexCoord2f(.9f,0.1f); glVertex2i(50,20);
+            glTexCoord2f(.9f,.9f); glVertex2i(50,-20);
+            glEnd();
+            glPopMatrix();
+        }
         if(i == 2) {
             //This will be a call to the function to render.
             //BmainMenuButtonsExitTexture,0.1,0.9,0.1,0.9,200,30);
