@@ -25,6 +25,7 @@ enum ShapeType {RECTANGLE, TRIANGLE/*, CIRCLE*/};
 enum GameState {MAIN_MENU, PLAYING, EXIT_GAME, LEVEL_EDITOR};
 enum ObjectType {HERO, ENEMY, SPIKE, PLATFORM};
 enum CharacterState {STANDING, WALKING, JUMPING, DEATH};
+enum ShapeOrientation {FACING_UP, FACING_LEFT, FACING_DOWN, FACING_RIGHT};
 
 typedef struct t_rect
 {
@@ -57,6 +58,7 @@ struct Shape
   ShapeType type;
   Vec center;
   Vec corners[3];
+  ShapeOrientation orientation;
   float width, height;
   float radius;
 };

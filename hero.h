@@ -12,7 +12,6 @@ class Hero : public GameObject
         int rightPressed;
         Vec prevPosition;
         Vec velocity;
-        int facing;
 
         int numBullets;
         int maxBullets;

@@ -16,7 +16,9 @@ Game::Game()
     this->state = MAIN_MENU;
     this->isPlatformMovable = false;
     this->isPlatformResizable = false;
+    this->isSpikeMovable = false;
     this->movablePlatformIndex = 0;
+    this->movableSpikeIndex = 0;
     this->resizablePlatformIndex = 0;
     this->resizablePlatformX = 0;
     this->resizablePlatformY = 0;
@@ -131,6 +133,7 @@ void Game::fillLevel()
     ifstream file;
     const int pathsize = filename.length();
     char roomNum[] = "0000";
+    int spikeOrientation = 0;
 
     // Room file format:
     // file name: roomCCRR.txt, RR = row number, CC = col number
@@ -200,13 +203,24 @@ void Game::fillLevel()
                         //cout << converter.str() << endl;
                         converter >> spikePts[col/2][col%2];
                     }
+                    getline(iss, val, ',');
+                    stringstream converter(val);
+                    converter >> spikeOrientation;
+                    
                     for (int setZCoord = 0; setZCoord < 3; setZCoord++) {
                         spikePts[setZCoord][2] = 0;
                     }
-                    level[vert][horz].spikes.push_back(new Spike(spikePts));
+                    if (spikeOrientation == 0)
+                        level[vert][horz].spikes.push_back(new Spike(spikePts,FACING_UP));
+                    if (spikeOrientation == 1)
+                        level[vert][horz].spikes.push_back(new Spike(spikePts,FACING_LEFT));
+                    if (spikeOrientation == 2)
+                        level[vert][horz].spikes.push_back(new Spike(spikePts,FACING_DOWN));
+                    if (spikeOrientation == 3)
+                        level[vert][horz].spikes.push_back(new Spike(spikePts,FACING_RIGHT));
                     level[vert][horz].numSpikes++;
                     // DEBUG:
-                    cout << "Created spike in [" << vert << "][" << horz <<"]: " << vecPrint(spikePts[0]) << ", " << vecPrint(spikePts[1]) << ", " << vecPrint(spikePts[2]) << endl;
+                    cout << "Created spike in [" << vert << "][" << horz <<"]: " << vecPrint(spikePts[0]) << ", " << vecPrint(spikePts[1]) << ", " << vecPrint(spikePts[2]) << ", " << spikeOrientation << endl;
                 }
             }
             file.close();

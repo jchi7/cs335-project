@@ -17,7 +17,9 @@ class Game
         GameState state;
         bool isPlatformMovable;
         bool isPlatformResizable;
+        bool isSpikeMovable;
         int movablePlatformIndex;
+        int movableSpikeIndex;
         int resizablePlatformIndex;
         int resizablePlatformX;
         int resizablePlatformY;

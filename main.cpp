@@ -28,6 +28,7 @@ void render_MainMenu(void);
 void check_menu_button(XEvent *e, Game * game);
 void check_game_input(XEvent *e, Game * game);
 void movePlatform(XEvent *e, Game * game);
+void moveSpike(XEvent *e, Game * game);
 void physics(Game * game);
 void render_game(Game* game);
 
@@ -132,6 +133,8 @@ int main()
                     check_game_input(&e, &newgame);
                     if (newgame.isPlatformMovable == true)
                         movePlatform(&e, &newgame);
+                    if (newgame.isSpikeMovable == true)
+                        moveSpike(&e, &newgame);
                 }
                 if (doPhysics == true){
                     physics(&newgame);
@@ -463,7 +466,43 @@ void movePlatform(XEvent *e, Game *game){
     currentRoom->platforms[game->movablePlatformIndex]->body.center[0] = e->xbutton.x;
     currentRoom->platforms[game->movablePlatformIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
 }
-
+void moveSpike(XEvent *e, Game *game){
+    Room * currentRoom = game->getRoomPtr();
+    GameObject * currentSpike = currentRoom->spikes[game->movableSpikeIndex];
+    Vec spike[3];
+    spike[0][2] = 0;
+    spike[1][2] = 0;
+    spike[2][2] = 0;
+    spike[0][0] = e->xbutton.x;
+    spike[0][1] = WINDOW_HEIGHT - e->xbutton.y;
+    if (currentSpike->body.orientation == FACING_UP){
+        spike[1][0] = e->xbutton.x + 30;
+        spike[1][1] = WINDOW_HEIGHT - e->xbutton.y;
+        spike[2][0] = e->xbutton.x + 15;
+        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 25.981;
+    }
+    if (currentSpike->body.orientation == FACING_LEFT){
+        spike[1][0] = e->xbutton.x;
+        spike[1][1] = WINDOW_HEIGHT - e->xbutton.y + 30;
+        spike[2][0] = e->xbutton.x - 25.981;
+        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 15;
+    }
+    if (currentSpike->body.orientation == FACING_DOWN){
+        spike[1][0] = e->xbutton.x - 30;
+        spike[1][1] = WINDOW_HEIGHT - e->xbutton.y;
+        spike[2][0] = e->xbutton.x - 15;
+        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y - 25.981;
+    }
+    if (currentSpike->body.orientation == FACING_RIGHT){
+        spike[1][0] = e->xbutton.x;
+        spike[1][1] = WINDOW_HEIGHT - e->xbutton.y - 30;
+        spike[2][0] = e->xbutton.x + 25.981;
+        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y - 15;
+    }
+    vecCopy(spike[0], currentRoom->spikes[game->movableSpikeIndex]->body.corners[0]);
+    vecCopy(spike[1], currentRoom->spikes[game->movableSpikeIndex]->body.corners[1]);
+    vecCopy(spike[2], currentRoom->spikes[game->movableSpikeIndex]->body.corners[2]);
+}
 void check_menu_button(XEvent *e, Game * game)
 {
   static int savex = 0;
@@ -569,7 +608,7 @@ void check_game_input(XEvent *e, Game *game)
                 game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
             }
             if (key == XK_Shift_L){
-                if (!game->isPlatformMovable && game->isPlatformResizable == false){
+                if (!game->isPlatformMovable && !game->isPlatformResizable && !game->isSpikeMovable){
                     Room * room = game->getRoomPtr();
                     room->platforms.push_back(new Platform(game->platformTextureWidth,game->platformTextureHeight,e->xbutton.x, WINDOW_HEIGHT - e->xbutton.y));
                     room->numPlatforms++;
@@ -580,22 +619,43 @@ void check_game_input(XEvent *e, Game *game)
             if (key == XK_s){
                 Room * room = game->getRoomPtr();
                 Vec spike[3];
-                spike[0][0] = e->xbutton.x;
-                spike[0][1] = WINDOW_HEIGHT - e->xbutton.y;
-                spike[0][2] = 0;
-                spike[1][0] = e->xbutton.x + 40;
-                spike[1][1] = WINDOW_HEIGHT - e->xbutton.y;
-                spike[1][2] = 0;
-                spike[2][0] = e->xbutton.x + 20;
-                // (sqrt(3) / 2 ) * width  = height for equilateral triangle
-                spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 34.641;
-                spike[2][2] = 0;
-                room->spikes.push_back(new Spike(spike));
-                room->numSpikes++;
+                if (game->isSpikeMovable){
+                    if (room->spikes[game->movableSpikeIndex]->body.orientation == FACING_UP){
+                        room->spikes[game->movableSpikeIndex]->body.orientation = FACING_LEFT;
+                    }
+                    else if (room->spikes[game->movableSpikeIndex]->body.orientation == FACING_LEFT){
+                        room->spikes[game->movableSpikeIndex]->body.orientation = FACING_DOWN;
+                    }
+                    else if (room->spikes[game->movableSpikeIndex]->body.orientation == FACING_DOWN){
+                        room->spikes[game->movableSpikeIndex]->body.orientation = FACING_RIGHT;
+                    }
+                    else if (room->spikes[game->movableSpikeIndex]->body.orientation == FACING_RIGHT){
+                        room->spikes[game->movableSpikeIndex]->body.orientation = FACING_UP;
+                    }
+                }
+                if (!game->isSpikeMovable && !game->isPlatformMovable && !game->isPlatformMovable){
+                    spike[0][0] = e->xbutton.x;
+                    spike[0][1] = WINDOW_HEIGHT - e->xbutton.y;
+                    spike[0][2] = 0;
+                    spike[1][0] = e->xbutton.x + 30;
+                    spike[1][1] = WINDOW_HEIGHT - e->xbutton.y;
+                    spike[1][2] = 0;
+                    spike[2][0] = e->xbutton.x + 15;
+                    // (sqrt(3) / 2 ) * width  = height for equilateral triangle
+                    spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 25.981;
+                    spike[2][2] = 0;
+                    room->spikes.push_back(new Spike(spike,FACING_UP));
+                    room->numSpikes++;
+                    game->isSpikeMovable = true;
+                    game->movableSpikeIndex = room->spikes.size() - 1;
+                }
             }
             if (key == XK_x){
                 if (game->isPlatformMovable && game->isPlatformResizable == false){
                     game->isPlatformMovable = false;
+                }
+                if (game->isSpikeMovable){
+                    game->isSpikeMovable = false;
                 }
             }
             if (key == XK_z){
@@ -610,6 +670,14 @@ void check_game_input(XEvent *e, Game *game)
                             game->isPlatformMovable = true;
                             cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
                             cout << k << endl;
+                            break;
+                        }
+                    }
+                    for (int k = 0; k < room->spikes.size(); k++){
+                        if (collisionRectTri(&mouse.body, &room->spikes[k]->body)){
+                            game->movableSpikeIndex = k;
+                            game->isSpikeMovable = true;
+                            break;
                         }
                     }
                 }   
@@ -845,7 +913,6 @@ void render_game(Game* game)
     for(auto entity : current_level->spikes) {
         glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
- //     glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_TRIANGLES);
             glVertex3fv(entity->body.corners[0]);
             glVertex3fv(entity->body.corners[1]);
