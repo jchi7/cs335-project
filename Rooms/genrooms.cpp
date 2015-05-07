@@ -11,7 +11,7 @@ int main()
       fname[6] = (char)48;
       fname[7] = (char)(j+48);
       ofstream fout(fname);
-      fout << "500,50,500,50,GROUND\n";
+      fout << "GROUND,500,50,500,50\n";
       fout.close();
     }
   }

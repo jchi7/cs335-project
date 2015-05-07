@@ -6,13 +6,7 @@
 class Platform : public GameObject
 {
     public:
-        enum platformType {
-            GROUND,
-            SPIKE
-        };
-        platformType type;
-
-        Platform(int width, int height, int x, int y, const char * ptype);
+        Platform(int width, int height, int x, int y);
         virtual ~Platform();
         void update();
     protected:

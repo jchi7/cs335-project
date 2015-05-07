@@ -1,14 +1,30 @@
-version 1.1
+////////////////// version 1.2 //////////////////
+(Sunny)
+
+PRIMARY CHANGES:
+--- collisions:
+  Functions have been set up in collisions.h/cpp to support most* triangle rectangle collisions.
+    *The collision may not be detected if the rectangle has a slim, long shape in comparison to the triangle, and is moving quickly.
+
+
+
+--- structural:
+  All GameObject classes now have an 'id' variable, which stores an enumerated code for the object type (may currently be HERO, PLATFORM, ENEMY, or SPIKE).
+
+  The Shape struct now contains a 'type' variable, which stores an enumerated code for the shape type (may currently be RECTANGLE or TRIANGLE)
+
+  Both the Shape:type and GameObject:id variables are set in the class constructors for Hero, Spike, Platform, and BasicEnemy
+
+
+
+--- additions:
+  Unit testing is currently being added for modules in the game. Some of the less relevant / simpler modules may be skipped.
+
+
+
+
+////////////////// version 1.1 //////////////////
 (Sunny/Mark)
-
-
-
-TO DO:
-1. set up functionality for different platform types
-2. ensure the room are in their correct places in the grid
-3. disallow switching to a room if it has not been initialized (to prevent segfault)
-
-
 
 CHANGES:
 --- ALL CLASSES:
@@ -20,6 +36,8 @@ CHANGES:
   File format has been changed so that each platform's information is stored on one line, with each piece of information separated by a comma (CSV file). The format for a single line (platform) is as follows:
     (int)width,(int)height,(int)center-x,(int)center-y,(str)type
     - where type may currently be GROUND or SPIKE (no difference yet in functionality)
+
+  main.cpp and the Game class has been fixed to ensure rooms are loaded in the correct positions, and that switching between rooms is consistent
 
 
 

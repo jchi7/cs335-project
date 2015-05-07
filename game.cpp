@@ -1,7 +1,3 @@
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
 #include "game.h"
 using namespace std;
 
@@ -20,7 +16,9 @@ Game::Game()
     this->state = MAIN_MENU;
     this->isPlatformMovable = false;
     this->isPlatformResizable = false;
+    this->isSpikeMovable = false;
     this->movablePlatformIndex = 0;
+    this->movableSpikeIndex = 0;
     this->resizablePlatformIndex = 0;
     this->resizablePlatformX = 0;
     this->resizablePlatformY = 0;
@@ -41,18 +39,22 @@ void Game::checkRoom()
     if (hero->body.center[0] > WINDOW_WIDTH){
         currentHorizontalLevel++;
         hero->body.center[0] = 0 + hero->body.width;
+        cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[0] < 0){
         currentHorizontalLevel--;
         hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+        cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[1] > WINDOW_HEIGHT){
         currentVerticalLevel++;
         hero->body.center[1] = 0 + hero->body.height;
+        cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[1] < 0){
         currentVerticalLevel--;
         hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+        cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
 
 }
@@ -85,10 +87,11 @@ void Game::moveRoomDown()
     if (currentVerticalLevel > 0 )
         currentVerticalLevel--;
 }
+
 void Game::resizePlatform(GameObject * mouse)
 {
     Room * room = this->getRoomPtr();
-    GameObject * platform = room->objects[this->resizablePlatformIndex];
+    GameObject * platform = room->platforms[this->resizablePlatformIndex];
     int mouseX = (int)mouse->body.center[0];
     int mouseY = (int)mouse->body.center[1];
     int height = (( ( mouseY - this->resizablePlatformY) / ( platform->textureHeight)) * platform->textureHeight + platform->textureHeight);
@@ -110,11 +113,12 @@ void Game::resizePlatform(GameObject * mouse)
     }
         
 }
+
 void Game::initLevel()
 {
     std::vector<Room> tempRow;
-    for (int vertical = 0; vertical < 6; vertical++) {
-        for (int horizontal = 0; horizontal < 20; horizontal++) {
+    for (int vertical = 0; vertical < totalVertical; vertical++) {
+        for (int horizontal = 0; horizontal < totalHorizontal; horizontal++) {
             tempRow.push_back(Room());
         }
         level.push_back(tempRow);
@@ -124,12 +128,12 @@ void Game::initLevel()
 
 void Game::fillLevel()
 {
-    string line, roomType;
+    string line, objType;
     string filename = "Rooms/room";
     ifstream file;
-    int convVal[4]; //four
     const int pathsize = filename.length();
     char roomNum[] = "0000";
+    int spikeOrientation = 0;
 
     // Room file format:
     // file name: roomCCRR.txt, RR = row number, CC = col number
@@ -137,8 +141,8 @@ void Game::fillLevel()
 
     filename.append(roomNum);
     filename.append(".txt");
-    for (int vert = 0; vert < 5; vert++) {
-        for (int horz = 0; horz < 20; horz++) {
+    for (int vert = 0; vert < totalVertical; vert++) {
+        for (int horz = 0; horz < totalHorizontal; horz++) {
             // remove previous room number
             filename.erase(pathsize,4);
 
@@ -153,12 +157,15 @@ void Game::fillLevel()
 
             file.open(filename.c_str());
             if (!file.is_open()) {
+                // DEBUG:
                 cout << "Error: Could not open input file '" << filename << "'\n";
                 continue;
             }
             else {
-                cout << "Reading: " << filename << endl;
+                // DEBUG:
+                //cout << "Reading: " << filename << endl;
             }
+
             while (getline(file, line)) {
 
                 if (!file.good()) {
@@ -167,28 +174,46 @@ void Game::fillLevel()
 
                 stringstream iss(line);
 
+                string val;
+                getline (iss, val, ',');
+                stringstream typeConv(val);
+                objType = typeConv.str();
+
                 // read a single platform
-                for (int col = 0; col < 5; ++col) {
-                    string val;
-                    getline(iss, val, ',');
-
-                    stringstream converter(val);
-                    if (col != 4)
+                if (objType == "GROUND") {
+                    float convVal[4]; //four
+                    for (int col = 0; col < 4; col++) {
+                        getline(iss, val, ',');
+                        stringstream converter(val);
                         converter >> convVal[col];
-                    else
-                        roomType = converter.str();
+                    }
+
+                    // create platform
+                    level[vert][horz].platforms.push_back(new Platform(convVal[0], convVal[1], convVal[2], convVal[3]));
+                    level[vert][horz].numPlatforms++;
+                    // DEBUG:
+//                    cout << "Created platform in [" << vert << "][" << horz <<"]\n";
                 }
-
-                // create platform
-                level[vert][horz].objects.push_back(new Platform(convVal[0], convVal[1], convVal[2], convVal[3], roomType.c_str()));
-                int numPlat = level[vert][horz].numPlatforms;
-                level[vert][horz].objects[numPlat]->horizontalTiles = level[vert][horz].objects[numPlat]->body.width / 
-                    level[vert][horz].objects[numPlat]->textureWidth;
-                level[vert][horz].objects[numPlat]->verticalTiles = level[vert][horz].objects[numPlat]->body.height / 
-                    level[vert][horz].objects[numPlat]->textureHeight;
-                level[vert][horz].numPlatforms++;
-
-cout << "Created [" << vert << "][" << horz <<"]\n";
+                else if (objType == "SPIKE") {
+                    Vec spikePts[3];
+                    for (int col = 0; col < 6; col++) {
+                        getline(iss, val, ',');
+                        stringstream converter(val);
+                        // DEBUG:
+                        //cout << converter.str() << endl;
+                        converter >> spikePts[col/2][col%2];
+                    }
+                    getline(iss, val, ',');
+                    stringstream converter(val);
+                    converter >>  spikeOrientation;
+                    for (int setZCoord = 0; setZCoord < 3; setZCoord++) {
+                        spikePts[setZCoord][2] = 0;
+                    }
+                    level[vert][horz].spikes.push_back(new Spike(spikePts,spikeOrientation));
+                    level[vert][horz].numSpikes++;
+                    // DEBUG:
+                    cout << "Created spike in [" << vert << "][" << horz <<"]: " << vecPrint(spikePts[0]) << ", " << vecPrint(spikePts[1]) << ", " << vecPrint(spikePts[2]) << ", " << spikeOrientation << endl;
+                }
             }
             file.close();
         }
@@ -233,17 +258,14 @@ void Game::saveRooms()
                 cout << "Writing: " << filename << endl;
             }
 
-            for (int i = 0; i < level[vert][horz].objects.size(); i++){
+            for (unsigned int i = 0; i < level[vert][horz].platforms.size(); i++){
 
-                convVal[0] = level[vert][horz].objects[i]->body.width;
-                convVal[1] = level[vert][horz].objects[i]->body.height;
-                convVal[2] = level[vert][horz].objects[i]->body.center[0];
-                convVal[3] = level[vert][horz].objects[i]->body.center[1];
+                convVal[0] = level[vert][horz].platforms[i]->body.width;
+                convVal[1] = level[vert][horz].platforms[i]->body.height;
+                convVal[2] = level[vert][horz].platforms[i]->body.center[0];
+                convVal[3] = level[vert][horz].platforms[i]->body.center[1];
   
-                file << convVal[0] << "," << convVal[1] << "," << convVal[2] << "," << convVal[3] << ","
-                    << "GROUND" << '\n';
-
-            
+                file << "GROUND," << convVal[0] << "," << convVal[1] << "," << convVal[2] << "," << convVal[3] << "\n";
             }
             file.close();
         }

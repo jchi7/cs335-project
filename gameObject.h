@@ -1,12 +1,14 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
-#include "InputComponent.h"
+#include "inputComponent.h"
 
 class GameObject
 {
     public:
         Shape body;
+        ObjectType id;
+        int spikeOrientation;
         int rgb[3];
         float gravity;
         int textureWidth;
@@ -16,6 +18,7 @@ class GameObject
         GameObject();
         virtual ~GameObject();
         virtual void update();
+        virtual string debugReport();
     protected:
     private:
         InputComponent* IComponent;

@@ -1,9 +1,10 @@
 #ifndef GAME_H
 #define GAME_H
-#include <vector>
+
 #include "gameObject.h"
 #include "room.h"
 #include "platform.h"
+#include "spike.h"
 #include "hero.h"
 
 
@@ -16,7 +17,9 @@ class Game
         GameState state;
         bool isPlatformMovable;
         bool isPlatformResizable;
+        bool isSpikeMovable;
         int movablePlatformIndex;
+        int movableSpikeIndex;
         int resizablePlatformIndex;
         int resizablePlatformX;
         int resizablePlatformY;
@@ -28,8 +31,8 @@ class Game
         int currentVerticalLevel;
 
         // level dimensions:
-        int totalHorizontal;  //number of rows
-        int totalVertical;  // number of columns
+        int totalHorizontal;  //number of columns (level width)
+        int totalVertical;  // number of rows (level height)
 
         std::vector< std::vector<Room> > level;
         /* Structure of level array:
