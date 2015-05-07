@@ -618,9 +618,7 @@ void render_game(Game* game)
     for(auto entity : current_level->spikes) {
         glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
- //       cout << entity->body.center[0] << " " << entity->body.center[1] << " " << entity->body.center[2] << endl;
-        cout << entity->body.corners[0][0] << " " << entity->body.corners[0][1] << " " << entity->body.corners[0][2] << endl << endl;
- //       glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+ //     glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_TRIANGLES);
             glVertex3fv(entity->body.corners[0]);
             glVertex3fv(entity->body.corners[1]);
