@@ -50,19 +50,33 @@ int GtimeLapse = 0;
 int Gthreshold = 15000;
 //Following Declarations are for  Image importing...
 unsigned char *buildAlphaData(Ppmimage *img);
-void renderHero(GLuint heroTexture,Game* game  ,Coordinates* heroSprite,int index,int w, int h);
+void renderHero(GLuint heroTexture,Game* game  ,Coordinates* heroSprite,int index,int w, int h, int mod);
+void setUpImage (GLuint texture, Ppmimage *picture);
+void convertToRGBA(Ppmimage *picture); 
 GLuint getBMP(const char *path);
+Ppmimage *idleLeftImage = NULL;
 Ppmimage *guiBackgroundImage = NULL;
+Ppmimage *jumpRightImage = NULL;
+Ppmimage *jumpLeftImage = NULL;
+Ppmimage *walkLeftImage = NULL;
+Ppmimage *walkRightImage = NULL;
 Ppmimage *rockImage = NULL;
 Ppmimage *mainMenuButtonsEditImage = NULL;
-Ppmimage *heroImage = NULL;
+Ppmimage *idleRightImage = NULL;
 Ppmimage *backgroundImage = NULL;
 Ppmimage *mainMenuButtonsImage = NULL;
 Ppmimage *mainMenuButtonsExitImage = NULL;
+
+//Creating the Textures
+GLuint idleLeftTexture;
 GLuint guiBackgroundTexture;
 GLuint mainMenuButtonsEditTexture;
 GLuint rockTexture;
-GLuint heroTexture;
+GLuint idleRightTexture;
+GLuint jumpRightTexture;
+GLuint jumpLeftTexture;
+GLuint walkRightTexture;
+GLuint walkLeftTexture;
 GLuint forestTexture;
 GLuint mainMenuButtonsTexture;
 GLuint mainMenuButtonsExitTexture;
@@ -199,86 +213,66 @@ void init_opengl(void) {
 
     //Importing Images
 
-    heroImage = ppm6GetImage("./images/HeroSpriteSheet.ppm");
+
+    idleRightImage = ppm6GetImage("./images/IdleR.ppm");
+    idleLeftImage = ppm6GetImage("./images/IdleL.ppm");
     mainMenuButtonsEditImage = ppm6GetImage("./images/Leveleditor.ppm");
     backgroundImage = ppm6GetImage("./images/Background1.ppm");
     rockImage = ppm6GetImage("./images/Rock.ppm");
     mainMenuButtonsImage = ppm6GetImage("./images/start.ppm");
     guiBackgroundImage = ppm6GetImage("./images/GuiBackground.ppm");
     mainMenuButtonsExitImage = ppm6GetImage("./images/exit.ppm");
-    glGenTextures(1, &heroTexture);
+    jumpRightImage = ppm6GetImage("./images/jumpingGun.ppm");
+    jumpLeftImage = ppm6GetImage("./images/jumpingLeft.ppm");
+    walkRightImage = ppm6GetImage("./images/HeroWalkRight.ppm");
+    walkLeftImage = ppm6GetImage("./images/heroWalkLeft.ppm");
+   
+    //Binding the textures... 
+    glGenTextures(1, &jumpLeftTexture); 
+    glGenTextures(1, &jumpRightTexture);
+    glGenTextures(1, &walkRightTexture);
+    glGenTextures(1, &walkLeftTexture);
+    glGenTextures(1, &idleRightTexture);
     glGenTextures(1, &mainMenuButtonsEditTexture);
     glGenTextures(1, &forestTexture);
     glGenTextures(1, &rockTexture);
     glGenTextures(1, &mainMenuButtonsTexture);
     glGenTextures(1, &guiBackgroundTexture);
     glGenTextures(1, &mainMenuButtonsExitTexture);
-
-    int w = heroImage->width;
-    int y = heroImage->height;
-    //Setting up the hero textures
-    glBindTexture(GL_TEXTURE_2D,heroTexture);
-
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, w,y, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, heroImage->data);
-
-    unsigned char *silhouetteData = buildAlphaData(heroImage);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, y, 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, silhouetteData);
-    delete [] silhouetteData;
-
-
-    //Setting up the Main menu buttons texture...
-    w = mainMenuButtonsImage->width;
-    y = mainMenuButtonsImage->height;
-    glBindTexture(GL_TEXTURE_2D,mainMenuButtonsTexture);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, y, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, mainMenuButtonsImage->data);
-
-    //Setting up the exit button image texture....
-    w = mainMenuButtonsExitImage->width;
-    y = mainMenuButtonsExitImage->height;
-    glBindTexture(GL_TEXTURE_2D,mainMenuButtonsExitTexture);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, y, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, mainMenuButtonsExitImage->data);
-
-    //Setting up the Level Editor button image texture....
-    w = mainMenuButtonsEditImage->width;
-    y = mainMenuButtonsEditImage->height;
-    glBindTexture(GL_TEXTURE_2D,mainMenuButtonsEditTexture);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, y, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, mainMenuButtonsEditImage->data);
+    glGenTextures(1, &idleLeftTexture);
     
+    //Setting up the hero textures
+    setUpImage(idleRightTexture,idleRightImage);
+    convertToRGBA(idleRightImage);
+
+    //Setting up the Idle left texture
+    setUpImage(idleLeftTexture,idleLeftImage);
+    convertToRGBA(idleLeftImage);
+
+    //Setting up the jumpRightImage
+    setUpImage(jumpRightTexture,jumpRightImage);
+    convertToRGBA(jumpRightImage);
+    //Setting up the jumpLeft image
+    setUpImage(jumpLeftTexture,jumpLeftImage);
+    convertToRGBA(jumpLeftImage);
+    //Setting up the walking Right texture
+    setUpImage(walkRightTexture,walkRightImage);
+    convertToRGBA(walkRightImage);
+    //Setting up the walking Left texture
+    setUpImage(walkLeftTexture,walkLeftImage);
+    convertToRGBA(walkLeftImage);
+    //Setting Up the Start button image
+    setUpImage(mainMenuButtonsTexture,mainMenuButtonsImage);
+    //Setting up the Level Editor button image texture....
+    setUpImage(mainMenuButtonsEditTexture,mainMenuButtonsEditImage);
+    //Setting up the ExitButton texture..
+    setUpImage(mainMenuButtonsExitTexture,mainMenuButtonsExitImage);
     //Setting up the Rock Platforms Texture....
-    w = rockImage->width;
-    y = rockImage->height;
-    glBindTexture(GL_TEXTURE_2D,rockTexture);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, y, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, rockImage->data);
-
+    setUpImage(rockTexture,rockImage);
     //Setting up the background image
-    glBindTexture(GL_TEXTURE_2D,forestTexture);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, backgroundImage->width, backgroundImage->height, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, backgroundImage->data);
-
+    setUpImage(forestTexture,backgroundImage);
     //Setting up the Gui Background image.
-    glBindTexture(GL_TEXTURE_2D,guiBackgroundTexture);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, guiBackgroundImage->width, guiBackgroundImage->height, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, guiBackgroundImage->data);
+    setUpImage(guiBackgroundTexture,guiBackgroundImage);
 }
 
 void cleanupXWindows(void) {
@@ -300,8 +294,10 @@ void init_MainMenuButtons(void) {
 	//size and position
     button[nbuttons].r.width = 100;
     button[nbuttons].r.height = 40;
+    //button[nbuttons].r.left = 290;
     button[nbuttons].r.left = 290;
-    button[nbuttons].r.bot = 480;
+    button[nbuttons].r.bot = 450;
+    //button[nbuttons].r.bot = 480;
     button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
     button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
     button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
@@ -320,7 +316,7 @@ void init_MainMenuButtons(void) {
     button[nbuttons].r.width = 100;
     button[nbuttons].r.height = 40;
     button[nbuttons].r.left = 290;
-    button[nbuttons].r.bot = 320;
+    button[nbuttons].r.bot = 380;
     button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
     button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
     button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
@@ -339,7 +335,7 @@ void init_MainMenuButtons(void) {
     button[nbuttons].r.width = 100;
     button[nbuttons].r.height = 40;
     button[nbuttons].r.left = 290;
-    button[nbuttons].r.bot = 160;
+    button[nbuttons].r.bot = 310;
     button[nbuttons].r.right = button[nbuttons].r.left + button[nbuttons].r.width;
     button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
     button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
@@ -810,34 +806,47 @@ void render_game(Game* game)
     long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     if(microseconds > 80000) {
         if (game->hero->state == WALKING && game->hero->rightPressed && game->hero->leftPressed == 0) {
-            renderHero(heroTexture,game ,game->hero->heroWalkingR,numAnimation,w, h);
+            renderHero(walkRightTexture,game ,game->hero->heroWalkingR,numAnimation,w, h, 10);
         }
         else if (game->hero->state == WALKING && game->hero->leftPressed && game -> hero->rightPressed == 0) {
-            renderHero(heroTexture,game  ,game->hero->heroWalkingL,numAnimation,w, h);
+            renderHero(walkLeftTexture,game  ,game->hero->heroWalkingL,numAnimation,w, h, 10);
         }
-        else if (game->hero->state == JUMPING) {
-            renderHero(heroTexture,game  ,game->hero->heroJump,numAnimation,w, h);
+        else if (game->hero->state == JUMPING && game -> hero -> body.orientation == FACING_RIGHT) {
+            renderHero(jumpRightTexture,game  ,game->hero->heroJumpR,numAnimation,w, h, 10);
+        }
+        else if (game->hero->body.orientation == FACING_LEFT && game->hero->state == JUMPING) {
+            renderHero(jumpLeftTexture,game  ,game->hero->heroJumpL,numAnimation,w, h, 10);
+        }
+        else if (game->hero->body.orientation == FACING_LEFT && game->hero->state == STANDING) {
+            renderHero(idleLeftTexture,game  ,game->hero->heroIdleL,numAnimation,w, h, 10);
         }
         else {
-            renderHero(heroTexture,game  ,game->hero->heroIdleR,numAnimation,w, h);
+            renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);
         }
         numAnimation = (numAnimation + 1) % 10;
         start = std::chrono::high_resolution_clock::now();
     }
+        //helloworld
 
     else {
         if (game->hero->state == WALKING && game->hero->rightPressed && game->hero->leftPressed == 0) {
-            renderHero(heroTexture,game  ,game->hero->heroWalkingR,numAnimation,w, h);
+            renderHero(walkRightTexture,game  ,game->hero->heroWalkingR,numAnimation,w, h, 10);
             std::cout<<"Num: "<<numAnimation<<endl;
         }
         else if (game->hero->state == WALKING && game->hero->leftPressed && game -> hero->rightPressed == 0) {
-            renderHero(heroTexture,game  ,game->hero->heroWalkingL,numAnimation,w, h);
+            renderHero(walkLeftTexture,game  ,game->hero->heroWalkingL,numAnimation,w, h, 10);
         }
-        else if (game->hero->state == JUMPING) {
-            renderHero(heroTexture,game  ,game->hero->heroJump,numAnimation,w, h);
+        else if (game->hero->state == JUMPING && game->hero->body.orientation == FACING_RIGHT) {
+            renderHero(jumpRightTexture,game  ,game->hero->heroJumpR,numAnimation,w, h, 10);
+        }
+        else if (game->hero->body.orientation == FACING_LEFT && game->hero->state == JUMPING) {
+            renderHero(jumpLeftTexture,game  ,game->hero->heroJumpL,numAnimation,w, h, 10);
+        }
+        else if (game->hero->body.orientation == FACING_LEFT && game->hero->state == STANDING) {
+            renderHero(idleLeftTexture,game  ,game->hero->heroIdleL,numAnimation,w, h, 10);
         }
         else {
-            renderHero(heroTexture,game  ,game->hero->heroIdleR,numAnimation,w, h);
+            renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);
         }
     }
 
@@ -881,7 +890,6 @@ void render_game(Game* game)
 
         w = entity -> textureWidth;
         h = entity -> textureHeight;
-        //helloworld
         
         int cornerX = entity->body.center[0] - entity->body.width;
         int cornerY = entity->body.center[1] + entity -> body.height;
@@ -993,7 +1001,7 @@ unsigned char *buildAlphaData(Ppmimage *img)
     return newdata;
 }
 
-void renderHero(GLuint heroTexture,Game* game,Coordinates* heroSprite,int index,int w, int h)
+void renderHero(GLuint heroTexture,Game* game,Coordinates* heroSprite,int index,int w, int h,int mod)
 {
     glEnable(GL_TEXTURE_2D);
     glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
@@ -1004,10 +1012,10 @@ void renderHero(GLuint heroTexture,Game* game,Coordinates* heroSprite,int index,
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER,0.0f);
     glBegin(GL_QUADS);
-    glTexCoord2f(heroSprite[index%10].x1,heroSprite[index%10].y2); glVertex2i(-w-5,-h-5);
-    glTexCoord2f(heroSprite[index%10].x1,heroSprite[index%10].y1); glVertex2i(-w-5,h+5); //here
-    glTexCoord2f(heroSprite[index%10].x2,heroSprite[index%10].y1); glVertex2i(w+5,h+5);
-    glTexCoord2f(heroSprite[index%10].x2,heroSprite[index%10].y2); glVertex2i(w+5,-h-5);
+    glTexCoord2f(heroSprite[index%mod].x1,heroSprite[index%mod].y2); glVertex2i(-w-5,-h-5);
+    glTexCoord2f(heroSprite[index%mod].x1,heroSprite[index%mod].y1); glVertex2i(-w-5,h+5); //here
+    glTexCoord2f(heroSprite[index%mod].x2,heroSprite[index%mod].y1); glVertex2i(w+5,h+5);
+    glTexCoord2f(heroSprite[index%mod].x2,heroSprite[index%mod].y2); glVertex2i(w+5,-h-5);
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
@@ -1021,3 +1029,27 @@ void renderHero(GLuint heroTexture,Game* game,Coordinates* heroSprite,int index,
 
 
 
+
+void setUpImage(GLuint texture, Ppmimage *picture)
+{
+    //Setting up the jumpLeft image
+    int w = picture->width;
+    int y = picture->height;
+
+    glBindTexture(GL_TEXTURE_2D,texture);
+
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w,y, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, picture->data);
+}
+
+void convertToRGBA(Ppmimage *picture) {
+    int w = picture->width;
+    int y = picture->height;
+    
+    unsigned char *silhouetteData = buildAlphaData(picture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, y, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, silhouetteData);
+    delete [] silhouetteData;
+}

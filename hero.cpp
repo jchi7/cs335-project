@@ -38,23 +38,33 @@ Hero::Hero()
     for( int i = 0; i < 10; i++) {
         heroIdleR[i].x1 = 0.0;
         heroIdleR[i].x2 = 0.0;
-        heroIdleR[i].y1 = 0.6;
-        heroIdleR[i].y2 = 0.8;
+        heroIdleR[i].y1 = 0.0;
+        heroIdleR[i].y2 = 1.0;
 
         heroIdleL[i].x1 = 0.0;
         heroIdleL[i].x2 = 0.0;
-        heroIdleL[i].y1 = 0.8;
+        heroIdleL[i].y1 = 0.0;
         heroIdleL[i].y2 = 1.0;
 
         heroWalkingR[i].x1 = 0.0;
         heroWalkingR[i].x2 = 0.0;
-        heroWalkingR[i].y1 = 0.2;
-        heroWalkingR[i].y2 = 0.4;
+        heroWalkingR[i].y1 = 0.0;//prev .6
+        heroWalkingR[i].y2 = 1.0;//prev .8
 
         heroWalkingL[i].x1 = 0.0;
         heroWalkingL[i].x2 = 0.0;
-        heroWalkingL[i].y1 = 0.4;
-        heroWalkingL[i].y2 = 0.6;
+        heroWalkingL[i].y1 = 0.0;//prev .4
+        heroWalkingL[i].y2 = 1.0;//prev .6
+
+        heroJumpR[i].x1 = 0.0;
+        heroJumpR[i].x2 = 0.0;
+        heroJumpR[i].y1 = 0.0;
+        heroJumpR[i].y2 = 1.0;
+        
+        heroJumpL[i].x1 = 0.0;
+        heroJumpL[i].x2 = 0.0;
+        heroJumpL[i].y1 = 0.0;
+        heroJumpL[i].y2 = 1.0;
     }
 
 //The following code is importing the textures of the sprite into arrays.
@@ -64,19 +74,26 @@ Hero::Hero()
             heroIdleL[i].x1 = heroIdleL[i].x2;
             heroWalkingR[i].x1 = heroWalkingR[i].x2;
             heroWalkingL[i].x1 = heroWalkingL[i].x2;
+            heroJumpR[i].x1 = heroJumpR[i].x2;
+            heroJumpL[i].x1 = heroJumpL[i].x2;
         }
         else {
             heroIdleR[i].x1 = heroIdleR[i-1].x2;
             heroIdleL[i].x1 = heroIdleL[i-1].x2;
+            
             heroWalkingR[i].x1 = heroWalkingR[i-1].x2;
             heroWalkingL[i].x1 = heroWalkingL[i-1].x2;
+
+            heroJumpR[i].x1 = heroJumpR[i - 1].x2;
+            heroJumpL[i].x1 = heroJumpL[i - 1].x2;
         }
-        heroIdleR[i].x2 = idleIncrementor;
-        heroIdleL[i].x2 = idleIncrementor;
-        heroWalkingR[i].x2 = walkingIncrementor;
-        heroWalkingL[i].x2 = walkingIncrementor;
-        idleIncrementor += .068;
-        walkingIncrementor += .0872;
+        heroJumpR[i].x2 = Inc;
+        heroJumpL[i].x2 = Inc;
+        heroIdleR[i].x2 = Inc;
+        heroIdleL[i].x2 = Inc;
+        heroWalkingR[i].x2 = Inc;
+        heroWalkingL[i].x2 = Inc;
+        Inc += .1;
     }
 
       //Setting up the hero jump texture coordinates.
