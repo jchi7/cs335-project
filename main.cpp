@@ -67,8 +67,9 @@ Ppmimage *idleRightImage = NULL;
 Ppmimage *backgroundImage = NULL;
 Ppmimage *mainMenuButtonsImage = NULL;
 Ppmimage *mainMenuButtonsExitImage = NULL;
-
+Ppmimage *spikeImage = NULL;
 //Creating the Textures
+GLuint spikeTexture;
 GLuint heroDeathTexture;
 GLuint idleLeftTexture;
 GLuint guiBackgroundTexture;
@@ -229,7 +230,8 @@ void init_opengl(void) {
     jumpLeftImage = ppm6GetImage("./images/jumpingLeft.ppm");
     walkRightImage = ppm6GetImage("./images/HeroWalkRight.ppm");
     walkLeftImage = ppm6GetImage("./images/heroWalkLeft.ppm");
-   
+    spikeImage = ppm6GetImage("./images/spike2.ppm");
+
     //Binding the textures... 
     glGenTextures(1, &jumpLeftTexture); 
     glGenTextures(1, &jumpRightTexture);
@@ -244,10 +246,16 @@ void init_opengl(void) {
     glGenTextures(1, &mainMenuButtonsExitTexture);
     glGenTextures(1, &idleLeftTexture);
     glGenTextures(1, &heroDeathTexture);
+    glGenTextures(1, &spikeTexture);
     
     //Setting up the hero textures
     setUpImage(idleRightTexture,idleRightImage);
     convertToRGBA(idleRightImage);
+    
+    //Setting up the spike texture
+    setUpImage(spikeTexture, spikeImage);
+    convertToRGBA(spikeImage);
+
     //Settiing up the Death texture
     setUpImage(heroDeathTexture, heroDeathImage);
     convertToRGBA(heroDeathImage);
@@ -760,14 +768,14 @@ void physics(Game * game)
             game->hero->onCollision(room->platforms[i]);
         }
     }
-    if (isCollision == false) {
+    //if (isCollision == false) {  BUG HERE...
         for (int i = 0; i < room->numSpikes; i++) {
             isCollision = collisionRectTri(&game->hero->body, &room->spikes[i]->body);
             if (isCollision == true) {
                 game->hero->onCollision(room->spikes[i]);
             }
         }
-    }
+    //}
 
     if (game->hero->state == DEATH) {
         // TEMPORARY: return hero to start
@@ -942,5 +950,18 @@ void render_game(Game* game)
             glVertex3fv(entity->body.corners[2]);
         glEnd();
         glPopMatrix();
+        glEnable(GL_TEXTURE_2D);
+        glColor4ub(255,255,255,255);
+        glPushMatrix();
+        glBindTexture(GL_TEXTURE_2D, spikeTexture);
+        glBegin(GL_TRIANGLES);
+        //moises
+        glTexCoord2f(0.1,.9); glVertex2f(entity->body.corners[0][0],entity->body.corners[0][1]);
+        glTexCoord2f(.9,.9); glVertex2f(entity->body.corners[1][0],entity->body.corners[1][1]);
+        glTexCoord2f(.5,.5); glVertex2f(entity->body.corners[2][0],entity->body.corners[2][1]);
+        glEnd();
+        glPopMatrix();
+
+
     }
 }
