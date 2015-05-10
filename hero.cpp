@@ -65,6 +65,11 @@ Hero::Hero()
         heroJumpL[i].x2 = 0.0;
         heroJumpL[i].y1 = 0.0;
         heroJumpL[i].y2 = 1.0;
+
+        heroDeath[i].x1 = 0.0;
+        heroDeath[i].x2 = 0.0;
+        heroDeath[i].y1 = 0.0;
+        heroDeath[i].y2 = 0.0;
     }
 
 //The following code is importing the textures of the sprite into arrays.
@@ -76,6 +81,7 @@ Hero::Hero()
             heroWalkingL[i].x1 = heroWalkingL[i].x2;
             heroJumpR[i].x1 = heroJumpR[i].x2;
             heroJumpL[i].x1 = heroJumpL[i].x2;
+            heroDeath[i].x1 = heroDeath[i].x2;
         }
         else {
             heroIdleR[i].x1 = heroIdleR[i-1].x2;
@@ -86,6 +92,7 @@ Hero::Hero()
 
             heroJumpR[i].x1 = heroJumpR[i - 1].x2;
             heroJumpL[i].x1 = heroJumpL[i - 1].x2;
+            heroDeath[i].x1 = heroDeath[i-1].x2;
         }
         heroJumpR[i].x2 = Inc;
         heroJumpL[i].x2 = Inc;
@@ -93,63 +100,9 @@ Hero::Hero()
         heroIdleL[i].x2 = Inc;
         heroWalkingR[i].x2 = Inc;
         heroWalkingL[i].x2 = Inc;
+        heroDeath[i].x2 = Inc;
         Inc += .1;
     }
-
-      //Setting up the hero jump texture coordinates.
-    heroJump[0].x1 = 0.0;
-    heroJump[0].x2 = 0.07;
-    heroJump[0].y1 = 0.0;
-    heroJump[0].y2 = 0.2;
-
-    heroJump[1].x1 = 0.1;
-    heroJump[1].x2 = 0.17;
-    heroJump[1].y1 = 0.0;
-    heroJump[1].y2 = 0.2;
-
-    heroJump[2].x1 = 0.2;
-    heroJump[2].x2 = 0.28;
-    heroJump[2].y1 = 0.0;
-    heroJump[2].y2 = 0.2;
-
-    heroJump[3].x1 = 0.3;
-    heroJump[3].x2 = 0.38;
-    heroJump[3].y1 = 0.0;
-    heroJump[3].y2 = 0.2;
-
-    heroJump[4].x1 = 0.4;
-    heroJump[4].x2 = 0.49;
-    heroJump[4].y1 = 0.0;
-    heroJump[4].y2 = 0.2;
-
-
-    heroJump[5].x1 = 0.5;
-    heroJump[5].x2 = 0.59;
-    heroJump[5].y1 = 0.0;
-    heroJump[5].y2 = 0.2;
-
-    heroJump[6].x1 = 0.6;
-    heroJump[6].x2 = 0.69;
-    heroJump[6].y1 = 0.0;
-    heroJump[6].y2 = 0.2;
-
-    heroJump[7].x1 = 0.7;
-    heroJump[7].x2 = 0.8;
-    heroJump[7].y1 = 0.0;
-    heroJump[7].y2 = 0.2;
-
-    heroJump[8].x1 = 0.8;
-    heroJump[8].x2 = 0.9;
-    heroJump[8].y1 = 0.0;
-    heroJump[8].y2 = 0.2;
-
-
-    heroJump[9].x1 = 0.9;
-    heroJump[9].x2 = 1.0;
-    heroJump[9].y1 = 0.0;
-    heroJump[9].y2 = 0.2;
-
-
 }
 
 Hero::~Hero()

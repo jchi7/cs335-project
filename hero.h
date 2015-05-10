@@ -25,6 +25,7 @@ class Hero : public GameObject
         Coordinates heroWalkingL[10];
         Coordinates heroJumpR[10];
         Coordinates heroJumpL[10];
+        Coordinates heroDeath[10];
 
 
         // jumpInitiated is set to 1 when the jump key is pressed
