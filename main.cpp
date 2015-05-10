@@ -27,6 +27,7 @@ void init_MainMenuButtons(void);
 void render_MainMenu(void);
 void check_menu_button(XEvent *e, Game * game);
 void check_game_input(XEvent *e, Game * game);
+void check_death_input(XEvent *e, Game *newgame);
 void movePlatform(XEvent *e, Game * game);
 void moveSpike(XEvent *e, Game * game);
 void physics(Game * game);
@@ -131,7 +132,12 @@ int main()
                 while(XPending(dpy)) {
                     XEvent e;
                     XNextEvent(dpy, &e);
-                    check_game_input(&e, &newgame);
+                    if ( newgame.hero->state != DEATH) {
+                        check_game_input(&e, &newgame);
+                    }
+                    else {
+                        check_death_input(&e, &newgame);
+                    }
                 }
                 if (doPhysics == true){
                     physics(&newgame);
@@ -147,7 +153,12 @@ int main()
                 while(XPending(dpy)) {
                     XEvent e;
                     XNextEvent(dpy, &e);
-                    check_game_input(&e, &newgame);
+                    if(!(newgame.hero->state == DEATH) ) {
+                        check_game_input(&e, &newgame);
+                    }
+                    else {
+                        check_death_input(&e, &newgame);
+                    }
                     if (newgame.isPlatformMovable == true)
                         movePlatform(&e, &newgame);
                     if (newgame.isSpikeMovable == true)
@@ -219,7 +230,7 @@ void init_opengl(void) {
 
     idleRightImage = ppm6GetImage("./images/IdleR.ppm");
     idleLeftImage = ppm6GetImage("./images/IdleL.ppm");
-    heroDeathImage = ppm6GetImage("./images/dying.ppm");
+    heroDeathImage = ppm6GetImage("./images/dying1.ppm");
     mainMenuButtonsEditImage = ppm6GetImage("./images/Leveleditor.ppm");
     backgroundImage = ppm6GetImage("./images/Background1.ppm");
     rockImage = ppm6GetImage("./images/Rock.ppm");
@@ -571,6 +582,22 @@ void check_menu_button(XEvent *e, Game * game)
 	return;
 }
 
+void check_death_input(XEvent *e,Game *game) {
+    if (e -> type ==KeyPress ) { 
+        int key = XLookupKeysym(&e->xkey,0);
+        if (key == XK_Escape){
+            g_gamestate = MAIN_MENU;
+        }
+        if (key == XK_Return) { 
+            game ->hero ->state = JUMPING;
+            game->hero->leftPressed = 0;
+            game->hero->rightPressed = 0;
+            game ->hero ->body.center[0] = 500;
+            game ->hero ->body.center[1] = 500;
+        }
+    }
+
+}
 void check_game_input(XEvent *e, Game *game)
 {
     mouse.body.type = RECTANGLE;
@@ -761,37 +788,39 @@ void physics(Game * game)
     bool isCollision = false;
     Room * room = game->getRoomPtr();
 
-    game->hero->movement();
-    for (int i = 0; i < room->numPlatforms; i++) {
-        isCollision = collisionRectRect(&game->hero->body, &room->platforms[i]->body);
-        if (isCollision == true) {
-            game->hero->onCollision(room->platforms[i]);
+    if ( game->hero->state != DEATH ) {
+        game->hero->movement();
+        for (int i = 0; i < room->numPlatforms; i++) {
+            isCollision = collisionRectRect(&game->hero->body, &room->platforms[i]->body);
+            if (isCollision == true) {
+                game->hero->onCollision(room->platforms[i]);
+            }
         }
-    }
-    //if (isCollision == false) {  BUG HERE...
+        //if (isCollision == false) {  BUG HERE...
         for (int i = 0; i < room->numSpikes; i++) {
             isCollision = collisionRectTri(&game->hero->body, &room->spikes[i]->body);
             if (isCollision == true) {
                 game->hero->onCollision(room->spikes[i]);
             }
         }
-    //}
+        //}
+    }
 
     if (game->hero->state == DEATH) {
         // TEMPORARY: return hero to start
-        game->hero->state = JUMPING;
+        ///game->hero->state = JUMPING;
         game->hero->jumpInitiated = 0;
         game->hero->initialJump = 0;
         game->hero->secondJump = 0;
         game->hero->jumpCount = 0;
         game->hero->jumpRelease = 1;
         game->hero->jumpFinished = 0;
-        game->hero->body.center[0] = 400;
-        game->hero->body.center[1] = 250;
-        game->hero->body.center[2] = 0;
-        game->hero->prevPosition[0] = 400;
-        game->hero->prevPosition[1] = 250;
-        game->hero->prevPosition[2] = 0;
+        //game->hero->body.center[0] = 400;
+        //game->hero->body.center[1] = 250;
+        //game->hero->body.center[2] = 0;
+        //game->hero->prevPosition[0] = 400;
+        //game->hero->prevPosition[1] = 250;
+        //game->hero->prevPosition[2] = 0;
         game->hero->velocity[0] = 0;
         game->hero->velocity[1] = 0;
         game->currentHorizontalLevel = 3;
@@ -836,8 +865,9 @@ void render_game(Game* game)
             renderHero(idleLeftTexture,game  ,game->hero->heroIdleL,numAnimation,w, h, 10);
         }
         else if(game->hero->state == DEATH) {
-            std::cout<<"DEAD\n";
-            renderHero(heroDeathTexture,game,game->hero->heroDeath,numAnimation,w,h,10);
+            //renderHero(heroDeathTexture,game,game->hero->heroDeath,numAnimation,w,h,10);
+            renderHero(heroDeathTexture,game,game->hero->heroDeath,0,w,h,10);
+             
         }
         else {
             renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);
@@ -865,8 +895,9 @@ void render_game(Game* game)
             renderHero(idleLeftTexture,game  ,game->hero->heroIdleL,numAnimation,w, h, 10);
         }
         else if(game->hero->state == DEATH) {
-            std::cout<<"DEAD\n";
-            renderHero(heroDeathTexture,game,game->hero->heroDeath,numAnimation,w,h,10);
+            //std::cout<<"DEAD\n";
+            //renderHero(heroDeathTexture,game,game->hero->heroDeath,numAnimation,w,h,10);
+            renderHero(heroDeathTexture,game,game->hero->heroDeath,0,w,h,10);
         }
         else {
             renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);

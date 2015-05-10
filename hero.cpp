@@ -66,10 +66,11 @@ Hero::Hero()
         heroJumpL[i].y1 = 0.0;
         heroJumpL[i].y2 = 1.0;
 
-        heroDeath[i].x1 = 0.0;
+        /*heroDeath[i].x1 = 0.0;
         heroDeath[i].x2 = 0.0;
         heroDeath[i].y1 = 0.0;
-        heroDeath[i].y2 = 0.0;
+        heroDeath[i].y2 = 1.0;
+        */
     }
 
 //The following code is importing the textures of the sprite into arrays.
@@ -81,7 +82,7 @@ Hero::Hero()
             heroWalkingL[i].x1 = heroWalkingL[i].x2;
             heroJumpR[i].x1 = heroJumpR[i].x2;
             heroJumpL[i].x1 = heroJumpL[i].x2;
-            heroDeath[i].x1 = heroDeath[i].x2;
+            //heroDeath[i].x1 = heroDeath[i].x2;
         }
         else {
             heroIdleR[i].x1 = heroIdleR[i-1].x2;
@@ -92,7 +93,7 @@ Hero::Hero()
 
             heroJumpR[i].x1 = heroJumpR[i - 1].x2;
             heroJumpL[i].x1 = heroJumpL[i - 1].x2;
-            heroDeath[i].x1 = heroDeath[i-1].x2;
+            //heroDeath[i].x1 = heroDeath[i-1].x2;
         }
         heroJumpR[i].x2 = Inc;
         heroJumpL[i].x2 = Inc;
@@ -100,9 +101,15 @@ Hero::Hero()
         heroIdleL[i].x2 = Inc;
         heroWalkingR[i].x2 = Inc;
         heroWalkingL[i].x2 = Inc;
-        heroDeath[i].x2 = Inc;
+        //heroDeath[i].x2 = Inc;
         Inc += .1;
     }
+    //This is just a static image so I am mapping all four corners.
+    heroDeath[0].x1 = 0.0; 
+    heroDeath[0].x2 = 1.0;
+    heroDeath[0].y1 = 0.0;
+    heroDeath[0].y2 = 1.0;
+
 }
 
 Hero::~Hero()
