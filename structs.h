@@ -23,7 +23,7 @@ using namespace std;
 
 enum ShapeType {RECTANGLE, TRIANGLE/*, CIRCLE*/};
 enum GameState {MAIN_MENU, PLAYING, EXIT_GAME, LEVEL_EDITOR};
-enum ObjectType {HERO, ENEMY, SPIKE, PLATFORM};
+enum ObjectType {HERO, ENEMY, SPIKE, PLATFORM, SAVEPOINT};
 enum CharacterState {STANDING, WALKING, JUMPING, DEATH};
 enum ShapeOrientation {FACING_UP, FACING_LEFT, FACING_DOWN, FACING_RIGHT};
 
@@ -66,7 +66,9 @@ struct Shape
 struct Coordinates {
     float x1,x2,y1,y2;
 };
+
 //External Global Variables
+extern GameState g_gamestate;
 // extern int leftPressed ;
 // extern int rightPressed ;
 // extern int shootPressed ;

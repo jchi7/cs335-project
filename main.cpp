@@ -29,6 +29,7 @@ void check_menu_button(XEvent *e, Game * game);
 void check_game_input(XEvent *e, Game * game);
 void check_death_input(XEvent *e, Game *newgame);
 void movePlatform(XEvent *e, Game * game);
+void moveSavePoint(XEvent *e, Game * game);
 void moveSpike(XEvent *e, Game * game);
 void physics(Game * game);
 void render_game(Game* game);
@@ -90,7 +91,7 @@ int numAnimation = 0;
 auto start = std::chrono::high_resolution_clock::now();
 //End
 
-GameObject mouse;
+//GameObject mouse;
 
 int main()
 {
@@ -100,6 +101,7 @@ int main()
     //Game newgame();  //says newgame is non-class type 'Game()'
     Game newgame;
     newgame.hero = new Hero();
+    newgame.respawnAtSavePoint();
 
     bool render = true;
     bool doPhysics = true;
@@ -163,6 +165,8 @@ int main()
                         movePlatform(&e, &newgame);
                     if (newgame.isSpikeMovable == true)
                         moveSpike(&e, &newgame);
+                    if (newgame.isSavePointMovable == true)
+                        moveSavePoint(&e, &newgame);
                 }
                 if (doPhysics == true){
                     physics(&newgame);
@@ -483,11 +487,18 @@ void render_MainMenu(void) {
 }
 void movePlatform(XEvent *e, Game *game){
 
-
     Room * currentRoom = game->getRoomPtr();
     currentRoom->platforms[game->movablePlatformIndex]->body.center[0] = e->xbutton.x;
     currentRoom->platforms[game->movablePlatformIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
 }
+
+void moveSavePoint(XEvent *e, Game *game){
+
+    Room * currentRoom = game->getRoomPtr();
+    currentRoom->savePoints[game->movableSavePointIndex]->body.center[0] = e->xbutton.x;
+    currentRoom->savePoints[game->movableSavePointIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+}
+
 void moveSpike(XEvent *e, Game *game){
     Room * currentRoom = game->getRoomPtr();
     GameObject * currentSpike = currentRoom->spikes[game->movableSpikeIndex];
@@ -592,12 +603,12 @@ void check_death_input(XEvent *e,Game *game) {
             game ->hero ->state = JUMPING;
             game->hero->leftPressed = 0;
             game->hero->rightPressed = 0;
-            game ->hero ->body.center[0] = 500;
-            game ->hero ->body.center[1] = 500;
+            game->respawnAtSavePoint();
         }
     }
 
 }
+/*
 void check_game_input(XEvent *e, Game *game)
 {
     mouse.body.type = RECTANGLE;
@@ -652,6 +663,15 @@ void check_game_input(XEvent *e, Game *game)
                     room->numPlatforms++;
                     game->isPlatformMovable = true;
                     game->movablePlatformIndex = room->platforms.size() - 1;
+                }
+            }
+            if (key == XK_a){
+                if (!game->isPlatformMovable && !game->isPlatformResizable && !game->isSpikeMovable){
+                    Room * room = game->getRoomPtr();
+                    room->savePoints.push_back(new SavePoint(10,10,e->xbutton.x, WINDOW_HEIGHT - e->xbutton.y));
+                    room->numSavePoints++;
+                   // game->isPlatformMovable = true;
+                   // game->movablePlatformIndex = room->platforms.size() - 1;
                 }
             }
             if (key == XK_s){
@@ -772,10 +792,6 @@ void check_game_input(XEvent *e, Game *game)
 
         }
     
-        /*
-        if (key == XK_e && shootPressed == 0){
-            game->hero->shootPressed = 5;
-        }*/
 
     }
     if (e->type == KeyRelease){
@@ -798,7 +814,7 @@ void check_game_input(XEvent *e, Game *game)
         game->resizePlatform(&mouse);
     }
 }
-
+*/
 void physics(Game * game)
 {
     bool isCollision = false;
@@ -810,6 +826,13 @@ void physics(Game * game)
             isCollision = collisionRectRect(&game->hero->body, &room->platforms[i]->body);
             if (isCollision == true) {
                 game->hero->onCollision(room->platforms[i]);
+            }
+        }
+        isCollision = false;
+        for (int i = 0; i < room->numSavePoints; i++) {
+            isCollision = collisionRectRect(&game->hero->body, &room->savePoints[i]->body);
+            if (isCollision == true) {
+                game->setSavePoint(i);
             }
         }
         //if (isCollision == false) {  BUG HERE...
@@ -839,8 +862,8 @@ void physics(Game * game)
         //game->hero->prevPosition[2] = 0;
         game->hero->velocity[0] = 0;
         game->hero->velocity[1] = 0;
-        game->currentHorizontalLevel = 3;
-        game->currentVerticalLevel = 1;
+        //game->currentHorizontalLevel = 3;
+       // game->currentVerticalLevel = 1;
     }
     game->checkRoom();
 }
@@ -946,6 +969,7 @@ void render_game(Game* game)
         glPopMatrix();
     }
 
+
     for(auto entity : current_level->platforms) {
         glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
@@ -1010,5 +1034,17 @@ void render_game(Game* game)
         glPopMatrix();
 
 
+    }
+    for(auto entity : current_level->savePoints) {
+        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBegin(GL_QUADS);
+            glVertex2i(-entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,-entity->body.height);
+        glEnd();
+        glPopMatrix();
     }
 }

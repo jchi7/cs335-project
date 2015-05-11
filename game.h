@@ -6,7 +6,7 @@
 #include "platform.h"
 #include "spike.h"
 #include "hero.h"
-
+#include "savePoint.h"
 
 class Game
 {
@@ -18,13 +18,19 @@ class Game
         bool isPlatformMovable;
         bool isPlatformResizable;
         bool isSpikeMovable;
+        bool isSavePointMovable;
         int movablePlatformIndex;
         int movableSpikeIndex;
+        int movableSavePointIndex;
         int resizablePlatformIndex;
         int resizablePlatformX;
         int resizablePlatformY;
         int platformTextureWidth;
         int platformTextureHeight;
+
+        int savePointHorizontalRoom;
+        int savePointVerticalRoom;
+        int savePointIndex;
 
         // position of current room:
         int currentHorizontalLevel;
@@ -48,6 +54,8 @@ class Game
         Game();
         ~Game();
 
+        void respawnAtSavePoint();
+        void setSavePoint(int index);
         void checkRoom();
         Room * getRoomPtr();
         void moveRoomLeft();

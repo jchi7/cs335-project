@@ -11,15 +11,23 @@ Game::Game()
     this->shootPressed = 0;
     this->currentHorizontalLevel = 3;
     this->currentVerticalLevel = 1;
+    this->savePointHorizontalRoom = 3;
+    this->savePointVerticalRoom = 1;
+    this->savePointIndex = 0;
     this->totalHorizontal = 20;
     this->totalVertical = 5;
     this->state = MAIN_MENU;
+    
     this->isPlatformMovable = false;
     this->isPlatformResizable = false;
     this->isSpikeMovable = false;
+    this->isSavePointMovable = false;
+    
     this->movablePlatformIndex = 0;
     this->movableSpikeIndex = 0;
+    this->movableSavePointIndex = 0;
     this->resizablePlatformIndex = 0;
+    
     this->resizablePlatformX = 0;
     this->resizablePlatformY = 0;
     this->platformTextureHeight = 15;
@@ -32,6 +40,21 @@ Game::~Game()
 {
     delete hero;
     //dtor
+}
+
+void Game::setSavePoint(int index){
+    this->savePointHorizontalRoom = this->currentHorizontalLevel;
+    this->savePointVerticalRoom = this->currentVerticalLevel;
+    this->savePointIndex = index;
+}
+
+void Game::respawnAtSavePoint(){
+    Room * currentRoom;
+    this->currentHorizontalLevel = this->savePointHorizontalRoom;
+    this->currentVerticalLevel = this->savePointVerticalRoom;
+    currentRoom = getRoomPtr();
+    this->hero->body.center[0] = currentRoom->savePoints[this->savePointIndex]->body.center[0];
+    this->hero->body.center[1] = currentRoom->savePoints[this->savePointIndex]->body.center[1];
 }
 
 void Game::checkRoom()
@@ -194,6 +217,19 @@ void Game::fillLevel()
                     // DEBUG:
 //                    cout << "Created platform in [" << vert << "][" << horz <<"]\n";
                 }
+                // read a single savePoint
+                else if (objType == "SAVEPOINT") {
+                    float convVal[4]; //four
+                    for (int col = 0; col < 4; col++) {
+                        getline(iss, val, ',');
+                        stringstream converter(val);
+                        converter >> convVal[col];
+                    }
+
+                    // create savePoint
+                    level[vert][horz].savePoints.push_back(new SavePoint(convVal[0], convVal[1], convVal[2], convVal[3]));
+                    level[vert][horz].numSavePoints++;
+                }
                 else if (objType == "SPIKE") {
                     Vec spikePts[3];
                     for (int col = 0; col < 6; col++) {
@@ -226,59 +262,8 @@ void Game::fillLevel()
             file.close();
         }
     }
+    cout << level[1][3].savePoints[0]->body.width << endl;
 }
-/*
-void Game::saveRooms()
-{
-    string line, roomType;
-    string filename = "Rooms/room";
-    ofstream file;
-    int convVal[4]; //four
-    const int pathsize = filename.length();
-    char roomNum[] = "0000";
-
-    // Room file format:
-    // file name: roomCCRR.txt, RR = row number, CC = col number
-    // line:  (int)width,(int)height,(int)center-x,(int)center-y,(str)type  
-
-    filename.append(roomNum);
-    filename.append(".txt");
-    for (int vert = 0; vert < 1; vert++) {
-        for (int horz = 0; horz < 1; horz++) {
-            // remove previous room number
-            filename.erase(pathsize,4);
-
-            // increment room numbers
-            roomNum[0] = (char)((horz/10) + 48);
-            roomNum[1] = (char)((horz%10) + 48);
-            roomNum[2] = (char)((vert/10) + 48);
-            roomNum[3] = (char)((vert%10) + 48);
-
-            // insert new room number
-            filename.insert(pathsize,roomNum);
-
-            file.open(filename.c_str(),std::ofstream::out);
-            if (!file.is_open()) {
-                cout << "Error: Could not open input file '" << filename << "'\n";
-                continue;
-            }
-            else {
-                cout << "Writing: " << filename << endl;
-            }
-
-            for (unsigned int i = 0; i < level[vert][horz].platforms.size(); i++){
-
-                convVal[0] = level[vert][horz].platforms[i]->body.width;
-                convVal[1] = level[vert][horz].platforms[i]->body.height;
-                convVal[2] = level[vert][horz].platforms[i]->body.center[0];
-                convVal[3] = level[vert][horz].platforms[i]->body.center[1];
-  
-                file << "GROUND," << convVal[0] << "," << convVal[1] << "," << convVal[2] << "," << convVal[3] << "\n";
-            }
-            file.close();
-        }
-    }
-}*/
 
 void Game::saveRooms()
 {
@@ -329,6 +314,15 @@ void Game::saveRooms()
         convVal[3] = level[vert][horz].platforms[i]->body.center[1];
 
         file << "GROUND," << convVal[0] << "," << convVal[1] << "," << convVal[2] << "," << convVal[3] << "\n";
+    }
+    for (unsigned int i = 0; i < level[vert][horz].savePoints.size(); i++){
+
+        convVal[0] = level[vert][horz].savePoints[i]->body.width;
+        convVal[1] = level[vert][horz].savePoints[i]->body.height;
+        convVal[2] = level[vert][horz].savePoints[i]->body.center[0];
+        convVal[3] = level[vert][horz].savePoints[i]->body.center[1];
+
+        file << "SAVEPOINT," << convVal[0] << "," << convVal[1] << "," << convVal[2] << "," << convVal[3] << "\n";
     }
 
     for (unsigned int i = 0; i < level[vert][horz].spikes.size(); i++){
