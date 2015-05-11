@@ -1,3 +1,7 @@
+//Mark Stevens
+//This function handles game input.
+
+
 #include "structs.h"
 #include "gameObject.h"
 #include "hero.h"
