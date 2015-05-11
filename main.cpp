@@ -689,11 +689,14 @@ void check_game_input(XEvent *e, Game *game)
                 }
             }
             if (key == XK_x){
-                if (game->isPlatformMovable && game->isPlatformResizable == false){
+                if (game->isPlatformMovable && !game->isPlatformResizable && !game->isSpikeMovable){
                     game->isPlatformMovable = false;
                 }
                 if (game->isSpikeMovable){
                     game->isSpikeMovable = false;
+                }
+                if (game->isPlatformResizable){
+                    game->isPlatformResizable = false;
                 }
             }
             if (key == XK_z){
@@ -702,15 +705,6 @@ void check_game_input(XEvent *e, Game *game)
                     mouse.body.center[0] = e->xbutton.x;
                     mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
             //        cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
-                    for (unsigned int k = 0; k < room->platforms.size(); k++){
-                        if (collisionRectRect(&mouse.body,&room->platforms[k]->body)){
-                            game->movablePlatformIndex = k;
-                            game->isPlatformMovable = true;
-                            cout << mouse.body.center[0] << " " << mouse.body.center[1] << endl;
-                            cout << k << endl;
-                            break;
-                        }
-                    }
                     for (int k = 0; k < room->spikes.size(); k++){
                         if (collisionRectTri(&mouse.body, &room->spikes[k]->body)){
                             game->movableSpikeIndex = k;
@@ -718,8 +712,18 @@ void check_game_input(XEvent *e, Game *game)
                             break;
                         }
                     }
-                }   
+                    if (!game->isSpikeMovable){
+                        for (unsigned int k = 0; k < room->platforms.size(); k++){
+                            if (collisionRectRect(&mouse.body,&room->platforms[k]->body)){
+                                game->movablePlatformIndex = k;
+                                game->isPlatformMovable = true;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
+
             if (key == XK_c && game->isPlatformMovable == false && game->isPlatformMovable == false){
                 Room * room = game->getRoomPtr();
                 mouse.body.center[0] = e->xbutton.x;
@@ -733,27 +737,39 @@ void check_game_input(XEvent *e, Game *game)
                     }
                 }
             }
-            if (key == XK_v && game->isPlatformMovable == false && game->isPlatformResizable == true){
-                game->isPlatformResizable = false;
-            }
-            if (key == XK_d && game->isPlatformMovable == false && game->isPlatformResizable == false){
+            if (key == XK_d && game->isPlatformMovable == false && game->isPlatformResizable == false && game->isSpikeMovable == false){
                 Room * room = game->getRoomPtr();
                 int platformToRemove = 0;
-                bool isCollision = false;
+                int spikeToRemove = 0;
+                bool isPlatformCollision = false;
+                bool isSpikeCollision = false;
                 mouse.body.center[0] = e->xbutton.x;
                 mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
-                for (unsigned int k = 0; k < room->platforms.size(); k++){
-                    if (collisionRectRect(&mouse.body,&room->platforms[k]->body)){
-                        platformToRemove = k;
-                        isCollision = true;
+                for (unsigned int k = 0; k < room->spikes.size(); k++){
+                    if (collisionRectTri(&mouse.body,&room->spikes[k]->body)){
+                        spikeToRemove = k;
+                        isSpikeCollision = true;
                     }
                 }
-                if (isCollision){
-                    room->platforms.erase(room->platforms.begin() + platformToRemove);
-                    room->numPlatforms--;
+                if (isSpikeCollision){
+                    room->spikes.erase(room->spikes.begin() + spikeToRemove);
+                    room->numSpikes--;
+                }
+
+                if (!isSpikeCollision){
+                    for (unsigned int p = 0; p < room->platforms.size(); p++){
+                        if (collisionRectRect(&mouse.body,&room->platforms[p]->body)){
+                            platformToRemove = p;
+                            isPlatformCollision = true;
+                        }
+                    }
+                    if (isPlatformCollision){
+                        room->platforms.erase(room->platforms.begin() + platformToRemove);
+                        room->numPlatforms--;
+                    }
                 }
             }
-        
+
         }
     
         /*

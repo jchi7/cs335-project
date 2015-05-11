@@ -227,7 +227,7 @@ void Game::fillLevel()
         }
     }
 }
-
+/*
 void Game::saveRooms()
 {
     string line, roomType;
@@ -278,5 +278,84 @@ void Game::saveRooms()
             file.close();
         }
     }
+}*/
+
+void Game::saveRooms()
+{
+    string line, roomType;
+    string filename = "Rooms/room";
+    ofstream file;
+    int convVal[4]; //four
+    int spikeVal[7]; //four
+
+
+    const int pathsize = filename.length();
+    char roomNum[] = "0000";
+
+    // Room file format:
+    // file name: roomCCRR.txt, RR = row number, CC = col number
+    // line:  (int)width,(int)height,(int)center-x,(int)center-y,(str)type  
+
+    filename.append(roomNum);
+    filename.append(".txt");
+    int vert = currentVerticalLevel;
+    int horz = currentHorizontalLevel;
+    // remove previous room number
+    filename.erase(pathsize,4);
+
+    // increment room numbers
+    roomNum[0] = (char)((horz/10) + 48);
+    roomNum[1] = (char)((horz%10) + 48);
+    roomNum[2] = (char)((vert/10) + 48);
+    roomNum[3] = (char)((vert%10) + 48);
+
+    // insert new room number
+    filename.insert(pathsize,roomNum);
+
+    file.open(filename.c_str(),std::ofstream::out);
+    if (!file.is_open()) {
+        cout << "Error: Could not open input file '" << filename << "'\n";
+        return;
+    }
+    else {
+        cout << "Writing: " << filename << endl;
+    }
+
+    for (unsigned int i = 0; i < level[vert][horz].platforms.size(); i++){
+
+        convVal[0] = level[vert][horz].platforms[i]->body.width;
+        convVal[1] = level[vert][horz].platforms[i]->body.height;
+        convVal[2] = level[vert][horz].platforms[i]->body.center[0];
+        convVal[3] = level[vert][horz].platforms[i]->body.center[1];
+
+        file << "GROUND," << convVal[0] << "," << convVal[1] << "," << convVal[2] << "," << convVal[3] << "\n";
+    }
+
+    for (unsigned int i = 0; i < level[vert][horz].spikes.size(); i++){
+
+        spikeVal[0] = level[vert][horz].spikes[i]->body.corners[0][0];
+        spikeVal[1] = level[vert][horz].spikes[i]->body.corners[0][1];
+        spikeVal[2] = level[vert][horz].spikes[i]->body.corners[1][0];
+        spikeVal[3] = level[vert][horz].spikes[i]->body.corners[1][1];
+        spikeVal[4] = level[vert][horz].spikes[i]->body.corners[2][0];
+        spikeVal[5] = level[vert][horz].spikes[i]->body.corners[2][1];
+        if ( level[vert][horz].spikes[i]->body.orientation == FACING_UP){
+            spikeVal[6] = 0;
+        }
+        if ( level[vert][horz].spikes[i]->body.orientation == FACING_LEFT){
+            spikeVal[6] = 1;
+        }
+        if ( level[vert][horz].spikes[i]->body.orientation == FACING_DOWN){
+            spikeVal[6] = 2;
+        }
+        if ( level[vert][horz].spikes[i]->body.orientation == FACING_RIGHT){
+            spikeVal[6] = 3;
+        }
+
+        file << "SPIKE," << spikeVal[0] << "," << spikeVal[1] << "," << spikeVal[2] << "," << spikeVal[3]
+            << "," << spikeVal[4] << "," << spikeVal[5] << "," << spikeVal[6] << "\n";
+    }
+    file.close();
+    return;
 }
 
