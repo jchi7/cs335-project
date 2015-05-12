@@ -55,6 +55,7 @@ unsigned char *buildAlphaData(Ppmimage *img);
 void renderHero(GLuint heroTexture,Game* game  ,Coordinates* heroSprite,int index,int w, int h, int mod);
 void setUpImage (GLuint texture, Ppmimage *picture);
 void convertToRGBA(Ppmimage *picture); 
+void renderTexture(GLuint imageTexture, float x1,float x2,float y1, float y2, int width, int height);
 GLuint getBMP(const char *path);
 Ppmimage *heroDeathImage = NULL;
 Ppmimage *idleLeftImage = NULL;
@@ -70,8 +71,10 @@ Ppmimage *backgroundImage = NULL;
 Ppmimage *mainMenuButtonsImage = NULL;
 Ppmimage *mainMenuButtonsExitImage = NULL;
 Ppmimage *spikeImage = NULL;
+Ppmimage *deadMessageImage = NULL;
 //Creating the Textures
 GLuint spikeTexture;
+GLuint deadMessageTexture;
 GLuint heroDeathTexture;
 GLuint idleLeftTexture;
 GLuint guiBackgroundTexture;
@@ -232,6 +235,7 @@ void init_opengl(void) {
     //Importing Images
 
 
+    deadMessageImage = ppm6GetImage("./images/dieStatement.ppm");
     idleRightImage = ppm6GetImage("./images/IdleR.ppm");
     idleLeftImage = ppm6GetImage("./images/IdleL.ppm");
     heroDeathImage = ppm6GetImage("./images/dying1.ppm");
@@ -262,10 +266,15 @@ void init_opengl(void) {
     glGenTextures(1, &idleLeftTexture);
     glGenTextures(1, &heroDeathTexture);
     glGenTextures(1, &spikeTexture);
+    glGenTextures(1, &deadMessageTexture);
     
     //Setting up the hero textures
     setUpImage(idleRightTexture,idleRightImage);
     convertToRGBA(idleRightImage);
+
+    //Setting up the dead Mssage texture
+    setUpImage(deadMessageTexture,deadMessageImage);
+    convertToRGBA(deadMessageImage);
     
     //Setting up the spike texture
     setUpImage(spikeTexture, spikeImage);
@@ -1033,5 +1042,8 @@ void render_game(Game* game)
             glVertex2i(entity->body.width,-entity->body.height);
         glEnd();
         glPopMatrix();
+    }
+    if( game->hero->state == DEATH) {
+        renderTexture(deadMessageTexture, 0.0,1.0,0.0, 1.0, 400, 100);
     }
 }
