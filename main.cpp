@@ -39,7 +39,6 @@ void init_MainMenuButtons(void);
 void render_MainMenu(void);
 void check_menu_button(XEvent *e);
 void render_game(game* game);
-void renderBackground(GLuint);
 Level*** initializeLevels();
 
 void check_game_input(XEvent *e, game * game);
@@ -55,8 +54,8 @@ Ppmimage *heroImage = NULL;
 Ppmimage *backgroundImage = NULL;
 GLuint rockTexture;
 GLuint heroTexture;
-GLuint forestTexture;
-bool forestBackgroundSet=true;
+GLuint backgroundTexture;
+bool backgroundImageSet=true;
 
 Button button[MAXBUTTONS];
 int nbuttons=0;
@@ -146,13 +145,12 @@ void init_opengl(void) {
     
     //Importing the images 
     heroImage = ppm6GetImage("./images/HeroSpriteSheet.ppm");
-    //heroImage = ppm6GetImage("./images/HeroWalk.ppm");
     backgroundImage = ppm6GetImage("./images/Background1.ppm");
     rockImage = ppm6GetImage("./images/Rock.ppm");
 
     //Preparing the images to render..
     glGenTextures(1, &heroTexture);
-    glGenTextures(1, &forestTexture);
+    glGenTextures(1, &backgroundTexture);
     glGenTextures(1, &rockTexture);
     
     int w = heroImage->width;
@@ -175,7 +173,7 @@ void init_opengl(void) {
                GL_RGB, GL_UNSIGNED_BYTE, rockImage->data);
 
     //Setting up the background image
-    glBindTexture(GL_TEXTURE_2D,forestTexture);
+    glBindTexture(GL_TEXTURE_2D,backgroundTexture);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, backgroundImage->width, backgroundImage->height, 0,
@@ -420,8 +418,16 @@ void render_game(game* game)
     
     //Rendering the first back ground image if the flag is true.
     glColor3f(1.0,1.0,1.0);
-    if(forestBackgroundSet==true){
-        renderBackground(forestTexture);
+    if(backgroundImageSet==true){
+        glPushMatrix();
+        glBindTexture(GL_TEXTURE_2D,backgroundTexture);
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0,1.0f); glVertex2i(0,0);
+            glTexCoord2f(0.0,0.0); glVertex2i(0,WINDOW_HEIGHT);
+            glTexCoord2f(1.0,0.0); glVertex2i(WINDOW_WIDTH,WINDOW_HEIGHT);
+            glTexCoord2f(1.0f,1.0f); glVertex2i(WINDOW_WIDTH,0);
+        glPopMatrix();
+        glEnd();
     }
 
 
@@ -446,10 +452,10 @@ void render_game(game* game)
     glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
     glBindTexture(GL_TEXTURE_2D,heroTexture);
     glBegin(GL_QUADS);
-    glTexCoord2f(0.9f,.2f); glVertex2i(-60,-90);
-    glTexCoord2f(0.9f,.0f); glVertex2i(-60,90); //Fierro
-    glTexCoord2f(1.0f,0.0f); glVertex2i(60,90);
-    glTexCoord2f(1.0f,0.2f); glVertex2i(60,-90);
+    glTexCoord2f(0.0f,.2f); glVertex2i(-20,-30);
+    glTexCoord2f(0.0f,0.0f); glVertex2i(-20,30);
+    glTexCoord2f(.15f,0.0f); glVertex2i(20,30);
+    glTexCoord2f(.15f,.2f); glVertex2i(20,-30);
     glEnd();
     glPopMatrix();    
 
@@ -577,18 +583,4 @@ Level*** initializeLevels()
     }
     
     return room;
-}
-
-//This function takes in a background parameter and will render it to the screen        
-void renderBackground(GLuint backgroundTexture)
-{        
-    glPushMatrix();
-    glBindTexture(GL_TEXTURE_2D,backgroundTexture);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0,1.0f); glVertex2i(0,0);
-    glTexCoord2f(0.0,0.0); glVertex2i(0,WINDOW_HEIGHT);
-    glTexCoord2f(1.0,0.0); glVertex2i(WINDOW_WIDTH,WINDOW_HEIGHT);
-    glTexCoord2f(1.0f,1.0f); glVertex2i(WINDOW_WIDTH,0);
-    glPopMatrix();
-    glEnd();
 }
