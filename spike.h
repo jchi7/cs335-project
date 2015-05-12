@@ -6,7 +6,7 @@
 class Spike : public GameObject
 {
     public:
-        Spike(Vec p[3]);
+        Spike(Vec p[3],ShapeOrientation orientation);
         virtual ~Spike();
         void update();
     protected:

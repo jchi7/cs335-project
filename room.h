@@ -11,6 +11,7 @@ class Room
         int verticalPosition;
         int numPlatforms;
         int numSpikes;
+        int numSavePoints;
         int numBasicEnemies;
         int currentPlatform;
         int currentBasicEnemy;
@@ -19,9 +20,10 @@ class Room
         std::vector<GameObject*> bullet;
         std::vector<GameObject*> platforms;
         std::vector<GameObject*> spikes;
+        std::vector<GameObject*> savePoints;
 
         Room();
-        Room(int nPlatform, int nSpikes, int numBasic);
+        Room(int nPlatform, int nSpikes, int nSavePoints, int numBasic);
         ~Room();
     protected:
     private:
