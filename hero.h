@@ -17,7 +17,7 @@ class Hero : public GameObject
         int maxBullets;
         int bulletVelocity;
         // These are the variables for the sprite sheets
-        float Inc = .1; 
+        float Inc;
         Coordinates heroJump[10];
         Coordinates heroIdleR[10];
         Coordinates heroIdleL[10];

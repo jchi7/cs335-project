@@ -1,4 +1,4 @@
-#include "unitTests.h"
+#include "jasjotS.h" // UnitTests header
 
 ofstream logfile;
 
@@ -14,10 +14,10 @@ int main()
   bool collisionsResult, vecFxnsResult, basicEnemyResult;
 
   collisionsResult = testCollisions();
-  setStickyFalse(&allTestsOk, collisionsResult);
   vecFxnsResult = testVecFxns();
-  setStickyFalse(&allTestsOk, vecFxnsResult);
   basicEnemyResult = testBasicEnemy();
+  setStickyFalse(&allTestsOk, collisionsResult);
+  setStickyFalse(&allTestsOk, vecFxnsResult);
   setStickyFalse(&allTestsOk, basicEnemyResult);
 
   logfile << endl << endl
@@ -62,14 +62,21 @@ void setStickyFalse(bool * flagToSet, bool condition)
 bool testCollisions()
 {
   bool passflag = true;
+  bool ptInRectFlag, threeHalfFlag;
   logfile << "\n\n---- Testing Collisions ----\n";
-  setStickyFalse(&passflag, testPtInRect());
-  setStickyFalse(&passflag, testThreeHalfSpace());
+  ptInRectFlag = testPtInRect();
+  threeHalfFlag = testThreeHalfSpace();
+  setStickyFalse(&passflag, ptInRectFlag);
+  setStickyFalse(&passflag, threeHalfFlag);
   logfile << "\n---- " << printPassFail(passflag) << " Collisions Test ----\n";
+  if (!passflag) {
+    logfile << "  Collisions Summary:\n"
+      << printPassFail(ptInRectFlag) << " ptInRect\n"
+      << printPassFail(threeHalfFlag) << " threeHalfSpace\n";
+  }
   return passflag;
 }
 
-// !!!!!!! INCOMPLETE !!!!!!! 
 bool testThreeHalfSpace()
 {
   bool unitResult = true;
@@ -79,17 +86,34 @@ bool testThreeHalfSpace()
   vecMake(1,-3,t.corners[1]);
   vecMake(3,-3,t.corners[2]);
 
-  Vec centroid;
-  Vec midpts[3];
+  Vec centroid, midpts[3], halfMidToCenter[3], outsideCorner[3], outsideSide[3];
   vecMake(
     ((float)(t.corners[0][0]+t.corners[1][0]+t.corners[2][0]))/3.0,
     ((float)(t.corners[0][1]+t.corners[1][1]+t.corners[2][1]))/3.0,
     centroid);
-  for (int midItr = 0; midItr < 3; midItr++) {
+  for (int i = 0; i < 3; i++) {
     vecMake(
-      ((float)(t.corners[midItr][0]+t.corners[(midItr+1)%3][0]))/2.0,
-      ((float)(t.corners[midItr][1]+t.corners[(midItr+1)%3][1]))/2.0,
-      midpts[midItr]);
+      ((float)(t.corners[(i+1)%3][0]+t.corners[(i+2)%3][0]))/2.0,
+      ((float)(t.corners[(i+1)%3][1]+t.corners[(i+2)%3][1]))/2.0,
+      midpts[i]);
+  }
+  for (int i = 0; i < 3; i++) {
+    vecMake(
+      ((float)(centroid[0]+midpts[i][0]))/2.0,
+      ((float)(centroid[1]+midpts[i][1]))/2.0,
+      halfMidToCenter[i]);
+  }
+  for (int i = 0; i < 3; i++) {
+    vecMake(
+      t.corners[i][0]+(centroid[0]-halfMidToCenter[i][0]),
+      t.corners[i][1]+(centroid[1]-halfMidToCenter[i][1]),
+      outsideCorner[i]);
+  }
+  for (int i = 0; i < 3; i++) {
+    vecMake(
+      midpts[i][0]+(midpts[i][0]-halfMidToCenter[i][0]),
+      midpts[i][1]+(midpts[i][1]-halfMidToCenter[i][1]),
+      outsideSide[i]);
   }
 
   logfile << "\n---- Testing threeHalfSpace ----\n"
@@ -97,11 +121,35 @@ bool testThreeHalfSpace()
   setStickyFalse(
     &unitResult,
     singleRunThreeHalfSpace(&t,centroid[0],centroid[1],1));
-  logfile << "  midpoints along sides:\n";
-  for (int midItr = 0; midItr < 3; midItr++) {
+  logfile << "  corners:\n";
+  for (int i = 0; i < 3; ++i) {
     setStickyFalse(
       &unitResult,
-      singleRunThreeHalfSpace(&t,midpts[midItr][0],midpts[midItr][1],1));
+      singleRunThreeHalfSpace(&t,t.corners[i][0],t.corners[i][1],1));
+  }
+  logfile << "  midpoints along sides:\n";
+  for (int i = 0; i < 3; ++i) {
+    setStickyFalse(
+      &unitResult,
+      singleRunThreeHalfSpace(&t,midpts[i][0],midpts[i][1],1));
+  }
+  logfile << "  halfway from midpoint to center:\n";
+  for (int i = 0; i < 3; ++i) {
+    setStickyFalse(
+      &unitResult,
+      singleRunThreeHalfSpace(&t,halfMidToCenter[i][0],halfMidToCenter[i][1],1));
+  }
+  logfile << "  directly out from corner:\n";
+  for (int i = 0; i < 3; ++i) {
+    setStickyFalse(
+      &unitResult,
+      singleRunThreeHalfSpace(&t,outsideCorner[i][0],outsideCorner[i][1],0));
+  }
+  logfile << "  directly out from sides:\n";
+  for (int i = 0; i < 3; ++i) {
+    setStickyFalse(
+      &unitResult,
+      singleRunThreeHalfSpace(&t,outsideSide[i][0],outsideSide[i][1],0));
   }
   return unitResult;
 }
@@ -294,18 +342,42 @@ bool singleRunPtInRect(Shape * r, float x, float y, bool answ)
 bool testVecFxns()
 {
   bool passflag = true;
+  bool dotFlag, subFlag, lenFlag, distFlag, normFlag, ppdFlag, hXFlag, lXFlag, hYFlag, lYFlag;
   logfile << "\n\n---- Testing VecFxns ----\n";
-  setStickyFalse(&passflag, testVecDotProduct());
-  setStickyFalse(&passflag, testVecSub());
-  setStickyFalse(&passflag, testVecLength());
-  setStickyFalse(&passflag, testVecDist());
-  setStickyFalse(&passflag, testVecNormalize());
-  setStickyFalse(&passflag, testVecPerpendicular());
-  setStickyFalse(&passflag, testGetHighestX());
-  setStickyFalse(&passflag, testGetLowestX());
-  setStickyFalse(&passflag, testGetHighestY());
-  setStickyFalse(&passflag, testGetLowestY());
+  dotFlag = testVecDotProduct();
+  subFlag = testVecSub();
+  lenFlag = testVecLength();
+  distFlag = testVecDist();
+  normFlag = testVecNormalize();
+  ppdFlag = testVecPerpendicular();
+  hXFlag = testGetHighestX();
+  lXFlag = testGetLowestX();
+  hYFlag = testGetHighestY();
+  lYFlag = testGetLowestY();
+  setStickyFalse(&passflag, dotFlag);
+  setStickyFalse(&passflag, subFlag);
+  setStickyFalse(&passflag, lenFlag);
+  setStickyFalse(&passflag, distFlag);
+  setStickyFalse(&passflag, normFlag);
+  setStickyFalse(&passflag, ppdFlag);
+  setStickyFalse(&passflag, hXFlag);
+  setStickyFalse(&passflag, lXFlag);
+  setStickyFalse(&passflag, hYFlag);
+  setStickyFalse(&passflag, lYFlag);
   logfile << "\n---- " << printPassFail(passflag) << " vecFxns Test ----\n";
+  if (!passflag) {
+    logfile << "  vecFxns Summary:\n"
+      << printPassFail(dotFlag) << " vecDotProduct\n"
+      << printPassFail(subFlag) << " vecSub\n"
+      << printPassFail(lenFlag) << " vecLength\n"
+      << printPassFail(distFlag) << " vecLength\n"
+      << printPassFail(normFlag) << " vecNormalize\n"
+      << printPassFail(ppdFlag) << " vecPerpendicular\n"
+      << printPassFail(hXFlag) << " getHighestX\n"
+      << printPassFail(lXFlag) << " getLowestX\n"
+      << printPassFail(hYFlag) << " getHighestY\n"
+      << printPassFail(lYFlag) << " getLowestY\n";
+  }
   return passflag;
 }
 

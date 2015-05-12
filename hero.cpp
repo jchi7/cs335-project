@@ -74,6 +74,7 @@ Hero::Hero()
     }
 
 //The following code is importing the textures of the sprite into arrays.
+    Inc = .1;
     for(int i = 0; i < 10; i++) {
         if(i == 0) {
             heroIdleR[i].x1 = heroIdleR[i].x2;

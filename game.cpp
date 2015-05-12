@@ -50,6 +50,11 @@ void Game::setSavePoint(int index){
 
 void Game::respawnAtSavePoint(){
     Room * currentRoom;
+
+    this->hero->state = JUMPING;
+    this->hero->leftPressed = 0;
+    this->hero->rightPressed = 0;
+
     this->currentHorizontalLevel = this->savePointHorizontalRoom;
     this->currentVerticalLevel = this->savePointVerticalRoom;
     currentRoom = getRoomPtr();
@@ -62,21 +67,25 @@ void Game::checkRoom()
     if (hero->body.center[0] > WINDOW_WIDTH){
         currentHorizontalLevel++;
         hero->body.center[0] = 0 + hero->body.width;
+        // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[0] < 0){
         currentHorizontalLevel--;
         hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+        // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[1] > WINDOW_HEIGHT){
         currentVerticalLevel++;
         hero->body.center[1] = 0 + hero->body.height;
+        // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[1] < 0){
         currentVerticalLevel--;
         hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+        // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
 
@@ -256,7 +265,7 @@ void Game::fillLevel()
                         level[vert][horz].spikes.push_back(new Spike(spikePts,FACING_RIGHT));
                     level[vert][horz].numSpikes++;
                     // DEBUG:
-                    cout << "Created spike in [" << vert << "][" << horz <<"]: " << vecPrint(spikePts[0]) << ", " << vecPrint(spikePts[1]) << ", " << vecPrint(spikePts[2]) << ", " << spikeOrientation << endl;
+//                    cout << "Created spike in [" << vert << "][" << horz <<"]: " << vecPrint(spikePts[0]) << ", " << vecPrint(spikePts[1]) << ", " << vecPrint(spikePts[2]) << ", " << spikeOrientation << endl;
                 }
             }
             file.close();

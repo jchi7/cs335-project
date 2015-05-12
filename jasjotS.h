@@ -1,5 +1,5 @@
-#ifndef UNITTESTS_H
-#define UNITTESTS_H
+#ifndef JASJOTS_H  // UnitTests header
+#define JASJOTS_H
 
 #include "basicEnemy.h"
 #include "collisions.h"

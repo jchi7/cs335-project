@@ -600,9 +600,6 @@ void check_death_input(XEvent *e,Game *game) {
             g_gamestate = MAIN_MENU;
         }
         if (key == XK_Return) { 
-            game ->hero ->state = JUMPING;
-            game->hero->leftPressed = 0;
-            game->hero->rightPressed = 0;
             game->respawnAtSavePoint();
         }
     }
@@ -847,23 +844,14 @@ void physics(Game * game)
 
     if (game->hero->state == DEATH) {
         // TEMPORARY: return hero to start
-        ///game->hero->state = JUMPING;
         game->hero->jumpInitiated = 0;
         game->hero->initialJump = 0;
         game->hero->secondJump = 0;
         game->hero->jumpCount = 0;
         game->hero->jumpRelease = 1;
         game->hero->jumpFinished = 0;
-        //game->hero->body.center[0] = 400;
-        //game->hero->body.center[1] = 250;
-        //game->hero->body.center[2] = 0;
-        //game->hero->prevPosition[0] = 400;
-        //game->hero->prevPosition[1] = 250;
-        //game->hero->prevPosition[2] = 0;
         game->hero->velocity[0] = 0;
         game->hero->velocity[1] = 0;
-        //game->currentHorizontalLevel = 3;
-       // game->currentVerticalLevel = 1;
     }
     game->checkRoom();
 }
