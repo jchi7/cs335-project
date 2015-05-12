@@ -919,7 +919,6 @@ void render_game(Game* game)
     else {
         if (game->hero->state == WALKING && game->hero->rightPressed && game->hero->leftPressed == 0) {
             renderHero(walkRightTexture,game  ,game->hero->heroWalkingR,numAnimation,w, h, 10);
-            std::cout<<"Num: "<<numAnimation<<endl;
         }
         else if (game->hero->state == WALKING && game->hero->leftPressed && game -> hero->rightPressed == 0) {
             renderHero(walkLeftTexture,game  ,game->hero->heroWalkingL,numAnimation,w, h, 10);
