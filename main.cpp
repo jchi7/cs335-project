@@ -906,7 +906,7 @@ void render_game(Game* game)
         else if(game->hero->state == DEATH) {
             //renderHero(heroDeathTexture,game,game->hero->heroDeath,numAnimation,w,h,10);
             renderHero(heroDeathTexture,game,game->hero->heroDeath,0,w,h,10);
-            renderNum++;
+            renderNum = (renderNum + 1)%40;
              
         }
         else {
@@ -937,7 +937,7 @@ void render_game(Game* game)
             //std::cout<<"DEAD\n";
             //renderHero(heroDeathTexture,game,game->hero->heroDeath,numAnimation,w,h,10);
             renderHero(heroDeathTexture,game,game->hero->heroDeath,0,w,h,10);
-            renderNum++;
+            renderNum = (renderNum + 1)%40;
         }
         else {
             renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);
@@ -1051,7 +1051,6 @@ void render_game(Game* game)
     if( game->hero->state == DEATH && (renderNum % 40 <= 25)) {
         renderTexture(deadMessageTexture, 0.0,1.0,0.0, 1.0, 400, 100);
     }
-    std::cout<<"render: "<<renderNum<<endl;
     //if (game->hero->state == DEATH) {
      //   renderNum++;
     //}
