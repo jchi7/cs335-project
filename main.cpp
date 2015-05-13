@@ -50,6 +50,8 @@ struct timeval Gthrottle;
 int GoldMilliSec = 0;
 int GtimeLapse = 0;
 int Gthreshold = 15000;
+//Variable that is used count the number of renders...
+int renderNum = 0;
 //Following Declarations are for  Image importing...
 unsigned char *buildAlphaData(Ppmimage *img);
 void renderHero(GLuint heroTexture,Game* game  ,Coordinates* heroSprite,int index,int w, int h, int mod);
@@ -610,6 +612,7 @@ void check_death_input(XEvent *e,Game *game) {
         }
         if (key == XK_Return) { 
             game->respawnAtSavePoint();
+            renderNum = 0;
         }
     }
 
@@ -903,6 +906,7 @@ void render_game(Game* game)
         else if(game->hero->state == DEATH) {
             //renderHero(heroDeathTexture,game,game->hero->heroDeath,numAnimation,w,h,10);
             renderHero(heroDeathTexture,game,game->hero->heroDeath,0,w,h,10);
+            renderNum++;
              
         }
         else {
@@ -933,6 +937,7 @@ void render_game(Game* game)
             //std::cout<<"DEAD\n";
             //renderHero(heroDeathTexture,game,game->hero->heroDeath,numAnimation,w,h,10);
             renderHero(heroDeathTexture,game,game->hero->heroDeath,0,w,h,10);
+            renderNum++;
         }
         else {
             renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);
@@ -1043,7 +1048,11 @@ void render_game(Game* game)
         glEnd();
         glPopMatrix();
     }
-    if( game->hero->state == DEATH) {
+    if( game->hero->state == DEATH && (renderNum % 40 <= 25)) {
         renderTexture(deadMessageTexture, 0.0,1.0,0.0, 1.0, 400, 100);
     }
+    std::cout<<"render: "<<renderNum<<endl;
+    //if (game->hero->state == DEATH) {
+     //   renderNum++;
+    //}
 }
