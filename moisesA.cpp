@@ -24,19 +24,20 @@ void renderBackground(GLuint backgroundTexture)
 void renderTexture(GLuint imageTexture, float x1,float x2,float y1, float y2, int width, int height)
 {
     glEnable(GL_TEXTURE_2D);
-    glColor4ub(255,255,255,255);
+    glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
     glPushMatrix();
+    glTranslatef(500, 345,0);
     glBindTexture(GL_TEXTURE_2D,imageTexture);
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER,0.0f);
     glBegin(GL_QUADS);
-    glTexCoord2f(x1,y1); glVertex2i(width,height);
-    glTexCoord2f(x1,y2); glVertex2i(-width,height);
-    glTexCoord2f(x2,y2); glVertex2i(width,height);
-    glTexCoord2f(x2,y1); glVertex2i(width,-height);
+    glTexCoord2f(x1,y2); glVertex2i(-width,-height);
+    glTexCoord2f(x1,y1); glVertex2i(-width,height);
+    glTexCoord2f(x2,y1); glVertex2i(width,height);
+    glTexCoord2f(x2,y2); glVertex2i(width,-height);
     glBindTexture(GL_TEXTURE_2D,0);
-    glPopMatrix();
     glEnd();
+    glPopMatrix();
 }
 
 //Grabbed this code from Gordons rainforest program.
@@ -83,7 +84,8 @@ void renderHero(GLuint heroTexture,Game* game,Coordinates* heroSprite,int index,
 {
     glEnable(GL_TEXTURE_2D);
     glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-
+    
+    
     glPushMatrix();
     glTranslatef(game->hero->body.center[0], game->hero->body.center[1], game->hero->body.center[2]);
     glBindTexture(GL_TEXTURE_2D,heroTexture);
