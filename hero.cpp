@@ -127,28 +127,30 @@ void Hero::movement()
 {
     prevPosition[0] = body.center[0];
     prevPosition[1] = body.center[1];
-    if (jumpRelease > 0) {
-        jumpRelease--;
-    }
-    if (leftPressed == 1) {
-        body.orientation = FACING_LEFT;
-        body.center[0] += -3;
-    }
-    if (rightPressed == 1) {
-        body.orientation = FACING_RIGHT;
-        body.center[0] += 3;
-    }
-    if (initialJump == 1){
-        velocity[1] = 5.5;
-        state = JUMPING;
-        initialJump = 0;
-        jumpCount++;
-    }
-    if (secondJump == 1) {
-        velocity[1] = 5.5;
-        state = JUMPING;
-        secondJump = 0;
-        jumpCount++;
+    if (state != DEATH) {
+        if (jumpRelease > 0) {
+            jumpRelease--;
+        }
+        if (leftPressed == 1) {
+            body.orientation = FACING_LEFT;
+            body.center[0] += -3;
+        }
+        if (rightPressed == 1) {
+            body.orientation = FACING_RIGHT;
+            body.center[0] += 3;
+        }
+        if (initialJump == 1){
+            velocity[1] = 5.5;
+            state = JUMPING;
+            initialJump = 0;
+            jumpCount++;
+        }
+        if (secondJump == 1) {
+            velocity[1] = 5.5;
+            state = JUMPING;
+            secondJump = 0;
+            jumpCount++;
+        }
     }
     body.center[1] += velocity[1];
     if (velocity[1] > -7)
@@ -189,12 +191,15 @@ void Hero::onCollision(GameObject * obj)
             body.center[1] = obj->body.center[1] + obj->body.height + body.height;
             velocity[1] = 0;
             jumpCount = 0;
-
+            
+            if (state == DEATH)
+                return;
+            
             if (leftPressed == 1 || rightPressed == 1) {
                 state = WALKING;
             }
             else {
-                state = STANDING;
+                    state = STANDING;
             }
         }
     }

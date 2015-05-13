@@ -829,29 +829,26 @@ void physics(Game * game)
     bool isCollision = false;
     Room * room = game->getRoomPtr();
 
-    if ( game->hero->state != DEATH ) {
-        game->hero->movement();
-        for (int i = 0; i < room->numPlatforms; i++) {
-            isCollision = collisionRectRect(&game->hero->body, &room->platforms[i]->body);
-            if (isCollision == true) {
-                game->hero->onCollision(room->platforms[i]);
-            }
+    game->hero->movement();
+    for (int i = 0; i < room->numPlatforms; i++) {
+        isCollision = collisionRectRect(&game->hero->body, &room->platforms[i]->body);
+        if (isCollision == true) {
+            game->hero->onCollision(room->platforms[i]);
         }
-        isCollision = false;
-        for (int i = 0; i < room->numSavePoints; i++) {
-            isCollision = collisionRectRect(&game->hero->body, &room->savePoints[i]->body);
-            if (isCollision == true) {
-                game->setSavePoint(i);
-            }
+    }
+    isCollision = false;
+    for (int i = 0; i < room->numSavePoints; i++) {
+        isCollision = collisionRectRect(&game->hero->body, &room->savePoints[i]->body);
+        if (isCollision == true) {
+            game->setSavePoint(i);
         }
-        //if (isCollision == false) {  BUG HERE...
-        for (int i = 0; i < room->numSpikes; i++) {
-            isCollision = collisionRectTri(&game->hero->body, &room->spikes[i]->body);
-            if (isCollision == true) {
-                game->hero->onCollision(room->spikes[i]);
-            }
+    }
+    //if (isCollision == false) {  BUG HERE...
+    for (int i = 0; i < room->numSpikes; i++) {
+        isCollision = collisionRectTri(&game->hero->body, &room->spikes[i]->body);
+        if (isCollision == true) {
+            game->hero->onCollision(room->spikes[i]);
         }
-        //}
     }
 
     if (game->hero->state == DEATH) {
@@ -863,7 +860,7 @@ void physics(Game * game)
         game->hero->jumpRelease = 1;
         game->hero->jumpFinished = 0;
         game->hero->velocity[0] = 0;
-        game->hero->velocity[1] = 0;
+        //game->hero->velocity[1] = 0;
     }
     game->checkRoom();
 }
