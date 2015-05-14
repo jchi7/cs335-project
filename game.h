@@ -7,6 +7,7 @@
 #include "spike.h"
 #include "hero.h"
 #include "savePoint.h"
+#include "basicEnemy.h"
 
 class Game
 {

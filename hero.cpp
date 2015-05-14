@@ -127,7 +127,7 @@ void Hero::movement()
 {
     prevPosition[0] = body.center[0];
     prevPosition[1] = body.center[1];
-    if (state != DEATH) {
+    if(state != DEATH) {
         if (jumpRelease > 0) {
             jumpRelease--;
         }
@@ -194,12 +194,11 @@ void Hero::onCollision(GameObject * obj)
             
             if (state == DEATH)
                 return;
-            
             if (leftPressed == 1 || rightPressed == 1) {
                 state = WALKING;
             }
             else {
-                    state = STANDING;
+                state = STANDING;
             }
         }
     }

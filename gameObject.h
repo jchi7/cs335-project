@@ -17,7 +17,10 @@ class GameObject
         GameObject();
         virtual ~GameObject();
         virtual void update();
+        virtual void movement();
+        virtual void onCollision(GameObject* obj);
         virtual string debugReport();
+        virtual void switchDirection();
     protected:
     private:
         InputComponent* IComponent;

@@ -59,3 +59,15 @@ string GameObject::debugReport()
       << "  float gravity = " << this->gravity << endl;
     return report.str();
 }
+
+void GameObject::movement()
+{
+}
+
+void GameObject::onCollision(GameObject *obj)
+{
+}
+
+void GameObject::switchDirection()
+{
+}

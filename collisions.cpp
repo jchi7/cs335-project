@@ -42,8 +42,8 @@ bool threeHalfSpace(Shape * t, Vec pt)
         else sum -= 1;
     }
 
-	  //+3 or -3 indicates pt inside triangle
-	  return (std::abs(sum)==3);
+	//+3 or -3 indicates pt inside triangle
+	return (std::abs(sum)==3);
 }
 
 bool collisionRectRect(Shape * r1, Shape * r2)

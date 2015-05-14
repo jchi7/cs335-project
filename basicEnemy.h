@@ -7,15 +7,18 @@
 class BasicEnemy : public GameObject
 {
     public:
+        CharacterState state;
         Vec prevPosition;
         Vec velocity;
-        int facing;
         int leftBoundary;
         int rightBoundary;
 
         BasicEnemy(int, int, int, int);
         virtual ~BasicEnemy();
-        void update(GameObject*);
+        void update();
+        void movement();
+        void onCollision(GameObject * obj);
+        void switchDirection();
         string debugReport();
     protected:
     private:

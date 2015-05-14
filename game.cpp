@@ -267,7 +267,17 @@ void Game::fillLevel()
                     // DEBUG:
 //                    cout << "Created spike in [" << vert << "][" << horz <<"]: " << vecPrint(spikePts[0]) << ", " << vecPrint(spikePts[1]) << ", " << vecPrint(spikePts[2]) << ", " << spikeOrientation << endl;
                 }
-            }
+                else if (objType == "ENEMY") {
+                    float convVal[4]; //four
+                    for (int col = 0; col < 4; col++) {
+                        getline(iss, val, ',');
+                        stringstream converter(val);
+                        converter >> convVal[col];
+                    }
+                    // create Enemy
+                    level[vert][horz].enemies.push_back(new BasicEnemy(convVal[0], convVal[1], convVal[2], convVal[3]));
+                    level[vert][horz].numBasicEnemies++;
+                }}
             file.close();
         }
     }

@@ -8,6 +8,7 @@
 #include "ppm.h"
 #include "game.h"
 #include "collisions.h"
+#include "jasonc.h"
 #include <chrono>
 #include <GL/glx.h>
 #define WINDOW_WIDTH  1000
@@ -850,6 +851,8 @@ void physics(Game * game)
             game->hero->onCollision(room->spikes[i]);
         }
     }
+    
+    enemyPhysics(game);
 
     if (game->hero->state == DEATH) {
         // TEMPORARY: return hero to start
@@ -863,6 +866,7 @@ void physics(Game * game)
         //game->hero->velocity[1] = 0;
     }
     game->checkRoom();
+    enemyPhysics(game);
 }
 
 void render_game(Game* game)
@@ -876,7 +880,6 @@ void render_game(Game* game)
     if( forestBackgroundSet == true ) {
         renderBackground(forestTexture);
     }
-
 
     // Draw the Hero to the screen
     w = game->hero->body.width;
@@ -940,8 +943,9 @@ void render_game(Game* game)
             renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);
         }
     }
-
+/*
     for(auto &entity : current_level->enemies) {
+        cout << "red " << entity->rgb[0] << endl;
         glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
         glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
@@ -953,7 +957,7 @@ void render_game(Game* game)
         glEnd();
         glPopMatrix();
     }
-
+*/
     for(auto entity : current_level->bullet) {
         glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
@@ -1033,6 +1037,20 @@ void render_game(Game* game)
 
 
     }
+
+    for(auto &entity : current_level->enemies) {
+        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBegin(GL_QUADS);
+            glVertex2i(-entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,-entity->body.height);
+        glEnd();
+        glPopMatrix();
+    }
+
     for(auto entity : current_level->savePoints) {
         glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();

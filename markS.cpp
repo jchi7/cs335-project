@@ -136,7 +136,7 @@ void check_game_input(XEvent *e, Game *game)
                     Room * room = game->getRoomPtr();
                     mouse.body.center[0] = e->xbutton.x;
                     mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
-                    for (int k = 0; k < room->savePoints.size(); k++){
+                    for (unsigned int k = 0; k < room->savePoints.size(); k++){
                         if (collisionRectRect(&mouse.body, &room->savePoints[k]->body)){
                             game->movableSavePointIndex = k;
                             game->isSavePointMovable = true;
@@ -144,7 +144,7 @@ void check_game_input(XEvent *e, Game *game)
                         }
                     }
                     if (!game->isSavePointMovable){
-                        for (int k = 0; k < room->spikes.size(); k++){
+                        for (unsigned int k = 0; k < room->spikes.size(); k++){
                             if (collisionRectTri(&mouse.body, &room->spikes[k]->body)){
                                 game->movableSpikeIndex = k;
                                 game->isSpikeMovable = true;
