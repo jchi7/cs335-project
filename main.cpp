@@ -61,6 +61,7 @@ void convertToRGBA(Ppmimage *picture);
 void renderTexture(GLuint imageTexture, float x1,float x2,float y1, float y2, int width, int height);
 GLuint getBMP(const char *path);
 Ppmimage *heroDeathImage = NULL;
+Ppmimage *checkPointImage = NULL;
 Ppmimage *idleLeftImage = NULL;
 Ppmimage *guiBackgroundImage = NULL;
 Ppmimage *jumpRightImage = NULL;
@@ -77,6 +78,7 @@ Ppmimage *spikeImage = NULL;
 Ppmimage *deadMessageImage = NULL;
 //Creating the Textures
 GLuint spikeTexture;
+GLuint checkPointTexture;
 GLuint deadMessageTexture;
 GLuint heroDeathTexture;
 GLuint idleLeftTexture;
@@ -239,6 +241,7 @@ void init_opengl(void) {
 
 
     deadMessageImage = ppm6GetImage("./images/dieStatement.ppm");
+    checkPointImage = ppm6GetImage("./images/checkpoint.ppm");
     idleRightImage = ppm6GetImage("./images/IdleR.ppm");
     idleLeftImage = ppm6GetImage("./images/IdleL.ppm");
     heroDeathImage = ppm6GetImage("./images/dying1.ppm");
@@ -270,7 +273,13 @@ void init_opengl(void) {
     glGenTextures(1, &heroDeathTexture);
     glGenTextures(1, &spikeTexture);
     glGenTextures(1, &deadMessageTexture);
+    glGenTextures(1, &checkPointTexture);
     
+
+    //Setting up the checkpoint texture
+    setUpImage(checkPointTexture,checkPointImage);
+    convertToRGBA(checkPointImage);
+
     //Setting up the hero textures
     setUpImage(idleRightTexture,idleRightImage);
     convertToRGBA(idleRightImage);
@@ -1060,6 +1069,18 @@ void render_game(Game* game)
             glVertex2i(-entity->body.width,entity->body.height);
             glVertex2i(entity->body.width,entity->body.height);
             glVertex2i(entity->body.width,-entity->body.height);
+        glEnd();
+        glPopMatrix();
+        glEnable(GL_TEXTURE_2D);
+        glColor4ub(255,255,255,255);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBindTexture(GL_TEXTURE_2D, checkPointTexture);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
+        glTexCoord2f(0.1f,0.0f); glVertex2i(-w,h);
+        glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
+        glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
         glEnd();
         glPopMatrix();
     }
