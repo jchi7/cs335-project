@@ -2,15 +2,15 @@
 //  Jason Chi
 //  This files does edge detection for the enemies
 /////////////////////////////////////////////////
-//  This is function is
-//  Arguments:  Take an entity and a platform.
-/////////////////////////////////////////////////
 void enemyPhysics(Game *game)
 {
     bool isCollision, isEdge, edge;
     Room * current_level = game->getRoomPtr();
+    int i = (signed int) current_level->enemies.size() - 1;
 
-    for(auto &entity : current_level->enemies) {
+    for(; i >= 0; i--) {
+    //for(auto &entity : current_level->enemies) {
+        BasicEnemy* entity = (BasicEnemy*) current_level->enemies[i];
         isCollision = false;
         isEdge = true;
         edge = true;
@@ -69,16 +69,9 @@ void enemyPhysics(Game *game)
         } else if (entity->body.orientation == FACING_RIGHT && (entity->body.center[0] + entity->body.width >= 1000)) {
             entity->switchDirection();
         }
-        /*if (game->hero->state == DEATH) {
-            // TEMPORARY: return hero to start
-            game->hero->jumpInitiated = 0;
-            game->hero->initialJump = 0;
-            game->hero->secondJump = 0;
-            game->hero->jumpCount = 0;
-            game->hero->jumpRelease = 1;
-            game->hero->jumpFinished = 0;
-            game->hero->velocity[0] = 0;
-            //game->hero->velocity[1] = 0;
-        }*/
+        if (entity->state == DEATH) {
+            current_level->enemies.erase(current_level->enemies.begin() + i);
+            current_level->numBasicEnemies--;
+        }
     } 
 }
