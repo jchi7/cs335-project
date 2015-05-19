@@ -877,8 +877,8 @@ void physics(Game * game)
             game->hero->onCollision(room->spikes[i]);
         }
     }
-    
     enemyPhysics(game);
+    bulletPhysics(game);
     
     isCollision = false;
     for (int i = 0; i < room->numBasicEnemies; i++) {

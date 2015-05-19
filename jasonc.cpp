@@ -9,7 +9,6 @@ void enemyPhysics(Game *game)
     int i = (signed int) current_level->enemies.size() - 1;
 
     for(; i >= 0; i--) {
-    //for(auto &entity : current_level->enemies) {
         BasicEnemy* entity = (BasicEnemy*) current_level->enemies[i];
         isCollision = false;
         isEdge = true;
@@ -49,6 +48,12 @@ void enemyPhysics(Game *game)
         if (edge)
             entity->switchDirection();
         isCollision = false;
+        left.center[0] = entity->body.center[0] - entity->body.width;
+        left.center[1] = entity->body.center[1];
+        left.center[2] = entity->body.center[2];
+        right.center[0] = entity->body.center[0] + entity->body.width;
+        right.center[1] = entity->body.center[1];
+        right.center[2] = entity->body.center[2];
         
         for (int i = 0; i < current_level->numSpikes; i++) {
             isCollision = collisionRectTri(&left, &current_level->spikes[i]->body);
@@ -64,6 +69,14 @@ void enemyPhysics(Game *game)
                 entity->onCollision(current_level->spikes[i]);
             }
         }
+        for (int i = 0; i < current_level->numBullet; i++) {
+            isCollision = collisionRectRect(&entity->body, &current_level->bullet[i]->body);
+            if (isCollision == true) {
+                entity->onCollision(current_level->bullet[i]);
+                current_level->bullet.erase(current_level->bullet.begin() + i);
+                current_level->numBullet--;
+            }
+        }
         if (entity->body.orientation == FACING_LEFT && (entity->body.center[0] - entity->body.width <= 0)) {
             entity->switchDirection();
         } else if (entity->body.orientation == FACING_RIGHT && (entity->body.center[0] + entity->body.width >= 1000)) {
@@ -72,6 +85,36 @@ void enemyPhysics(Game *game)
         if (entity->state == DEATH) {
             current_level->enemies.erase(current_level->enemies.begin() + i);
             current_level->numBasicEnemies--;
+        }
+    } 
+}
+
+void bulletPhysics(Game *game)
+{
+    bool isCollision;
+    Room * current_level = game->getRoomPtr();
+    int i = (signed int) current_level->bullet.size() - 1;
+
+    for(; i >= 0; i--) {
+        BasicBullet* entity = (BasicBullet*) current_level->bullet[i];
+        isCollision = false;
+        entity->movement();
+        for (int i = 0; i < current_level->numPlatforms; i++) {
+            isCollision = collisionRectRect(&entity->body, &current_level->platforms[i]->body);
+            if (isCollision == true) {
+                entity->onCollision(current_level->platforms[i]);
+            }
+        }
+        isCollision = false;
+        for (int i = 0; i < current_level->numSpikes; i++) {
+            isCollision = collisionRectTri(&entity->body, &current_level->spikes[i]->body);
+            if (isCollision == true) {
+                entity->onCollision(current_level->spikes[i]);
+            }
+        }
+        if (entity->state == DEATH) {
+            current_level->bullet.erase(current_level->bullet.begin() + i);
+            current_level->numBullet--;
         }
     } 
 }
