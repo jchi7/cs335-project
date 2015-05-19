@@ -879,6 +879,14 @@ void physics(Game * game)
     }
     
     enemyPhysics(game);
+    
+    isCollision = false;
+    for (int i = 0; i < room->numBasicEnemies; i++) {
+        isCollision = collisionRectRect(&game->hero->body, &room->enemies[i]->body);
+        if (isCollision == true) {
+            game->hero->onCollision(room->enemies[i]);
+        }
+    }
 
     if (game->hero->state == DEATH) {
         // TEMPORARY: return hero to start
@@ -892,7 +900,6 @@ void physics(Game * game)
         //game->hero->velocity[1] = 0;
     }
     game->checkRoom();
-    enemyPhysics(game);
 }
 
 void render_game(Game* game)

@@ -166,8 +166,9 @@ void Hero::onCollision(GameObject * obj)
 {
     if (obj->id == SPIKE) {
         state = DEATH;
-    }
-    else { // obj->id == PLATFORM
+    } else if (obj->id == ENEMY) {
+        state = DEATH;
+    } else { // obj->id == PLATFORM
         if (prevPosition[0]  < obj->body.center[0] - obj->body.width) {
             body.center[0] = obj->body.center[0] - obj->body.width - body.width;
         }
