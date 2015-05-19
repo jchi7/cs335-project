@@ -12,6 +12,9 @@ class BasicEnemy : public GameObject
         Vec velocity;
         int leftBoundary;
         int rightBoundary;
+	float Inc;
+	Coordinates enemyWalkRight[10];
+	Coordinates enemyWalkLeft[10];
 
         BasicEnemy(int, int, int, int);
         virtual ~BasicEnemy();

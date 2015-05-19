@@ -22,6 +22,27 @@ BasicEnemy::BasicEnemy(int left, int right, int x, int y)
     this->rgb[2] = 0;
     this->body.orientation = FACING_RIGHT;
     state = WALKING;
+    Inc = .1;
+    for(int i = 0; i<10; i++) {
+	enemyWalkRight[i].x1 = 0.0;
+	enemyWalkRight[i].x2 = 0.0;
+	enemyWalkRight[i].y1 = 0.0;
+	enemyWalkRight[i].y2 = 1.0;
+
+	if(i == 0) {
+	    enemyWalkRight[i].x1 = enemyWalkRight[i].x2;
+	}
+	else {
+	    enemyWalkRight[i].x1 = enemyWalkRight[i-1].x2;
+	}
+	enemyWalkRight[i].x2 = Inc;
+	Inc += .1;
+
+
+    }
+
+
+
 }
 
 BasicEnemy::~BasicEnemy()

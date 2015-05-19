@@ -100,7 +100,6 @@ GLuint mainMenuButtonsExitTexture;
 bool forestBackgroundSet=true;
 CharacterState prevPosition;
 int numAnimation = 0;
-int i = 0;
 auto start = std::chrono::high_resolution_clock::now();
 //End
 
@@ -1003,71 +1002,37 @@ void render_game(Game* game)
     }
 
     for(auto &entity : current_level->enemies) {
-	glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
-	/*glPushMatrix();
-	glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
-	glBegin(GL_QUADS);
-	glVertex2i(-entity->body.width,-entity->body.height);
-	glVertex2i(-entity->body.width,entity->body.height);
-	glVertex2i(entity->body.width,entity->body.height);
-	glVertex2i(entity->body.width,-entity->body.height);
-	glEnd();
-	glPopMatrix();  Don't Need this no more */
-	w = entity->body.width;
-	h = entity->body.height;
-	//std::cout<<((BasicEnemy*) entity)->state<<endl;
-	//std::cout<<entity->body.orientation<<endl;
-	if( entity->body.orientation == FACING_RIGHT)
-	{
-	    glEnable(GL_TEXTURE_2D);
-	    glColor4ub(255,255,255,255);
-	    glPushMatrix();
-	    glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
-	    glBindTexture(GL_TEXTURE_2D, spikeEnemyRightTexture);
-	    glBegin(GL_QUADS);
-	    glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[i].x1,((BasicEnemy*)entity)->enemyWalkRight[i].y2); glVertex2i(-w,-h);
-	    glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[i].x1,((BasicEnemy*)entity)->enemyWalkRight[i].y1); glVertex2i(-w,h);
-	    glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[i].x2,((BasicEnemy*)entity)->enemyWalkRight[i].y1); glVertex2i(w,h);
-	    glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[i].x2,((BasicEnemy*)entity)->enemyWalkRight[i].y2); glVertex2i(w,-h);
-	    glEnd();
-	    glPopMatrix();
-	    i = (i + 1)%10;
-	}
-	else if( entity->body.orientation == FACING_LEFT)
-	{
-	    glEnable(GL_TEXTURE_2D);
-	    glColor4ub(255,255,255,255);
-	    glPushMatrix();
-	    glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
-	    glBindTexture(GL_TEXTURE_2D, spikeEnemyLeftTexture);
-	    glBegin(GL_QUADS);
-	    glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[i].x1,((BasicEnemy*)entity)->enemyWalkRight[i].y2); glVertex2i(-w,-h);
-	    glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[i].x1,((BasicEnemy*)entity)->enemyWalkRight[i].y1); glVertex2i(-w,h);
-	    glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[i].x2,((BasicEnemy*)entity)->enemyWalkRight[i].y1); glVertex2i(w,h);
-	    glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[i].x2,((BasicEnemy*)entity)->enemyWalkRight[i].y2); glVertex2i(w,-h);
-	    glEnd();
-	    glPopMatrix();
-	    i = (i + 1)%10;
-	}
+        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBegin(GL_QUADS);
+            glVertex2i(-entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,-entity->body.height);
+        glEnd();
+        glPopMatrix();
+	std::cout<<(BasicEnemy*) entity->state<<endl;
+	std::cout<<entity->body.orientation<<endl;
+
+	
     }
 
     for(auto entity : current_level->savePoints) {
-	glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
-	/*glPushMatrix();
-	glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
-	glBegin(GL_QUADS);
-	glVertex2i(-entity->body.width,-entity->body.height);
-	glVertex2i(-entity->body.width,entity->body.height);
-	glVertex2i(entity->body.width,entity->body.height);
-	glVertex2i(entity->body.width,-entity->body.height);
-	glEnd();
-	glPopMatrix();   Don't Need it no more */
-	w = entity->body.width;
-	h = entity->body.height;
-	glEnable(GL_TEXTURE_2D);
-	glColor4ub(255,255,255,255);
-	glPushMatrix();
-	glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBegin(GL_QUADS);
+            glVertex2i(-entity->body.width,-entity->body.height);
+            glVertex2i(-entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,entity->body.height);
+            glVertex2i(entity->body.width,-entity->body.height);
+        glEnd();
+        glPopMatrix();
+        glEnable(GL_TEXTURE_2D);
+        glColor4ub(255,255,255,255);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBindTexture(GL_TEXTURE_2D, checkPointTexture);
         glBegin(GL_QUADS);
         glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
