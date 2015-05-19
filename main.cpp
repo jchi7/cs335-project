@@ -889,69 +889,6 @@ void render_game(Game* game)
     if( forestBackgroundSet == true ) {
         renderBackground(forestTexture);
     }
-
-    // Draw the Hero to the screen
-    w = game->hero->body.width;
-    h = game->hero->body.height;
- 
-    auto elapsed = std::chrono::high_resolution_clock::now() - start;
-    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-    if(microseconds > 80000) {
-        if (game->hero->state == WALKING && game->hero->rightPressed && game->hero->leftPressed == 0) {
-            renderHero(walkRightTexture,game ,game->hero->heroWalkingR,numAnimation,w, h, 10);
-        }
-        else if (game->hero->state == WALKING && game->hero->leftPressed && game -> hero->rightPressed == 0) {
-            renderHero(walkLeftTexture,game  ,game->hero->heroWalkingL,numAnimation,w, h, 10);
-        }
-        else if (game->hero->state == JUMPING && game -> hero -> body.orientation == FACING_RIGHT) {
-            renderHero(jumpRightTexture,game  ,game->hero->heroJumpR,numAnimation,w, h, 10);
-        }
-        else if (game->hero->body.orientation == FACING_LEFT && game->hero->state == JUMPING) {
-            renderHero(jumpLeftTexture,game  ,game->hero->heroJumpL,numAnimation,w, h, 10);
-        }
-        else if (game->hero->body.orientation == FACING_LEFT && game->hero->state == STANDING) {
-            renderHero(idleLeftTexture,game  ,game->hero->heroIdleL,numAnimation,w, h, 10);
-        }
-        else if(game->hero->state == DEATH) {
-            //renderHero(heroDeathTexture,game,game->hero->heroDeath,numAnimation,w,h,10);
-            renderHero(heroDeathTexture,game,game->hero->heroDeath,0,w,h,10);
-            renderNum = (renderNum + 1)%40;
-             
-        }
-        else {
-            renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);
-        }
-        numAnimation = (numAnimation + 1) % 10;
-        start = std::chrono::high_resolution_clock::now();
-    }
-        //helloworld
-
-    else {
-        if (game->hero->state == WALKING && game->hero->rightPressed && game->hero->leftPressed == 0) {
-            renderHero(walkRightTexture,game  ,game->hero->heroWalkingR,numAnimation,w, h, 10);
-        }
-        else if (game->hero->state == WALKING && game->hero->leftPressed && game -> hero->rightPressed == 0) {
-            renderHero(walkLeftTexture,game  ,game->hero->heroWalkingL,numAnimation,w, h, 10);
-        }
-        else if (game->hero->state == JUMPING && game->hero->body.orientation == FACING_RIGHT) {
-            renderHero(jumpRightTexture,game  ,game->hero->heroJumpR,numAnimation,w, h, 10);
-        }
-        else if (game->hero->body.orientation == FACING_LEFT && game->hero->state == JUMPING) {
-            renderHero(jumpLeftTexture,game  ,game->hero->heroJumpL,numAnimation,w, h, 10);
-        }
-        else if (game->hero->body.orientation == FACING_LEFT && game->hero->state == STANDING) {
-            renderHero(idleLeftTexture,game  ,game->hero->heroIdleL,numAnimation,w, h, 10);
-        }
-        else if(game->hero->state == DEATH) {
-            //std::cout<<"DEAD\n";
-            //renderHero(heroDeathTexture,game,game->hero->heroDeath,numAnimation,w,h,10);
-            renderHero(heroDeathTexture,game,game->hero->heroDeath,0,w,h,10);
-            renderNum = (renderNum + 1)%40;
-        }
-        else {
-            renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);
-        }
-    }
 /*
     for(auto &entity : current_level->enemies) {
         cout << "red " << entity->rgb[0] << endl;
@@ -1086,6 +1023,69 @@ void render_game(Game* game)
     }
     if( game->hero->state == DEATH && (renderNum % 40 <= 25)) {
         renderTexture(deadMessageTexture, 0.0,1.0,0.0, 1.0, 400, 100);
+    }
+    
+    // Draw the Hero to the screen
+    w = game->hero->body.width;
+    h = game->hero->body.height;
+ 
+    auto elapsed = std::chrono::high_resolution_clock::now() - start;
+    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+    if(microseconds > 80000) {
+        if (game->hero->state == WALKING && game->hero->rightPressed && game->hero->leftPressed == 0) {
+            renderHero(walkRightTexture,game ,game->hero->heroWalkingR,numAnimation,w, h, 10);
+        }
+        else if (game->hero->state == WALKING && game->hero->leftPressed && game -> hero->rightPressed == 0) {
+            renderHero(walkLeftTexture,game  ,game->hero->heroWalkingL,numAnimation,w, h, 10);
+        }
+        else if (game->hero->state == JUMPING && game -> hero -> body.orientation == FACING_RIGHT) {
+            renderHero(jumpRightTexture,game  ,game->hero->heroJumpR,numAnimation,w, h, 10);
+        }
+        else if (game->hero->body.orientation == FACING_LEFT && game->hero->state == JUMPING) {
+            renderHero(jumpLeftTexture,game  ,game->hero->heroJumpL,numAnimation,w, h, 10);
+        }
+        else if (game->hero->body.orientation == FACING_LEFT && game->hero->state == STANDING) {
+            renderHero(idleLeftTexture,game  ,game->hero->heroIdleL,numAnimation,w, h, 10);
+        }
+        else if(game->hero->state == DEATH) {
+            //renderHero(heroDeathTexture,game,game->hero->heroDeath,numAnimation,w,h,10);
+            renderHero(heroDeathTexture,game,game->hero->heroDeath,0,w,h,10);
+            renderNum = (renderNum + 1)%40;
+             
+        }
+        else {
+            renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);
+        }
+        numAnimation = (numAnimation + 1) % 10;
+        start = std::chrono::high_resolution_clock::now();
+    }
+        //helloworld
+
+    else {
+        if (game->hero->state == WALKING && game->hero->rightPressed && game->hero->leftPressed == 0) {
+            renderHero(walkRightTexture,game  ,game->hero->heroWalkingR,numAnimation,w, h, 10);
+        }
+        else if (game->hero->state == WALKING && game->hero->leftPressed && game -> hero->rightPressed == 0) {
+            renderHero(walkLeftTexture,game  ,game->hero->heroWalkingL,numAnimation,w, h, 10);
+        }
+        else if (game->hero->state == JUMPING && game->hero->body.orientation == FACING_RIGHT) {
+            renderHero(jumpRightTexture,game  ,game->hero->heroJumpR,numAnimation,w, h, 10);
+        }
+        else if (game->hero->body.orientation == FACING_LEFT && game->hero->state == JUMPING) {
+            renderHero(jumpLeftTexture,game  ,game->hero->heroJumpL,numAnimation,w, h, 10);
+        }
+        else if (game->hero->body.orientation == FACING_LEFT && game->hero->state == STANDING) {
+            renderHero(idleLeftTexture,game  ,game->hero->heroIdleL,numAnimation,w, h, 10);
+        }
+        else if(game->hero->state == DEATH) {
+            //std::cout<<"DEAD\n";
+            //renderHero(heroDeathTexture,game,game->hero->heroDeath,numAnimation,w,h,10);
+            renderHero(heroDeathTexture,game,game->hero->heroDeath,0,w,h,10);
+            renderNum = (renderNum + 1)%40;
+        }
+        else {
+            renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);
+        }
     }
     //if (game->hero->state == DEATH) {
      //   renderNum++;

@@ -11,7 +11,7 @@ mac2:
 	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp gameObject.cpp platform.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp collisions.cpp vecFxns.cpp jasonc.cpp -Wall -o Game $(MAC2FLAGS)
 
 315:
-	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp gameObject.cpp platform.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp jasonc.cpp collisions.cpp vecFxns.cpp -Wall -o Game $(MAC2FLAGS) -L/usr/lib/nvidia-331/
+	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp gameObject.cpp platform.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp jason.cpp collisions.cpp vecFxns.cpp -Wall -o Game $(MAC2FLAGS) -L/usr/lib/nvidia-331/
 
 linux:
 	g++ main.cpp -Wall -o Game -lX11 -lGL -lGLU -lm
