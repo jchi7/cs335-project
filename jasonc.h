@@ -4,5 +4,5 @@
 #include "gameObject.h"
 #include "collisions.h"
 
-bool entityPeakAheadDetect(GameObject& ent, Shape plat);
 void enemyPhysics(Game *game);
+void bulletPhysics(Game *game);

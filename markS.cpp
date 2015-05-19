@@ -61,6 +61,9 @@ void check_game_input(XEvent *e, Game *game)
             if (key == XK_i){
                 game->moveRoomUp();
             }
+            if (key == XK_e){
+                game->heroShoots();
+            }
             if (key == XK_5){
                 game->hero->body.center[0] = e->xbutton.x;
                 game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;

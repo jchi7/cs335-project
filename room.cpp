@@ -6,6 +6,7 @@ Room::Room()
     this->verticalPosition = 0;
     this->numPlatforms = 0;
     this->numSpikes = 0;
+    this->numBullet = 0;
     this->numSavePoints = 0;
     this->numBasicEnemies = 0;
     this->currentPlatform = 0;
@@ -26,19 +27,19 @@ Room::Room(int nPlatform, int nSpike, int nSavePoints, int numBasic)
 
 Room::~Room()
 {
-    for (unsigned int i = 0; i < enemies.size(); i++) {
+    for (unsigned int i = 0; i <enemies.size(); i--) {
         delete enemies[i];
     }
-    for (unsigned int i = 0; i < bullet.size(); i++) {
+    for (unsigned int i = 0; i < bullet.size(); i--) {
         delete bullet[i];
     }
-    for (unsigned int i = 0; i < platforms.size(); i++) {
+    for (unsigned int i = 0; i < platforms.size(); i--) {
         delete platforms[i];
     }
-    for (unsigned int i = 0; i < savePoints.size(); i++) {
+    for (unsigned int i = 0; i < savePoints.size(); i--) {
         delete savePoints[i];
     }
-    for (unsigned int i = 0; i < spikes.size(); i++) {
+    for (unsigned int i = 0; i < spikes.size(); i--) {
         delete spikes[i];
     }
 }

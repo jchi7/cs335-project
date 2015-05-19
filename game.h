@@ -8,6 +8,7 @@
 #include "hero.h"
 #include "savePoint.h"
 #include "basicEnemy.h"
+#include "basicBullet.h"
 
 class Game
 {
@@ -67,6 +68,7 @@ class Game
         void fillLevel();
         void saveRooms();
         void resizePlatform(GameObject * mouse);
+        void heroShoots();
     protected:
     private:
 };
