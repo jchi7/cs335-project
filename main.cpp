@@ -50,7 +50,8 @@ int numCollisions;
 struct timeval Gthrottle;
 int GoldMilliSec = 0;
 int GtimeLapse = 0;
-int Gthreshold = 15000;
+//int Gthreshold = 15000;
+int Gthreshold = 15;
 //Variable that is used count the number of renders...
 int renderNum = 0;
 //Following Declarations are for  Image importing...
@@ -60,6 +61,7 @@ void setUpImage (GLuint texture, Ppmimage *picture);
 void convertToRGBA(Ppmimage *picture); 
 void renderTexture(GLuint imageTexture, float x1,float x2,float y1, float y2, int width, int height);
 GLuint getBMP(const char *path);
+Ppmimage *bulletImage = NULL;
 Ppmimage *spikeEnemyRightImage = NULL;
 Ppmimage *spikeEnemyLeftImage = NULL;
 Ppmimage *heroDeathImage = NULL;
@@ -80,6 +82,7 @@ Ppmimage *spikeImage = NULL;
 Ppmimage *deadMessageImage = NULL;
 //Creating the Textures
 GLuint spikeTexture;
+GLuint bulletTexture;
 GLuint checkPointTexture;
 GLuint spikeEnemyRightTexture;
 GLuint spikeEnemyLeftTexture;
@@ -100,6 +103,7 @@ GLuint mainMenuButtonsExitTexture;
 bool forestBackgroundSet=true;
 CharacterState prevPosition;
 int numAnimation = 0;
+int bulletAnimation = 0;
 int i = 0;
 auto start = std::chrono::high_resolution_clock::now();
 //End
@@ -263,6 +267,7 @@ void init_opengl(void) {
     walkRightImage = ppm6GetImage("./images/HeroWalkRight.ppm");
     walkLeftImage = ppm6GetImage("./images/heroWalkLeft.ppm");
     spikeImage = ppm6GetImage("./images/spike2.ppm");
+    bulletImage = ppm6GetImage("./images/bullet.ppm");
 
     //Binding the textures... 
     glGenTextures(1, &jumpLeftTexture); 
@@ -283,7 +288,11 @@ void init_opengl(void) {
     glGenTextures(1, &checkPointTexture);
     glGenTextures(1, &spikeEnemyRightTexture);
     glGenTextures(1, &spikeEnemyLeftTexture);
-    
+    glGenTextures(1, &bulletTexture);
+
+    //Setting up the bullet image/texture
+    setUpImage(bulletTexture,bulletImage);
+    convertToRGBA(bulletImage);
 
     //Setting up the spike enemy left image
     setUpImage(spikeEnemyLeftTexture,spikeEnemyLeftImage);
@@ -929,7 +938,7 @@ void render_game(Game* game)
     }
 */
     for(auto entity : current_level->bullet) {
-        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+        /*glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
         glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_QUADS);
@@ -938,7 +947,23 @@ void render_game(Game* game)
             glVertex2i(entity->body.width,entity->body.height);
             glVertex2i(entity->body.width,-entity->body.height);
         glEnd();
-        glPopMatrix();
+        glPopMatrix();  Don't Need this anymore */
+        //Start Here, Funky things happening.....
+        w = entity->body.width + 4;
+        h = entity->body.height + 4;
+	    glEnable(GL_TEXTURE_2D);
+	    glColor4ub(255,255,255,255);
+	    glPushMatrix();
+	    glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+	    glBindTexture(GL_TEXTURE_2D, bulletTexture);
+	    glBegin(GL_QUADS);
+	    glTexCoord2f(((BasicBullet*)entity)->bullet[bulletAnimation].x1,((BasicBullet*)entity)->bullet[bulletAnimation].y2); glVertex2i(-w,-h);
+	    glTexCoord2f(((BasicBullet*)entity)->bullet[bulletAnimation].x1,((BasicBullet*)entity)->bullet[bulletAnimation].y1); glVertex2i(-w,h);
+	    glTexCoord2f(((BasicBullet*)entity)->bullet[bulletAnimation].x2,((BasicBullet*)entity)->bullet[bulletAnimation].y1); glVertex2i(w,h);
+	    glTexCoord2f(((BasicBullet*)entity)->bullet[bulletAnimation].x2,((BasicBullet*)entity)->bullet[bulletAnimation].y2); glVertex2i(w,-h);
+	    glEnd();
+	    glPopMatrix();
+	    bulletAnimation = (bulletAnimation + 1)%10;
 
     }
 
@@ -1010,8 +1035,8 @@ void render_game(Game* game)
     }
 
     for(auto &entity : current_level->enemies) {
-	glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
-	/*glPushMatrix();
+	/*glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+	glPushMatrix();
 	glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
 	glBegin(GL_QUADS);
 	glVertex2i(-entity->body.width,-entity->body.height);

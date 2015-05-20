@@ -9,6 +9,8 @@ class BasicBullet : public GameObject
         CharacterState state;
         Vec prevPosition;
         Vec velocity;
+        Coordinates bullet[10];
+        float Inc;
 
         BasicBullet(int, int, int, int, ObjectType);
         virtual ~BasicBullet();

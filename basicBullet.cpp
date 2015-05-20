@@ -3,8 +3,8 @@
 BasicBullet::BasicBullet(int xVel, int yVel, int x, int y, ObjectType oid)
 {
     this->body.type = RECTANGLE;
-    this->body.width = 2;
-    this->body.height = 2;
+    this->body.width = 4;
+    this->body.height = 4;
     this->body.center[0] = x;
     this->body.center[1] = y;
     this->body.center[2] = 0;
@@ -23,6 +23,22 @@ BasicBullet::BasicBullet(int xVel, int yVel, int x, int y, ObjectType oid)
         this->id = HBULLET;
     else
         this->id = EBULLET;
+    Inc = .1;
+    for(int i = 0; i < 10; i++) {
+        bullet[i].x1 = 0.0;
+        bullet[i].x2 = 0.0;
+        bullet[i].y1 = 0.0;
+        bullet[i].y2 = 1.0;
+
+        if (i == 0) {
+            bullet[i].x1 = bullet[i-1].x2;
+        }
+        else {
+            bullet[i].x1 = bullet[i-1].x2;
+        }
+        bullet[i].x2 = Inc;
+        Inc += .1;
+    }
 }
 
 BasicBullet::~BasicBullet()
