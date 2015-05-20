@@ -23,7 +23,6 @@ void check_game_input(XEvent *e, Game *game)
     mouse.body.type = RECTANGLE;
     mouse.body.width = 1;
     mouse.body.height = 1;
-
     if (e->type == KeyPress){
         //cout << e->xbutton.x << endl;
         int key = XLookupKeysym(&e->xkey,0);
@@ -35,6 +34,12 @@ void check_game_input(XEvent *e, Game *game)
         }
         if (key == XK_Escape){
             g_gamestate = MAIN_MENU;
+        }
+        if (key == XK_e){
+            if (game->hero->delay == 0) {
+                game->heroShoots();
+                game->hero->delay++;
+            }
         }
 
         if ((key == XK_Up || key == XK_w || key == XK_space) && game->hero->jumpRelease == 0){
@@ -60,9 +65,6 @@ void check_game_input(XEvent *e, Game *game)
             }
             if (key == XK_i){
                 game->moveRoomUp();
-            }
-            if (key == XK_e){
-                game->heroShoots();
             }
             if (key == XK_5){
                 game->hero->body.center[0] = e->xbutton.x;

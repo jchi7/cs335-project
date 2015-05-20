@@ -5,6 +5,7 @@ Hero::Hero()
     numBullets = 0;
     maxBullets = 3;
     bulletVelocity = 10;
+    delay = 0;
 
     body.type = RECTANGLE;
     id = HERO;

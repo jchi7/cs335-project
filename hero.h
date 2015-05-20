@@ -16,6 +16,7 @@ class Hero : public GameObject
         int numBullets;
         int maxBullets;
         int bulletVelocity;
+        int delay;
         // These are the variables for the sprite sheets
         float Inc;
         Coordinates heroJump[10];

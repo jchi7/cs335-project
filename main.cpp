@@ -50,8 +50,8 @@ int numCollisions;
 struct timeval Gthrottle;
 int GoldMilliSec = 0;
 int GtimeLapse = 0;
-//int Gthreshold = 15000;
-int Gthreshold = 15;
+int Gthreshold = 15000;
+//int Gthreshold = 15;
 //Variable that is used count the number of renders...
 int renderNum = 0;
 //Following Declarations are for  Image importing...
@@ -875,6 +875,9 @@ void physics(Game * game)
     Room * room = game->getRoomPtr();
 
     game->hero->movement();
+    if (game->hero->delay != 0) {
+        game->hero->delay = (game->hero->delay + 1) % 20;
+    }
     for (int i = 0; i < room->numPlatforms; i++) {
         isCollision = collisionRectRect(&game->hero->body, &room->platforms[i]->body);
         if (isCollision == true) {

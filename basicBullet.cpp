@@ -122,6 +122,5 @@ void BasicBullet::onCollision(GameObject * obj)
             body.center[1] = obj->body.center[1] + obj->body.height + body.height;
             state = DEATH;
         }
-        printf("Test");
     }
 }

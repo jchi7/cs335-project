@@ -386,13 +386,16 @@ void Game::saveRooms()
 
 void Game::heroShoots() {
     Room* current_level = getRoomPtr();
-    if (hero->body.orientation == FACING_RIGHT) {
-        printf("Before bullet %d\n", current_level->numBullet);
-        current_level->bullet.push_back(new BasicBullet(4, 0, hero->body.center[0] + hero->body.width + 2, hero->body.center[1], HERO));
-        current_level->numBullet++;
-        printf("After bullet %d\n", current_level->numBullet);
-    } else {
-        current_level->bullet.push_back(new BasicBullet(-4, 0, hero->body.center[0] - hero->body.width - 2, hero->body.center[1], HERO));
-        current_level->numBullet++;
+    switch(hero->body.orientation) {
+        case FACING_RIGHT:
+            current_level->bullet.push_back(new BasicBullet(4, 0, hero->body.center[0] + hero->body.width + 2, hero->body.center[1], HERO));
+            current_level->numBullet++;
+            break;
+        case FACING_LEFT:
+            current_level->bullet.push_back(new BasicBullet(-4, 0, hero->body.center[0] - hero->body.width - 2, hero->body.center[1], HERO));
+            current_level->numBullet++;
+            break;
+        default:
+            break;
     }
 }
