@@ -4,8 +4,8 @@ BasicEnemy::BasicEnemy(int left, int right, int x, int y)
 {
     this->body.type = RECTANGLE;
     this->id = ENEMY;
-    this->body.width = 10;
-    this->body.height = 15;
+    this->body.width = 12;
+    this->body.height = 12;
     this->body.center[0] = x;
     this->body.center[1] = y;
     this->body.center[2] = 0;

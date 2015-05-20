@@ -50,7 +50,8 @@ int numCollisions;
 struct timeval Gthrottle;
 int GoldMilliSec = 0;
 int GtimeLapse = 0;
-int Gthreshold = 15000;
+//int Gthreshold = 15000;
+int Gthreshold = 15;
 //Variable that is used count the number of renders...
 int renderNum = 0;
 //Following Declarations are for  Image importing...
@@ -60,6 +61,8 @@ void setUpImage (GLuint texture, Ppmimage *picture);
 void convertToRGBA(Ppmimage *picture); 
 void renderTexture(GLuint imageTexture, float x1,float x2,float y1, float y2, int width, int height);
 GLuint getBMP(const char *path);
+Ppmimage *bulletImage = NULL;
+Ppmimage *keyImage = NULL;
 Ppmimage *spikeEnemyRightImage = NULL;
 Ppmimage *spikeEnemyLeftImage = NULL;
 Ppmimage *heroDeathImage = NULL;
@@ -80,6 +83,8 @@ Ppmimage *spikeImage = NULL;
 Ppmimage *deadMessageImage = NULL;
 //Creating the Textures
 GLuint spikeTexture;
+GLuint keyTexture;
+GLuint bulletTexture;
 GLuint checkPointTexture;
 GLuint spikeEnemyRightTexture;
 GLuint spikeEnemyLeftTexture;
@@ -100,7 +105,10 @@ GLuint mainMenuButtonsExitTexture;
 bool forestBackgroundSet=true;
 CharacterState prevPosition;
 int numAnimation = 0;
+int bulletAnimation = 0;
 int i = 0;
+Room *savePointRoom;
+int currentSavePoint;
 auto start = std::chrono::high_resolution_clock::now();
 //End
 
@@ -245,6 +253,7 @@ void init_opengl(void) {
     //Importing Images
 
 
+    keyImage = ppm6GetImage("./images/key.ppm");
     spikeEnemyRightImage = ppm6GetImage("./images/enemy_spike_right.ppm");
     spikeEnemyLeftImage = ppm6GetImage("./images/enemy_spike_left.ppm");
     deadMessageImage = ppm6GetImage("./images/dieStatement.ppm");
@@ -263,8 +272,10 @@ void init_opengl(void) {
     walkRightImage = ppm6GetImage("./images/HeroWalkRight.ppm");
     walkLeftImage = ppm6GetImage("./images/heroWalkLeft.ppm");
     spikeImage = ppm6GetImage("./images/spike2.ppm");
+    bulletImage = ppm6GetImage("./images/bullet.ppm");
 
     //Binding the textures... 
+    glGenTextures(1, &keyTexture); 
     glGenTextures(1, &jumpLeftTexture); 
     glGenTextures(1, &jumpRightTexture);
     glGenTextures(1, &walkRightTexture);
@@ -283,7 +294,14 @@ void init_opengl(void) {
     glGenTextures(1, &checkPointTexture);
     glGenTextures(1, &spikeEnemyRightTexture);
     glGenTextures(1, &spikeEnemyLeftTexture);
+    glGenTextures(1, &bulletTexture);
+
+    setUpImage(keyTexture,keyImage);
+    convertToRGBA(keyImage);
     
+    //Setting up the bullet image/texture
+    setUpImage(bulletTexture,bulletImage);
+    convertToRGBA(bulletImage);
 
     //Setting up the spike enemy left image
     setUpImage(spikeEnemyLeftTexture,spikeEnemyLeftImage);
@@ -868,6 +886,8 @@ void physics(Game * game)
         isCollision = collisionRectRect(&game->hero->body, &room->savePoints[i]->body);
         if (isCollision == true) {
             game->setSavePoint(i);
+            currentSavePoint = i;
+            savePointRoom = room;
         }
     }
     //if (isCollision == false) {  BUG HERE...
@@ -938,7 +958,7 @@ void render_game(Game* game)
     }
 */
     for(auto entity : current_level->bullet) {
-        glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+        /*glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
         glPushMatrix();
         glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBegin(GL_QUADS);
@@ -947,7 +967,23 @@ void render_game(Game* game)
             glVertex2i(entity->body.width,entity->body.height);
             glVertex2i(entity->body.width,-entity->body.height);
         glEnd();
-        glPopMatrix();
+        glPopMatrix();  Don't Need this anymore */
+        //Start Here, Funky things happening.....
+        w = entity->body.width + 4;
+        h = entity->body.height + 4;
+	    glEnable(GL_TEXTURE_2D);
+	    glColor4ub(255,255,255,255);
+	    glPushMatrix();
+	    glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+	    glBindTexture(GL_TEXTURE_2D, bulletTexture);
+	    glBegin(GL_QUADS);
+	    glTexCoord2f(((BasicBullet*)entity)->bullet[bulletAnimation].x1,((BasicBullet*)entity)->bullet[bulletAnimation].y2); glVertex2i(-w,-h);
+	    glTexCoord2f(((BasicBullet*)entity)->bullet[bulletAnimation].x1,((BasicBullet*)entity)->bullet[bulletAnimation].y1); glVertex2i(-w,h);
+	    glTexCoord2f(((BasicBullet*)entity)->bullet[bulletAnimation].x2,((BasicBullet*)entity)->bullet[bulletAnimation].y1); glVertex2i(w,h);
+	    glTexCoord2f(((BasicBullet*)entity)->bullet[bulletAnimation].x2,((BasicBullet*)entity)->bullet[bulletAnimation].y2); glVertex2i(w,-h);
+	    glEnd();
+	    glPopMatrix();
+	    bulletAnimation = (bulletAnimation + 1)%10;
 
     }
 
@@ -1070,6 +1106,7 @@ void render_game(Game* game)
     }
     }
 
+    int savePointCounter= 0;
     for(auto entity : current_level->savePoints) {
 	glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
 	/*glPushMatrix();
@@ -1081,12 +1118,29 @@ void render_game(Game* game)
 	glVertex2i(entity->body.width,-entity->body.height);
 	glEnd();
 	glPopMatrix();   Don't Need it no more */
+    
 	w = entity->body.width;
 	h = entity->body.height;
-	glEnable(GL_TEXTURE_2D);
-	glColor4ub(255,255,255,255);
-	glPushMatrix();
-	glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+	if(savePointCounter == currentSavePoint && current_level == savePointRoom) { 
+        glEnable(GL_TEXTURE_2D);
+        glColor4ub(255,255,255,255);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBindTexture(GL_TEXTURE_2D, keyTexture);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
+        glTexCoord2f(0.1f,0.0f); glVertex2i(-w,h);
+        glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
+        glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
+        glEnd();
+        glPopMatrix();
+
+    }
+    else {    
+        glEnable(GL_TEXTURE_2D);
+        glColor4ub(255,255,255,255);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
         glBindTexture(GL_TEXTURE_2D, checkPointTexture);
         glBegin(GL_QUADS);
         glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
@@ -1095,6 +1149,10 @@ void render_game(Game* game)
         glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
         glEnd();
         glPopMatrix();
+    }
+        
+        //Using this to get the index of the last save point....
+        savePointCounter++;
     }
     if( game->hero->state == DEATH && (renderNum % 40 <= 25)) {
         renderTexture(deadMessageTexture, 0.0,1.0,0.0, 1.0, 400, 100);
