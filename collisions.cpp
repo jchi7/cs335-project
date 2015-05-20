@@ -158,4 +158,3 @@ bool collisionRectTri(Shape * r, Shape * t)
 // }
 
 
-

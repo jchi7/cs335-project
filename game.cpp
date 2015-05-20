@@ -39,6 +39,7 @@ Game::Game()
 Game::~Game()
 {
     delete hero;
+    //level.erase(level.begin(), level.end());
     //dtor
 }
 
@@ -276,6 +277,17 @@ void Game::fillLevel()
                     }
                     // create Enemy
                     level[vert][horz].enemies.push_back(new BasicEnemy(convVal[0], convVal[1], convVal[2], convVal[3]));
+                    level[vert][horz].numBasicEnemies++;
+                }
+                else if (objType == "SHOOTER") {
+                    float convVal[4]; //four
+                    for (int col = 0; col < 4; col++) {
+                        getline(iss, val, ',');
+                        stringstream converter(val);
+                        converter >> convVal[col];
+                    }
+                    // create Enemy
+                    level[vert][horz].enemies.push_back(new ShooterEnemy(convVal[0], convVal[1], convVal[2], convVal[3]));
                     level[vert][horz].numBasicEnemies++;
                 }}
             file.close();

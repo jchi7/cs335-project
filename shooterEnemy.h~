@@ -1,23 +1,17 @@
-#ifndef BASICENEMY_H
-#define BASICENEMY_H
+#ifndef SHOOTERENEMY_H
+#define SHOOTERENEMY_H
 
 #include "gameObject.h"
 
 
-class BasicEnemy : public GameObject
+class ShooterEnemy : public BasicEnemy
 {
     public:
         CharacterState state;
         Vec prevPosition;
         Vec velocity;
-        int delay;
-	float Inc;
-	Coordinates enemyWalkRight[10];
-	Coordinates enemyWalkLeft[10];
-
-        BasicEnemy() {}
-        BasicEnemy(int, int, int, int);
-        virtual ~BasicEnemy();
+        ShooterEnemy(int, int, int, int);
+        virtual ~ShooterEnemy();
         virtual void update();
         virtual void movement();
         virtual void onCollision(GameObject * obj);
@@ -27,4 +21,4 @@ class BasicEnemy : public GameObject
     private:
 };
 
-#endif // BASICENEMY_H
+#endif // SHOOTERENEMY_H

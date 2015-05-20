@@ -887,6 +887,15 @@ void physics(Game * game)
             game->hero->onCollision(room->enemies[i]);
         }
     }
+    isCollision = false;
+    for (int i = room->numBullet - 1 ; i >= 0; i--) {
+        isCollision = collisionRectRect(&game->hero->body, &room->bullet[i]->body);
+        if (isCollision == true) {
+            game->hero->onCollision(room->bullet[i]);
+            room->bullet.erase(room->bullet.begin() + i);
+            room->numBullet--;
+        }
+    }
 
     if (game->hero->state == DEATH) {
         // TEMPORARY: return hero to start
@@ -1011,15 +1020,17 @@ void render_game(Game* game)
 
     for(auto &entity : current_level->enemies) {
 	glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
-	/*glPushMatrix();
-	glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
-	glBegin(GL_QUADS);
-	glVertex2i(-entity->body.width,-entity->body.height);
-	glVertex2i(-entity->body.width,entity->body.height);
-	glVertex2i(entity->body.width,entity->body.height);
-	glVertex2i(entity->body.width,-entity->body.height);
-	glEnd();
-	glPopMatrix();  Don't Need this no more */
+    if (entity->id == SHOOTERENEMY) {
+    	glPushMatrix();
+	    glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+    	glBegin(GL_QUADS);
+    	glVertex2i(-entity->body.width,-entity->body.height);
+    	glVertex2i(-entity->body.width,entity->body.height);
+    	glVertex2i(entity->body.width,entity->body.height);
+    	glVertex2i(entity->body.width,-entity->body.height);
+    	glEnd();
+    	glPopMatrix();  //Don't Need this no more
+    } else {
 	w = entity->body.width;
 	h = entity->body.height;
 	//std::cout<<((BasicEnemy*) entity)->state<<endl;
@@ -1056,6 +1067,7 @@ void render_game(Game* game)
 	    glPopMatrix();
 	    i = (i + 1)%10;
 	}
+    }
     }
 
     for(auto entity : current_level->savePoints) {

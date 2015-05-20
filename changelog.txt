@@ -5,7 +5,10 @@ PRIMARY CHANGES:
 --- collisions:
   Functions have been set up in collisions.h/cpp to support most* triangle rectangle collisions.
     *The collision may not be detected if the rectangle has a slim, long shape in comparison to the triangle, and is moving quickly.
-
+--- Enemies:
+    Add the enemies to the game.
+--- bullet:
+    Add bullets to the game. The e key is to shoot.
 
 
 --- structural:

@@ -77,6 +77,41 @@ void enemyPhysics(Game *game)
                 current_level->numBullet--;
             }
         }
+        
+        if (entity->id == SHOOTERENEMY) {
+            left.width = 10 * entity->body.width;
+            right.width = 10 * entity->body.width;
+            left.center[0] = entity->body.center[0] - left.width;
+            left.center[1] = entity->body.center[1];
+            left.center[2] = entity->body.center[2];
+            right.center[0] = entity->body.center[0] + right.width;
+            right.center[1] = entity->body.center[1];
+            right.center[2] = entity->body.center[2];
+            isCollision = false;
+            switch(entity->body.orientation) {
+                case FACING_LEFT:
+                    isCollision = collisionRectRect(&left, &game->hero->body);
+                    entity->delay = entity->delay % 40;
+                    if (isCollision == true && entity->delay == 0) {
+                        current_level->bullet.push_back(new BasicBullet(-4, 0, entity->body.center[0] - entity->body.width, entity->body.center[1], ENEMY));
+                        current_level->numBullet++;
+                    }
+                    entity->delay++;
+                    break;
+                case FACING_RIGHT:
+                    isCollision = collisionRectRect(&right, &game->hero->body);
+                    entity->delay = entity->delay % 40;
+                    if (isCollision == true && entity->delay == 0) {
+                        current_level->bullet.push_back(new BasicBullet(4, 0, entity->body.center[0] + entity->body.width, entity->body.center[1], ENEMY));
+                        current_level->numBullet++;
+                    }
+                    entity->delay++;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         if (entity->body.orientation == FACING_LEFT && (entity->body.center[0] - entity->body.width <= 0)) {
             entity->switchDirection();
         } else if (entity->body.orientation == FACING_RIGHT && (entity->body.center[0] + entity->body.width >= 1000)) {
@@ -116,5 +151,5 @@ void bulletPhysics(Game *game)
             current_level->bullet.erase(current_level->bullet.begin() + i);
             current_level->numBullet--;
         }
-    } 
+    }
 }

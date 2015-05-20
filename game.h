@@ -8,6 +8,7 @@
 #include "hero.h"
 #include "savePoint.h"
 #include "basicEnemy.h"
+#include "shooterEnemy.h"
 #include "basicBullet.h"
 
 class Game

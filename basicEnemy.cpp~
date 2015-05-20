@@ -15,6 +15,8 @@ BasicEnemy::BasicEnemy(int left, int right, int x, int y)
     this->velocity[0] = 0.5;
     this->velocity[1] = 0;
     this->velocity[2] = 0;
+    this->leftBoundary = left;
+    this->rightBoundary = right;
     this->rgb[0] = 0;
     this->rgb[1] = 0;
     this->rgb[2] = 0;
@@ -55,7 +57,10 @@ string BasicEnemy::debugReport()
       << "  ----"
       << "  SUBCLASS REPORT: BasicEnemy\n"
       << "    Vec prevPosition = "<< vecPrint(this->prevPosition) << endl
-      << "    Vec velocity = "<< vecPrint(this->velocity) << endl;
+      << "    Vec velocity = "<< vecPrint(this->velocity) << endl
+      //<< "    int facing = "<< this->facing << endl
+      << "    int leftBoundary = "<< this->leftBoundary << endl
+      << "    int rightBoundary = "<< this->rightBoundary << endl;
     return report.str();
 }
 

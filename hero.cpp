@@ -164,9 +164,7 @@ void Hero::movement()
 // reposition hero & reset hero state
 void Hero::onCollision(GameObject * obj)
 {
-    if (obj->id == SPIKE) {
-        state = DEATH;
-    } else if (obj->id == ENEMY) {
+    if (obj->id == SPIKE || obj->id == ENEMY || obj->id == EBULLET) {
         state = DEATH;
     } else { // obj->id == PLATFORM
         if (prevPosition[0]  < obj->body.center[0] - obj->body.width) {
