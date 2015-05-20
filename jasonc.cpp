@@ -88,21 +88,22 @@ void enemyPhysics(Game *game)
             right.center[1] = entity->body.center[1];
             right.center[2] = entity->body.center[2];
             isCollision = false;
+            entity->delay = entity->delay % 40;
             switch(entity->body.orientation) {
                 case FACING_LEFT:
                     isCollision = collisionRectRect(&left, &game->hero->body);
-                    entity->delay = entity->delay % 40;
+                    //entity->delay = entity->delay % 40;
                     if (isCollision == true && entity->delay == 0) {
-                        current_level->bullet.push_back(new BasicBullet(-4, 0, entity->body.center[0] - entity->body.width, entity->body.center[1], ENEMY));
+                        current_level->bullet.push_back(new BasicBullet(-4, 0, entity->body.center[0] - entity->body.width - 2, entity->body.center[1], ENEMY));
                         current_level->numBullet++;
                     }
                     entity->delay++;
                     break;
                 case FACING_RIGHT:
                     isCollision = collisionRectRect(&right, &game->hero->body);
-                    entity->delay = entity->delay % 40;
+                    //entity->delay = entity->delay % 40;
                     if (isCollision == true && entity->delay == 0) {
-                        current_level->bullet.push_back(new BasicBullet(4, 0, entity->body.center[0] + entity->body.width, entity->body.center[1], ENEMY));
+                        current_level->bullet.push_back(new BasicBullet(4, 0, entity->body.center[0] + entity->body.width + 2, entity->body.center[1], ENEMY));
                         current_level->numBullet++;
                     }
                     entity->delay++;

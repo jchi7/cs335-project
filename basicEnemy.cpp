@@ -84,6 +84,8 @@ void BasicEnemy::onCollision(GameObject * obj)
 {
     if (obj->id == SPIKE || obj->id == HBULLET) {
         state = DEATH;
+    } else if (obj->id == EBULLET) {
+        return;
     }
     else { // obj->id == PLATFORM
         if (prevPosition[0]  < obj->body.center[0] - obj->body.width) {

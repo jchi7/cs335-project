@@ -3,6 +3,8 @@
 BasicBullet::BasicBullet(int xVel, int yVel, int x, int y, ObjectType oid)
 {
     this->body.type = RECTANGLE;
+    //this->body.width = 4;
+    //this->body.height = 4;
     this->body.width = 4;
     this->body.height = 4;
     this->body.center[0] = x;
@@ -91,6 +93,8 @@ void BasicBullet::onCollision(GameObject * obj)
 {
     if (obj->id == SPIKE) {
         state = DEATH;
+    } else if (obj->id == HBULLET || obj->id == EBULLET) {
+        return;
     }
     else { // obj->id == PLATFORM
         if (prevPosition[0]  < obj->body.center[0] - obj->body.width) {
@@ -118,5 +122,6 @@ void BasicBullet::onCollision(GameObject * obj)
             body.center[1] = obj->body.center[1] + obj->body.height + body.height;
             state = DEATH;
         }
+        printf("Test");
     }
 }

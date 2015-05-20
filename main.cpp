@@ -911,9 +911,11 @@ void physics(Game * game)
     for (int i = room->numBullet - 1 ; i >= 0; i--) {
         isCollision = collisionRectRect(&game->hero->body, &room->bullet[i]->body);
         if (isCollision == true) {
-            game->hero->onCollision(room->bullet[i]);
-            room->bullet.erase(room->bullet.begin() + i);
-            room->numBullet--;
+            if (room->bullet[i]->id != HBULLET) {
+                game->hero->onCollision(room->bullet[i]);
+                room->bullet.erase(room->bullet.begin() + i);
+                room->numBullet--;
+            }
         }
     }
 
