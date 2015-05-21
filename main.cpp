@@ -61,6 +61,8 @@ void setUpImage (GLuint texture, Ppmimage *picture);
 void convertToRGBA(Ppmimage *picture); 
 void renderTexture(GLuint imageTexture, float x1,float x2,float y1, float y2, int width, int height);
 GLuint getBMP(const char *path);
+Ppmimage *eShootingRightImage = NULL;
+Ppmimage *eShootingLeftImage = NULL;
 Ppmimage *bulletImage = NULL;
 Ppmimage *keyImage = NULL;
 Ppmimage *spikeEnemyRightImage = NULL;
@@ -82,6 +84,8 @@ Ppmimage *mainMenuButtonsExitImage = NULL;
 Ppmimage *spikeImage = NULL;
 Ppmimage *deadMessageImage = NULL;
 //Creating the Textures
+GLuint eShootingRightTexture;
+GLuint eShootingLeftTexture;
 GLuint spikeTexture;
 GLuint keyTexture;
 GLuint bulletTexture;
@@ -106,6 +110,7 @@ bool forestBackgroundSet=true;
 CharacterState prevPosition;
 int numAnimation = 0;
 int bulletAnimation = 0;
+int shooterAnimation = 0;
 int i = 0;
 Room *savePointRoom;
 int currentSavePoint;
@@ -253,6 +258,8 @@ void init_opengl(void) {
     //Importing Images
 
 
+    eShootingRightImage = ppm6GetImage("./images/mega_walkR.ppm");
+    eShootingLeftImage = ppm6GetImage("./images/mega_walkL.ppm");
     keyImage = ppm6GetImage("./images/key.ppm");
     spikeEnemyRightImage = ppm6GetImage("./images/enemy_spike_right.ppm");
     spikeEnemyLeftImage = ppm6GetImage("./images/enemy_spike_left.ppm");
@@ -295,7 +302,17 @@ void init_opengl(void) {
     glGenTextures(1, &spikeEnemyRightTexture);
     glGenTextures(1, &spikeEnemyLeftTexture);
     glGenTextures(1, &bulletTexture);
+    glGenTextures(1, &eShootingRightTexture);
+    glGenTextures(1, &eShootingLeftTexture);
 
+    //Settinf up the sprite sheets for the shooter enemy.
+    setUpImage(eShootingRightTexture,eShootingRightImage);
+    convertToRGBA(eShootingRightImage);
+
+    setUpImage(eShootingLeftTexture,eShootingLeftImage);
+    convertToRGBA(eShootingLeftImage);
+    
+    //Setting up the key texture for the save Points
     setUpImage(keyTexture,keyImage);
     convertToRGBA(keyImage);
     
@@ -938,6 +955,8 @@ void physics(Game * game)
 
 void render_game(Game* game)
 {
+    auto elapsed = std::chrono::high_resolution_clock::now() - start;
+    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     Room* current_level = game->getRoomPtr();
 
     glClear(GL_COLOR_BUFFER_BIT);
@@ -1062,7 +1081,7 @@ void render_game(Game* game)
     for(auto &entity : current_level->enemies) {
 	glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
     if (entity->id == SHOOTERENEMY) {
-    	glPushMatrix();
+    	/*glPushMatrix();
 	    glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
     	glBegin(GL_QUADS);
     	glVertex2i(-entity->body.width,-entity->body.height);
@@ -1070,7 +1089,48 @@ void render_game(Game* game)
     	glVertex2i(entity->body.width,entity->body.height);
     	glVertex2i(entity->body.width,-entity->body.height);
     	glEnd();
-    	glPopMatrix();  //Don't Need this no more
+        glPopMatrix();*/
+    	w = entity->body.width;
+        h = entity->body.height;
+        //std::cout<<((BasicEnemy*) entity)->state<<endl;
+        //std::cout<<entity->body.orientation<<endl;
+        if( entity->body.orientation == FACING_RIGHT)
+        {
+            if ( microseconds > 80000) {
+                shooterAnimation = (shooterAnimation + 1) % 10;
+            }
+            glEnable(GL_TEXTURE_2D);
+            glColor4ub(255,255,255,255);
+            glPushMatrix();
+            glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+            glBindTexture(GL_TEXTURE_2D, eShootingRightTexture);
+            glBegin(GL_QUADS);
+            glTexCoord2f(((ShooterEnemy*)entity)->sprite[shooterAnimation].x1,((ShooterEnemy*)entity)->sprite[shooterAnimation].y2); glVertex2i(-w,-h);
+            glTexCoord2f(((ShooterEnemy*)entity)->sprite[shooterAnimation].x1,((ShooterEnemy*)entity)->sprite[shooterAnimation].y1); glVertex2i(-w,h);
+            glTexCoord2f(((ShooterEnemy*)entity)->sprite[shooterAnimation].x2,((ShooterEnemy*)entity)->sprite[shooterAnimation].y1); glVertex2i(w,h);
+            glTexCoord2f(((ShooterEnemy*)entity)->sprite[shooterAnimation].x2,((ShooterEnemy*)entity)->sprite[shooterAnimation].y2); glVertex2i(w,-h);
+            glEnd();
+            glPopMatrix();
+        }
+        else if( entity->body.orientation == FACING_LEFT)
+        { 
+            if ( microseconds > 80000) {
+                shooterAnimation = (shooterAnimation + 1) % 10;
+            }
+            glEnable(GL_TEXTURE_2D);
+            glColor4ub(255,255,255,255);
+            glPushMatrix();
+            glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+            glBindTexture(GL_TEXTURE_2D, eShootingLeftTexture);
+            glBegin(GL_QUADS);
+            glTexCoord2f(((ShooterEnemy*)entity)->sprite[shooterAnimation].x1,((ShooterEnemy*)entity)->sprite[shooterAnimation].y2); glVertex2i(-w,-h);
+            glTexCoord2f(((ShooterEnemy*)entity)->sprite[shooterAnimation].x1,((ShooterEnemy*)entity)->sprite[shooterAnimation].y1); glVertex2i(-w,h);
+            glTexCoord2f(((ShooterEnemy*)entity)->sprite[shooterAnimation].x2,((ShooterEnemy*)entity)->sprite[shooterAnimation].y1); glVertex2i(w,h);
+            glTexCoord2f(((ShooterEnemy*)entity)->sprite[shooterAnimation].x2,((ShooterEnemy*)entity)->sprite[shooterAnimation].y2); glVertex2i(w,-h);
+            glEnd();
+            glPopMatrix();
+        }        
+
     } else {
 	w = entity->body.width;
 	h = entity->body.height;
@@ -1167,8 +1227,8 @@ void render_game(Game* game)
     w = game->hero->body.width;
     h = game->hero->body.height;
  
-    auto elapsed = std::chrono::high_resolution_clock::now() - start;
-    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+    //auto elapsed = std::chrono::high_resolution_clock::now() - start;
+    //long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     if(microseconds > 80000) {
         if (game->hero->state == WALKING && game->hero->rightPressed && game->hero->leftPressed == 0) {
             renderHero(walkRightTexture,game ,game->hero->heroWalkingR,numAnimation,w, h, 10);

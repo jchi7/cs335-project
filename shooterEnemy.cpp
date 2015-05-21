@@ -4,8 +4,8 @@ ShooterEnemy::ShooterEnemy(int left, int right, int x, int y)
 {
     this->body.type = RECTANGLE;
     this->id = SHOOTERENEMY;
-    this->body.width = 10;
-    this->body.height = 15;
+    this->body.width = 15;
+    this->body.height = 17;
     this->body.center[0] = x;
     this->body.center[1] = y;
     this->body.center[2] = 0;
@@ -21,6 +21,24 @@ ShooterEnemy::ShooterEnemy(int left, int right, int x, int y)
     this->body.orientation = FACING_RIGHT;
     state = WALKING;
     this->delay = 0;
+
+    Inc = .1;
+    for (int i =0; i < 10; i ++) {
+        sprite[i].x1 = 0.0;
+        sprite[i].x2 = 0.0;
+        sprite[i].y1 = 0.0;
+        sprite[i].y2 = 1.0;
+
+        if (i == 0) {
+            sprite[i].x1 = sprite[i].x2;
+        }
+        else {
+            sprite [i].x1 = sprite[i - 1].x2;
+        }
+        sprite[i].x2 = Inc;
+        Inc+= .1;
+    }
+
 }
 
 ShooterEnemy::~ShooterEnemy()
