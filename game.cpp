@@ -39,6 +39,18 @@ Game::Game()
 Game::~Game()
 {
     delete hero;
+    //printf("game deconstructor\n");
+    //printf("Level %d\n", (int) level.size());
+    for (int i = (int) level.size() - 1; i >= 0; i--) {
+        for (int j = (int) level[i].size() - 1; j >= 0; j--) {
+            //printf("J value: %d\n", j);
+            //delete &level[i][j];
+            level[i].erase(level[i].begin() + j);
+        }
+        //delete &level[i];
+        level.erase(level.begin() + i);
+        
+    }
     //level.erase(level.begin(), level.end());
     //dtor
 }
@@ -99,7 +111,7 @@ Room * Game::getRoomPtr()
 
 void Game::moveRoomLeft()
 {
-    if (currentHorizontalLevel > 0)
+   if (currentHorizontalLevel > 0)
         currentHorizontalLevel--;
 }
 

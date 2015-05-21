@@ -22,6 +22,7 @@ using namespace std;
 void initXWindows(void);
 void init_opengl(void);
 void cleanupXWindows(void);
+void cleanupImages(void);
 void set_title(void);
 void renderBackground(GLuint);
 void init_MainMenuButtons(void);
@@ -206,6 +207,7 @@ int main()
                 break;
         }
     }
+    cleanupImages();
     cleanupXWindows();
     return 0;
 }
@@ -1228,4 +1230,34 @@ void render_game(Game* game)
     //if (game->hero->state == DEATH) {
      //   renderNum++;
     //}
+}
+// Need to clean up PPM images
+void cleanupImages(void) {
+    ppm6CleanupImage(keyImage);
+    ppm6CleanupImage(spikeEnemyRightImage);
+    ppm6CleanupImage(spikeEnemyLeftImage);
+    ppm6CleanupImage(deadMessageImage);
+    ppm6CleanupImage(checkPointImage);
+    ppm6CleanupImage(idleRightImage);
+    ppm6CleanupImage(idleLeftImage);
+    ppm6CleanupImage(heroDeathImage);
+    ppm6CleanupImage(mainMenuButtonsEditImage);
+    ppm6CleanupImage(backgroundImage);
+    ppm6CleanupImage(rockImage);
+    ppm6CleanupImage(mainMenuButtonsImage);
+    ppm6CleanupImage(guiBackgroundImage);
+    ppm6CleanupImage(mainMenuButtonsExitImage);
+    ppm6CleanupImage(jumpRightImage);
+    ppm6CleanupImage(jumpLeftImage);
+    ppm6CleanupImage(walkRightImage);
+    ppm6CleanupImage(walkLeftImage);
+    ppm6CleanupImage(spikeImage);
+    ppm6CleanupImage(bulletImage);
+    /*
+    walkRightImage = ppm6GetImage("./images/HeroWalkRight.ppm");
+    walkLeftImage = ppm6GetImage("./images/heroWalkLeft.ppm");
+    spikeImage = ppm6GetImage("./images/spike2.ppm");
+    bulletImage = ppm6GetImage("./images/bullet.ppm");*/
+
+    
 }
