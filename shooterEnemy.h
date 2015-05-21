@@ -9,6 +9,8 @@ class ShooterEnemy : public BasicEnemy
 {
     public:
         ShooterEnemy(int, int, int, int);
+        Coordinates sprite[10];
+        float Inc;
         virtual ~ShooterEnemy();
         virtual void update();
         virtual void movement();
