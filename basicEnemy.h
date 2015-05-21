@@ -4,16 +4,25 @@
 #include "gameObject.h"
 
 
-class basicEnemy : public gameObject
+class BasicEnemy : public GameObject
 {
     public:
-        Shape prevPosition;
+        CharacterState state;
+        Vec prevPosition;
         Vec velocity;
-        int facing;
         int leftBoundary;
         int rightBoundary;
-        basicEnemy();
-        virtual ~basicEnemy();
+	float Inc;
+	Coordinates enemyWalkRight[10];
+	Coordinates enemyWalkLeft[10];
+
+        BasicEnemy(int, int, int, int);
+        virtual ~BasicEnemy();
+        void update();
+        void movement();
+        void onCollision(GameObject * obj);
+        void switchDirection();
+        string debugReport();
     protected:
     private:
 };

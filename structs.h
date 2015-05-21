@@ -1,6 +1,35 @@
 #ifndef STUCTS_H_INCLUDED
 #define STUCTS_H_INCLUDED
-typedef struct t_rect {
+
+#include <vector>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <sys/time.h>
+#include <typeinfo>
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
+#include <GL/glx.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
+#include <ctime>
+#include <cstring>
+//#include "jasonc.h"
+
+#include "vecFxns.h"
+
+using namespace std;
+
+enum ShapeType {RECTANGLE, TRIANGLE/*, CIRCLE*/};
+enum GameState {MAIN_MENU, PLAYING, EXIT_GAME, LEVEL_EDITOR};
+enum ObjectType {HERO, ENEMY, SPIKE, PLATFORM, SAVEPOINT,SHOOTERENEMY,MELEEENEMY, HBULLET, EBULLET};
+enum CharacterState {STANDING, WALKING, JUMPING, DEATH};
+enum ShapeOrientation {FACING_UP, FACING_LEFT, FACING_DOWN, FACING_RIGHT};
+
+typedef struct t_rect
+{
 	int left;
 	int top;
 	int right;
@@ -12,7 +41,8 @@ typedef struct t_rect {
 	int centery;
 } Rect;
 
-typedef struct t_button {
+typedef struct t_button
+{
 	Rect r;
 	char text[32];
 	int over;
@@ -23,25 +53,29 @@ typedef struct t_button {
 	unsigned int text_color;
 } Button;
 
-// self explanatory
-// X is the first position, Y is the second position and Z is the third position
-typedef float Vec[3];
-
 // Shape structure used to represent dimensions and position on the screen
-struct Shape {
-    float width, height;
-    float radius;
-    Vec center;
-    Vec velocity;
+struct Shape
+{
+  ShapeType type;
+  Vec center;
+  Vec corners[3];
+  ShapeOrientation orientation;
+  float width, height;
+  float radius;
+};
+
+struct Coordinates {
+    float x1,x2,y1,y2;
 };
 
 //External Global Variables
-extern int leftPressed ;
-extern int rightPressed ;
-extern int shootPressed ;
-extern int jumpInitiated ;
-extern int jumpFinished ;
-extern int numCollisions;
-extern int currentHorizontalLevel;
-extern int currentVerticalLevel;
+extern GameState g_gamestate;
+// extern int leftPressed ;
+// extern int rightPressed ;
+// extern int shootPressed ;
+// extern int jumpInitiated ;
+// extern int jumpFinished ;
+// extern int numCollisions;
+// extern int currentHorizontalLevel;
+// extern int currentVerticalLevel;
 #endif // STUCTS_H_INCLUDED

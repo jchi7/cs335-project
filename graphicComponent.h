@@ -2,12 +2,12 @@
 #define GRAPHICCOMPONENT_H
 #include "gameObject.h"
 
-class graphicComponent
+class GraphicComponent
 {
     public:
-        graphicComponent();
-        virtual ~graphicComponent();
-        virtual void update(gameObject* entity, int r, int g, int b);
+        GraphicComponent();
+        virtual ~GraphicComponent();
+        virtual void update(GameObject* entity, int r, int g, int b);
     protected:
     private:
 };

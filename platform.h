@@ -3,12 +3,11 @@
 
 #include "gameObject.h"
 
-
-class platform : public gameObject
+class Platform : public GameObject
 {
     public:
-        platform(int width, int height, int x, int y);
-        virtual ~platform();
+        Platform(int width, int height, int x, int y);
+        virtual ~Platform();
         void update();
     protected:
     private:
