@@ -1,3 +1,7 @@
+/* Jasjot Sumal
+ * CMPS 335, Project, Lab 6 / Homework 3
+ */
+
 #include "jasjotS.h" // UnitTests header
 
 ofstream logfile;

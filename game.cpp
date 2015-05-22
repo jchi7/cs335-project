@@ -39,16 +39,19 @@ Game::Game()
 Game::~Game()
 {
     delete hero;
+    //level.erase(level.begin(), level.end());
     //dtor
 }
 
-void Game::setSavePoint(int index){
+void Game::setSavePoint(int index)
+{
     this->savePointHorizontalRoom = this->currentHorizontalLevel;
     this->savePointVerticalRoom = this->currentVerticalLevel;
     this->savePointIndex = index;
 }
 
-void Game::respawnAtSavePoint(){
+void Game::respawnAtSavePoint()
+{
     Room * currentRoom;
 
     this->hero->state = JUMPING;
@@ -96,6 +99,38 @@ Room * Game::getRoomPtr()
     return &level[currentVerticalLevel][currentHorizontalLevel];
 }
 
+GameObject * Game::getWorkingPlatformPtr()
+{
+    if (!this->isPlatformMovable && !this->isPlatformResizable) {
+        cout << "ERROR getWorkingPlatformPtr: platform not resizeable or movable\n";
+        return NULL;
+    }
+    Room * room = this->getRoomPtr();
+    return room->platforms[this->movablePlatformIndex];
+}
+
+GameObject * Game::getWorkingSpikePtr()
+{
+    if (!this->isSpikeMovable) {
+        cout << "ERROR getWorkingSpikePtr: spike not movable\n";
+        return NULL;
+    }
+    Room * room = this->getRoomPtr();
+    return room->spikes[this->movableSpikeIndex];
+}
+
+vector<GameObject*> * Game::getPlatformsVPtr()
+{
+    Room * room = this->getRoomPtr();
+    return &(room->platforms);
+}
+
+vector<GameObject*> * Game::getSpikesVPtr()
+{
+    Room * room = this->getRoomPtr();
+    return &(room->spikes);
+}
+
 void Game::moveRoomLeft()
 {
     if (currentHorizontalLevel > 0)
@@ -120,32 +155,6 @@ void Game::moveRoomDown()
         currentVerticalLevel--;
 }
 
-void Game::resizePlatform(GameObject * mouse)
-{
-    Room * room = this->getRoomPtr();
-    GameObject * platform = room->platforms[this->resizablePlatformIndex];
-    int mouseX = (int)mouse->body.center[0];
-    int mouseY = (int)mouse->body.center[1];
-    int height = (( ( mouseY - this->resizablePlatformY) / ( platform->textureHeight)) * platform->textureHeight + platform->textureHeight);
-    int width = (( ( mouseX - this->resizablePlatformX) / ( platform->textureWidth)) * platform->textureWidth + platform->textureWidth);
-
-    if ( width <= 0){
-        platform->body.width = platform->textureWidth;
-    }
-    else{
-        platform->body.width = width;
-        platform->horizontalTiles = platform->body.width / platform->textureWidth;
-    }
-    if ( height <= 0){
-        platform->body.height = platform->textureHeight;
-    }
-    else{
-        platform->body.height = height;
-        platform->verticalTiles = platform->body.height / platform->textureHeight;
-    }
-        
-}
-
 void Game::initLevel()
 {
     std::vector<Room> tempRow;
@@ -165,11 +174,11 @@ void Game::fillLevel()
     ifstream file;
     const int pathsize = filename.length();
     char roomNum[] = "0000";
-    int spikeOrientation = 0;
+    ShapeOrientation orientation;
 
     // Room file format:
     // file name: roomCCRR.txt, RR = row number, CC = col number
-    // line:  (int)width,(int)height,(int)center-x,(int)center-y,(str)type  
+    // lines:  (str)type,<data values for type>
 
     filename.append(roomNum);
     filename.append(".txt");
@@ -213,23 +222,22 @@ void Game::fillLevel()
 
                 // read a single platform
                 if (objType == "GROUND") {
-                    float convVal[4]; //four
-                    for (int col = 0; col < 4; col++) {
+                    float convVal[4];
+                    for (int col = 0; col < 4; ++col) {
                         getline(iss, val, ',');
                         stringstream converter(val);
                         converter >> convVal[col];
                     }
-
                     // create platform
                     level[vert][horz].platforms.push_back(new Platform(convVal[0], convVal[1], convVal[2], convVal[3]));
                     level[vert][horz].numPlatforms++;
                     // DEBUG:
-//                    cout << "Created platform in [" << vert << "][" << horz <<"]\n";
+//                    cout << "Created platform in " << "[" << vert << "][" << horz <<"]\n";
                 }
                 // read a single savePoint
                 else if (objType == "SAVEPOINT") {
-                    float convVal[4]; //four
-                    for (int col = 0; col < 4; col++) {
+                    float convVal[4];
+                    for (int col = 0; col < 4; ++col) {
                         getline(iss, val, ',');
                         stringstream converter(val);
                         converter >> convVal[col];
@@ -239,39 +247,72 @@ void Game::fillLevel()
                     level[vert][horz].savePoints.push_back(new SavePoint(convVal[0], convVal[1], convVal[2], convVal[3]));
                     level[vert][horz].numSavePoints++;
                 }
+                // read a single spike
                 else if (objType == "SPIKE") {
                     Vec spikePts[3];
-                    for (int col = 0; col < 6; col++) {
+                    int spikeFacing;
+                    for (int col = 0; col < 6; ++col) {
                         getline(iss, val, ',');
                         stringstream converter(val);
                         // DEBUG:
                         //cout << converter.str() << endl;
                         converter >> spikePts[col/2][col%2];
                     }
+                    for (int i = 0; i < 3; ++i) {
+                        spikePts[i][2] = 0;
+                    }
                     getline(iss, val, ',');
                     stringstream converter(val);
-                    converter >> spikeOrientation;
-                    
-                    for (int setZCoord = 0; setZCoord < 3; setZCoord++) {
-                        spikePts[setZCoord][2] = 0;
+                    converter >> spikeFacing;
+                    switch (spikeFacing) {
+                        case 0:
+                            orientation = FACING_UP;
+                            break;
+                        case 1:
+                            orientation = FACING_LEFT;
+                            break;
+                        case 2:
+                            orientation = FACING_DOWN;
+                            break;
+                        case 3:
+                            orientation = FACING_RIGHT;
+                            break;
+                        default:
+                            cout << "Error: could not read spike orientation\n";
                     }
-                    if (spikeOrientation == 0)
-                        level[vert][horz].spikes.push_back(new Spike(spikePts,FACING_UP));
-                    if (spikeOrientation == 1)
-                        level[vert][horz].spikes.push_back(new Spike(spikePts,FACING_LEFT));
-                    if (spikeOrientation == 2)
-                        level[vert][horz].spikes.push_back(new Spike(spikePts,FACING_DOWN));
-                    if (spikeOrientation == 3)
-                        level[vert][horz].spikes.push_back(new Spike(spikePts,FACING_RIGHT));
+                    level[vert][horz].spikes.push_back(new Spike(spikePts,orientation));
                     level[vert][horz].numSpikes++;
                     // DEBUG:
-//                    cout << "Created spike in [" << vert << "][" << horz <<"]: " << vecPrint(spikePts[0]) << ", " << vecPrint(spikePts[1]) << ", " << vecPrint(spikePts[2]) << ", " << spikeOrientation << endl;
+//                    cout << "Created spike in " << "[" << vert << "][" << horz <<"]: " << vecPrint(spikePts[0]) << ", " << vecPrint(spikePts[1]) << ", " << vecPrint(spikePts[2]) << ", " << orientation << endl;
+                }
+                else if (objType == "ENEMY") {
+                    float convVal[4]; //four
+                    for (int col = 0; col < 4; col++) {
+                        getline(iss, val, ',');
+                        stringstream converter(val);
+                        converter >> convVal[col];
+                    }
+                    // create Enemy
+                    level[vert][horz].enemies.push_back(new BasicEnemy(convVal[0], convVal[1], convVal[2], convVal[3]));
+                    level[vert][horz].numBasicEnemies++;
+                }
+                else if (objType == "SHOOTER") {
+                    float convVal[4]; //four
+                    for (int col = 0; col < 4; col++) {
+                        getline(iss, val, ',');
+                        stringstream converter(val);
+                        converter >> convVal[col];
+                    }
+                    // create Enemy
+                    level[vert][horz].enemies.push_back(new ShooterEnemy(convVal[0], convVal[1], convVal[2], convVal[3]));
+                    level[vert][horz].numBasicEnemies++;
                 }
             }
             file.close();
         }
     }
-    cout << level[1][3].savePoints[0]->body.width << endl;
+    // DEBUG:
+//    cout << level[1][3].savePoints[0]->body.width << endl;
 }
 
 void Game::saveRooms()
@@ -279,9 +320,6 @@ void Game::saveRooms()
     string line, roomType;
     string filename = "Rooms/room";
     ofstream file;
-    int convVal[4]; //four
-    int spikeVal[7]; //four
-
 
     const int pathsize = filename.length();
     char roomNum[] = "0000";
@@ -297,7 +335,7 @@ void Game::saveRooms()
     // remove previous room number
     filename.erase(pathsize,4);
 
-    // increment room numbers
+    // create actual room number
     roomNum[0] = (char)((horz/10) + 48);
     roomNum[1] = (char)((horz%10) + 48);
     roomNum[2] = (char)((vert/10) + 48);
@@ -315,50 +353,77 @@ void Game::saveRooms()
         cout << "Writing: " << filename << endl;
     }
 
-    for (unsigned int i = 0; i < level[vert][horz].platforms.size(); i++){
-
-        convVal[0] = level[vert][horz].platforms[i]->body.width;
-        convVal[1] = level[vert][horz].platforms[i]->body.height;
-        convVal[2] = level[vert][horz].platforms[i]->body.center[0];
-        convVal[3] = level[vert][horz].platforms[i]->body.center[1];
-
-        file << "GROUND," << convVal[0] << "," << convVal[1] << "," << convVal[2] << "," << convVal[3] << "\n";
+    for (unsigned int i = 0; i < level[vert][horz].platforms.size(); ++i) {
+        writePlatform(level[vert][horz].platforms[i], file);
     }
-    for (unsigned int i = 0; i < level[vert][horz].savePoints.size(); i++){
-
-        convVal[0] = level[vert][horz].savePoints[i]->body.width;
-        convVal[1] = level[vert][horz].savePoints[i]->body.height;
-        convVal[2] = level[vert][horz].savePoints[i]->body.center[0];
-        convVal[3] = level[vert][horz].savePoints[i]->body.center[1];
-
-        file << "SAVEPOINT," << convVal[0] << "," << convVal[1] << "," << convVal[2] << "," << convVal[3] << "\n";
+    for (unsigned int i = 0; i < level[vert][horz].savePoints.size(); ++i) {
+        writeSavePoint(level[vert][horz].savePoints[i], file);
     }
-
-    for (unsigned int i = 0; i < level[vert][horz].spikes.size(); i++){
-
-        spikeVal[0] = level[vert][horz].spikes[i]->body.corners[0][0];
-        spikeVal[1] = level[vert][horz].spikes[i]->body.corners[0][1];
-        spikeVal[2] = level[vert][horz].spikes[i]->body.corners[1][0];
-        spikeVal[3] = level[vert][horz].spikes[i]->body.corners[1][1];
-        spikeVal[4] = level[vert][horz].spikes[i]->body.corners[2][0];
-        spikeVal[5] = level[vert][horz].spikes[i]->body.corners[2][1];
-        if ( level[vert][horz].spikes[i]->body.orientation == FACING_UP){
-            spikeVal[6] = 0;
-        }
-        if ( level[vert][horz].spikes[i]->body.orientation == FACING_LEFT){
-            spikeVal[6] = 1;
-        }
-        if ( level[vert][horz].spikes[i]->body.orientation == FACING_DOWN){
-            spikeVal[6] = 2;
-        }
-        if ( level[vert][horz].spikes[i]->body.orientation == FACING_RIGHT){
-            spikeVal[6] = 3;
-        }
-
-        file << "SPIKE," << spikeVal[0] << "," << spikeVal[1] << "," << spikeVal[2] << "," << spikeVal[3]
-            << "," << spikeVal[4] << "," << spikeVal[5] << "," << spikeVal[6] << "\n";
+    for (unsigned int i = 0; i < level[vert][horz].spikes.size(); ++i) {
+        writeSpike(level[vert][horz].spikes[i], file);
     }
     file.close();
     return;
 }
 
+void Game::writePlatform(GameObject * platform, ofstream & outf)
+{
+    outf << "GROUND,"
+      << platform->body.width << ","
+      << platform->body.height << ","
+      << platform->body.center[0] << ","
+      << platform->body.center[1] << "\n";
+}
+
+void Game::writeSavePoint(GameObject * savept, ofstream & outf)
+{
+    outf << "SAVEPOINT,"
+      << savept->body.width << ","
+      << savept->body.height << ","
+      << savept->body.center[0] << ","
+      << savept->body.center[1] << "\n";
+}
+
+void Game::writeSpike(GameObject * spike, ofstream & outf)
+{
+    int spikeFacing = 0;
+    switch (spike->body.orientation) {
+        case FACING_UP:
+            spikeFacing = 0;
+            break;
+        case FACING_LEFT:
+            spikeFacing = 1;
+            break;
+        case FACING_DOWN:
+            spikeFacing = 2;
+            break;
+        case FACING_RIGHT:
+            spikeFacing = 3;
+            break;
+    }
+    outf << "SPIKE,"
+      << spike->body.corners[0][0] << ","
+      << spike->body.corners[0][1] << ","
+      << spike->body.corners[1][0] << ","
+      << spike->body.corners[1][1] << ","
+      << spike->body.corners[2][0] << ","
+      << spike->body.corners[2][1] << ","
+      << spikeFacing << "\n";
+}
+
+void Game::heroShoots()
+{
+    Room* current_level = getRoomPtr();
+    switch(hero->body.orientation) {
+        case FACING_RIGHT:
+            current_level->bullet.push_back(new BasicBullet(4, 0, hero->body.center[0] + hero->body.width + 2, hero->body.center[1], HERO));
+            current_level->numBullet++;
+            break;
+        case FACING_LEFT:
+            current_level->bullet.push_back(new BasicBullet(-4, 0, hero->body.center[0] - hero->body.width - 2, hero->body.center[1], HERO));
+            current_level->numBullet++;
+            break;
+        default:
+            break;
+    }
+}

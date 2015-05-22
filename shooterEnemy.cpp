@@ -1,11 +1,11 @@
-#include "basicEnemy.h"
+#include "shooterEnemy.h"
 
-BasicEnemy::BasicEnemy(int left, int right, int x, int y)
+ShooterEnemy::ShooterEnemy(int left, int right, int x, int y)
 {
     this->body.type = RECTANGLE;
-    this->id = ENEMY;
-    this->body.width = 12;
-    this->body.height = 12;
+    this->id = SHOOTERENEMY;
+    this->body.width = 10;
+    this->body.height = 15;
     this->body.center[0] = x;
     this->body.center[1] = y;
     this->body.center[2] = 0;
@@ -20,46 +20,48 @@ BasicEnemy::BasicEnemy(int left, int right, int x, int y)
     this->rgb[2] = 0;
     this->body.orientation = FACING_RIGHT;
     state = WALKING;
-    Inc = .1;
-    for(int i = 0; i<10; i++) {
-	enemyWalkRight[i].x1 = 0.0;
-	enemyWalkRight[i].x2 = 0.0;
-	enemyWalkRight[i].y1 = 0.0;
-	enemyWalkRight[i].y2 = 1.0;
+    this->delay = 0;
 
-	if(i == 0) {
-	    enemyWalkRight[i].x1 = enemyWalkRight[i].x2;
-	}
-	else {
-	    enemyWalkRight[i].x1 = enemyWalkRight[i-1].x2;
-	}
-	enemyWalkRight[i].x2 = Inc;
-	Inc += .1;
+    Inc = .1;
+    for (int i =0; i < 10; i ++) {
+        sprite[i].x1 = 0.0;
+        sprite[i].x2 = 0.0;
+        sprite[i].y1 = 0.0;
+        sprite[i].y2 = 1.0;
+
+        if (i == 0) {
+            sprite[i].x1 = sprite[i].x2;
+        }
+        else {
+            sprite [i].x1 = sprite[i - 1].x2;
+        }
+        sprite[i].x2 = Inc;
+        Inc+= .1;
     }
 }
 
-BasicEnemy::~BasicEnemy()
+ShooterEnemy::~ShooterEnemy()
 {
     //dtor
 }
 
-void BasicEnemy::update()
+void ShooterEnemy::update()
 {
     //InputComponent->update(game, entity);
 }
 
-string BasicEnemy::debugReport()
+string ShooterEnemy::debugReport()
 {
     ostringstream report;
     report << GameObject::debugReport()
       << "  ----"
-      << "  SUBCLASS REPORT: BasicEnemy\n"
+      << "  SUBCLASS REPORT: ShooterEnemy\n"
       << "    Vec prevPosition = "<< vecPrint(this->prevPosition) << endl
       << "    Vec velocity = "<< vecPrint(this->velocity) << endl;
     return report.str();
 }
 
-void BasicEnemy::movement()
+void ShooterEnemy::movement()
 {
     prevPosition[0] = body.center[0];
     prevPosition[1] = body.center[1];
@@ -80,7 +82,7 @@ void BasicEnemy::movement()
         velocity[1] += gravity;
 }
 
-void BasicEnemy::onCollision(GameObject * obj)
+void ShooterEnemy::onCollision(GameObject * obj)
 {
     if (obj->id == SPIKE || obj->id == HBULLET) {
         state = DEATH;
@@ -117,7 +119,7 @@ void BasicEnemy::onCollision(GameObject * obj)
     }
 }
 
-void BasicEnemy::switchDirection() {
+void ShooterEnemy::switchDirection() {
     if (body.orientation == FACING_LEFT) {
         body.orientation = FACING_RIGHT;
     } else if (body.orientation == FACING_RIGHT) {

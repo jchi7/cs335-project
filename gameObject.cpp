@@ -18,7 +18,7 @@ void GameObject::update()
 string GameObject::debugReport()
 {
     ostringstream report;
-    report << "CLASS REPORT: GameObject\n"
+    report << "START GameObject Data:\n"
       << "  Shape body:\n"
       << "    ShapeType type = ";
     switch (this->body.type) {
@@ -32,8 +32,8 @@ string GameObject::debugReport()
             report << "none assigned"; break;
     }
     report << endl
-      << "    Vec center = "<< vecPrint(this->body.center) <<"\n"
-      << "    Vec corners[3] =";
+      << "    Vec center = "<< vecPrint(this->body.center) << endl
+      << "    Vec corners[3] = ";
     for(int cornerNum = 0; cornerNum < 3; cornerNum++) {
         report << vecPrint(this->body.corners[cornerNum]);
     }
@@ -56,6 +56,25 @@ string GameObject::debugReport()
     }
     report << endl
       << "  int rgb[3] = " <<this->rgb[0]<<", "<<this->rgb[1]<<", "<<this->rgb[2]<<endl
-      << "  float gravity = " << this->gravity << endl;
+      << "  float gravity = " << this->gravity << endl
+      << "  Vec prevPosition = " << vecPrint(this->prevPosition) << endl
+      << "  Vec velocity = " << vecPrint(this->velocity) << endl
+      << "  int textureWidth = " << this->textureWidth << endl
+      << "  int textureHeight = " << this->textureHeight << endl
+      << "  int horizontalTiles = " << this->horizontalTiles << endl
+      << "  int verticalTiles = " << this->verticalTiles << endl
+      << "END GameObject Data\n";
     return report.str();
+}
+
+void GameObject::movement()
+{
+}
+
+void GameObject::onCollision(GameObject *obj)
+{
+}
+
+void GameObject::switchDirection()
+{
 }

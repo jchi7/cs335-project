@@ -11,6 +11,7 @@ class Room
         int verticalPosition;
         int numPlatforms;
         int numSpikes;
+        int numBullet;
         int numSavePoints;
         int numBasicEnemies;
         int currentPlatform;

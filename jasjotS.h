@@ -1,3 +1,7 @@
+/* Jasjot Sumal
+ * CMPS 335, Project, Lab 6 / Homework 3
+ */
+
 #ifndef JASJOTS_H  // UnitTests header
 #define JASJOTS_H
 

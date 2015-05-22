@@ -6,9 +6,11 @@
 class Spike : public GameObject
 {
     public:
-        Spike(Vec p[3],ShapeOrientation orientation);
+        Spike(Vec[3], ShapeOrientation);
+        Spike(GameObject*);
         virtual ~Spike();
         void update();
+        string debugReport();
     protected:
     private:
 };

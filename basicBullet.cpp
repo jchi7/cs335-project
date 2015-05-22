@@ -1,75 +1,82 @@
-#include "basicEnemy.h"
+#include "basicBullet.h"
 
-BasicEnemy::BasicEnemy(int left, int right, int x, int y)
+BasicBullet::BasicBullet(int xVel, int yVel, int x, int y, ObjectType oid)
 {
     this->body.type = RECTANGLE;
-    this->id = ENEMY;
-    this->body.width = 12;
-    this->body.height = 12;
+    //this->body.width = 4;
+    //this->body.height = 4;
+    this->body.width = 4;
+    this->body.height = 4;
     this->body.center[0] = x;
     this->body.center[1] = y;
     this->body.center[2] = 0;
     this->prevPosition[0] = x;
     this->prevPosition[1] = y;
     this->prevPosition[2] = 0;
-    this->velocity[0] = 0.5;
-    this->velocity[1] = 0;
+    this->velocity[0] = xVel;
+    this->velocity[1] = yVel;
     this->velocity[2] = 0;
     this->rgb[0] = 0;
     this->rgb[1] = 0;
     this->rgb[2] = 0;
     this->body.orientation = FACING_RIGHT;
     state = WALKING;
+    if (oid == HERO)
+        this->id = HBULLET;
+    else
+        this->id = EBULLET;
     Inc = .1;
-    for(int i = 0; i<10; i++) {
-	enemyWalkRight[i].x1 = 0.0;
-	enemyWalkRight[i].x2 = 0.0;
-	enemyWalkRight[i].y1 = 0.0;
-	enemyWalkRight[i].y2 = 1.0;
+    for(int i = 0; i < 10; i++) {
+        bullet[i].x1 = 0.0;
+        bullet[i].x2 = 0.0;
+        bullet[i].y1 = 0.0;
+        bullet[i].y2 = 1.0;
 
-	if(i == 0) {
-	    enemyWalkRight[i].x1 = enemyWalkRight[i].x2;
-	}
-	else {
-	    enemyWalkRight[i].x1 = enemyWalkRight[i-1].x2;
-	}
-	enemyWalkRight[i].x2 = Inc;
-	Inc += .1;
+        if (i == 0) {
+            bullet[i].x1 = bullet[i-1].x2;
+        }
+        else {
+            bullet[i].x1 = bullet[i-1].x2;
+        }
+        bullet[i].x2 = Inc;
+        Inc += .1;
     }
 }
 
-BasicEnemy::~BasicEnemy()
+BasicBullet::~BasicBullet()
 {
     //dtor
 }
 
-void BasicEnemy::update()
+void BasicBullet::update()
 {
     //InputComponent->update(game, entity);
 }
 
-string BasicEnemy::debugReport()
+string BasicBullet::debugReport()
 {
     ostringstream report;
     report << GameObject::debugReport()
       << "  ----"
-      << "  SUBCLASS REPORT: BasicEnemy\n"
+      << "  SUBCLASS REPORT: BasicBullet\n"
       << "    Vec prevPosition = "<< vecPrint(this->prevPosition) << endl
       << "    Vec velocity = "<< vecPrint(this->velocity) << endl;
     return report.str();
 }
 
-void BasicEnemy::movement()
+void BasicBullet::movement()
 {
     prevPosition[0] = body.center[0];
     prevPosition[1] = body.center[1];
     if(state != DEATH) {
         switch(body.orientation) {
             case FACING_LEFT:
-                body.center[0] += -0.5;
+                body.center[0] -= velocity[0];
+                body.center[1] -= velocity[1];
                 break;
             case FACING_RIGHT:
-                body.center[0] += 0.5;
+                body.center[0] += velocity[0];
+                body.center[1] -= velocity[1];
                 break;
             default:
                 break;
@@ -78,24 +85,26 @@ void BasicEnemy::movement()
     body.center[1] += velocity[1];
     if (velocity[1] > -7)
         velocity[1] += gravity;
+    if (body.center[0] > 1000 || body.center[0] < 0 )
+        state = DEATH;
 }
 
-void BasicEnemy::onCollision(GameObject * obj)
+void BasicBullet::onCollision(GameObject * obj)
 {
-    if (obj->id == SPIKE || obj->id == HBULLET) {
+    if (obj->id == SPIKE) {
         state = DEATH;
-    } else if (obj->id == EBULLET) {
+    } else if (obj->id == HBULLET || obj->id == EBULLET) {
         return;
     }
     else { // obj->id == PLATFORM
         if (prevPosition[0]  < obj->body.center[0] - obj->body.width) {
             body.center[0] = obj->body.center[0] - obj->body.width - body.width;
-            body.orientation = FACING_LEFT;
+            state = DEATH;
         }
 
         if (prevPosition[0]  > obj->body.center[0] + obj->body.width) {
             body.center[0] = obj->body.center[0] + obj->body.width + body.width;
-            body.orientation = FACING_RIGHT;
+            state = DEATH;
         }
 
         if (body.center[1] < obj->body.center[1] &&
@@ -103,7 +112,7 @@ void BasicEnemy::onCollision(GameObject * obj)
             body.center[0] - body.width < obj->body.center[0] + obj->body.width)
         {
             body.center[1] = obj->body.center[1] - obj->body.height - body.height;
-            velocity[1] = 0;
+            state = DEATH;
         }
 
         if (body.center[1] > obj->body.center[1] &&
@@ -111,16 +120,7 @@ void BasicEnemy::onCollision(GameObject * obj)
             body.center[0] - body.width < obj->body.center[0] + obj->body.width)
         {
             body.center[1] = obj->body.center[1] + obj->body.height + body.height;
-            velocity[1] = 0;
-
+            state = DEATH;
         }
-    }
-}
-
-void BasicEnemy::switchDirection() {
-    if (body.orientation == FACING_LEFT) {
-        body.orientation = FACING_RIGHT;
-    } else if (body.orientation == FACING_RIGHT) {
-        body.orientation = FACING_LEFT;
     }
 }

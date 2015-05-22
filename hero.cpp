@@ -5,18 +5,15 @@ Hero::Hero()
     numBullets = 0;
     maxBullets = 3;
     bulletVelocity = 10;
+    delay = 0;
 
     body.type = RECTANGLE;
     id = HERO;
     body.width = 8;
     body.height = 15;
-    body.center[0] = 400;
-    body.center[1] = 250;
-    body.center[2] = 0;
-    prevPosition[0] = 400;
-    prevPosition[1] = 250;
-    velocity[0] = 0;
-    velocity[1] = 0;
+    vecMake(400, 250, body.center);
+    vecCopy(body.center, prevPosition);
+    vecZero(velocity);
 
     body.orientation = FACING_RIGHT;
 
@@ -127,28 +124,30 @@ void Hero::movement()
 {
     prevPosition[0] = body.center[0];
     prevPosition[1] = body.center[1];
-    if (jumpRelease > 0) {
-        jumpRelease--;
-    }
-    if (leftPressed == 1) {
-        body.orientation = FACING_LEFT;
-        body.center[0] += -3;
-    }
-    if (rightPressed == 1) {
-        body.orientation = FACING_RIGHT;
-        body.center[0] += 3;
-    }
-    if (initialJump == 1){
-        velocity[1] = 5.5;
-        state = JUMPING;
-        initialJump = 0;
-        jumpCount++;
-    }
-    if (secondJump == 1) {
-        velocity[1] = 5.5;
-        state = JUMPING;
-        secondJump = 0;
-        jumpCount++;
+    if(state != DEATH) {
+        if (jumpRelease > 0) {
+            jumpRelease--;
+        }
+        if (leftPressed == 1) {
+            body.orientation = FACING_LEFT;
+            body.center[0] += -3;
+        }
+        if (rightPressed == 1) {
+            body.orientation = FACING_RIGHT;
+            body.center[0] += 3;
+        }
+        if (initialJump == 1){
+            velocity[1] = 5.5;
+            state = JUMPING;
+            initialJump = 0;
+            jumpCount++;
+        }
+        if (secondJump == 1) {
+            velocity[1] = 5.5;
+            state = JUMPING;
+            secondJump = 0;
+            jumpCount++;
+        }
     }
     body.center[1] += velocity[1];
     if (velocity[1] > -7)
@@ -162,10 +161,11 @@ void Hero::movement()
 // reposition hero & reset hero state
 void Hero::onCollision(GameObject * obj)
 {
-    if (obj->id == SPIKE) {
+    if (obj->id == SPIKE || obj->id == ENEMY || obj->id == EBULLET) {
         state = DEATH;
-    }
-    else { // obj->id == PLATFORM
+    } else if (obj->id == HBULLET) {
+        return;
+    } else { // obj->id == PLATFORM
         if (prevPosition[0]  < obj->body.center[0] - obj->body.width) {
             body.center[0] = obj->body.center[0] - obj->body.width - body.width;
         }
@@ -189,7 +189,9 @@ void Hero::onCollision(GameObject * obj)
             body.center[1] = obj->body.center[1] + obj->body.height + body.height;
             velocity[1] = 0;
             jumpCount = 0;
-
+            
+            if (state == DEATH)
+                return;
             if (leftPressed == 1 || rightPressed == 1) {
                 state = WALKING;
             }

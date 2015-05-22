@@ -9,14 +9,58 @@
 //  return v0[0]*v1[1] - v0[1]*v1[0];
 // }
 
-float vecDotProduct (Vec v0, Vec v1)
-{
-	return v0[0]*v1[0] + v0[1]*v1[1];
-}
-
 void vecZero (Vec v)
 {
 	v[0] = v[1] = v[2] = 0.0;
+}
+
+void vecMake (float x, float y, Vec dest)
+{
+	dest[0] = x;
+	dest[1] = y;
+  dest[2] = 0.0;
+}
+
+void vecCopy (Vec source, Vec dest)
+{
+	dest[0] = source[0];
+	dest[1] = source[1];
+	dest[2] = 0.0;
+}
+
+bool vecEqual (Vec v0, Vec v1)
+{
+  float eps = 0.01;
+  if (
+    (abs(v0[0]-v1[1]) < eps) &&
+    (abs(v0[1]-v1[1]) < eps))
+  {
+    return true;
+  }
+  return false;
+}
+
+bool vecSameDirec (Vec v0, Vec v1)
+{
+  float eps = 0.001;
+  if (vecEqual(v0,v1)) return true;
+  Vec checkZero;
+  vecZero(checkZero);
+  if (vecEqual(v0,checkZero) || vecEqual(v1,checkZero)) {
+    return false;
+  }
+
+  bool signV0x = v0[0] >= 0;
+  bool signV0y = v0[1] >= 0;
+  bool signV1x = v1[0] >= 0;
+  bool signV1y = v1[1] >= 0;
+  if (signV0x == signV1x && signV0y == signV1y) {
+    if (fabs(v0[0]/v1[0] - v0[1]/v1[1]) < eps) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 float vecDist (Vec v0, Vec v1)
@@ -32,18 +76,9 @@ void vecNegate (Vec v)
 	v[1] = -v[1];
 }
 
-void vecMake (float x, float y, Vec dest)
+float vecDotProduct (Vec v0, Vec v1)
 {
-	dest[0] = x;
-	dest[1] = y;
-  dest[2] = 0;
-}
-
-void vecCopy (Vec source, Vec dest)
-{
-	dest[0] = source[0];
-	dest[1] = source[1];
-	dest[2] = source[2];
+	return v0[0]*v1[0] + v0[1]*v1[1];
 }
 
 float vecLength (Vec v)
@@ -61,21 +96,21 @@ void vecNormalize (Vec v)
 	len = 1.0 / len;
 	v[0] *= len;
 	v[1] *= len;
-  v[2] = 0;
+  v[2] = 0.0;
 }
 
 void vecSub (Vec vTo, Vec vFrom, Vec dest)
 {
 	dest[0] = vTo[0] - vFrom[0];
 	dest[1] = vTo[1] - vFrom[1];
-  dest[2] = 0;
+  dest[2] = 0.0;
 }
 
 void vecPerpendicular (Vec source, Vec dest)
 {
   dest[0] = -source[1];
   dest[1] = source[0];
-  dest[2] = 0;
+  dest[2] = 0.0;
 }
 
 // void getTriangleNormal (Vec tri[3], Vec norm)

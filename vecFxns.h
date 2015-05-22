@@ -16,12 +16,14 @@ typedef int iVec[3];
 
 // ---- VECTOR FUNCTIONS ----
 // float vecCrossProduct   (Vec, Vec);
-float vecDotProduct     (Vec, Vec);
 void  vecZero           (Vec);
-float vecDist           (Vec, Vec);
-void  vecNegate         (Vec);
 void  vecMake           (float x, float y, Vec dest);
 void  vecCopy           (Vec source, Vec dest);
+bool  vecEqual          (Vec, Vec);
+bool  vecSameDirec      (Vec, Vec);
+float vecDist           (Vec, Vec);
+void  vecNegate         (Vec);
+float vecDotProduct     (Vec, Vec);
 float vecLength         (Vec);
 void  vecNormalize      (Vec);
 void  vecSub            (Vec vTo, Vec vFrom, Vec dest);
