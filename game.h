@@ -61,6 +61,10 @@ class Game
         void setSavePoint(int index);
         void checkRoom();
         Room * getRoomPtr();
+        GameObject * getWorkingPlatformPtr();
+        GameObject * getWorkingSpikePtr();
+        vector<GameObject*> * getPlatformsVPtr();
+        vector<GameObject*> * getSpikesVPtr();
         void moveRoomLeft();
         void moveRoomRight();
         void moveRoomUp();
@@ -68,7 +72,9 @@ class Game
         void initLevel();
         void fillLevel();
         void saveRooms();
-        void resizePlatform(GameObject * mouse);
+        void writePlatform(GameObject *, ofstream &);
+        void writeSavePoint(GameObject *, ofstream &);
+        void writeSpike(GameObject *, ofstream &);
         void heroShoots();
     protected:
     private:

@@ -8,8 +8,12 @@ class GameObject
     public:
         Shape body;
         ObjectType id;
-        int rgb[3];
+
+        Vec prevPosition;
+        Vec velocity;
         float gravity;
+
+        int rgb[3];
         int textureWidth;
         int textureHeight;
         int horizontalTiles;

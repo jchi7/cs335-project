@@ -4,8 +4,8 @@ ShooterEnemy::ShooterEnemy(int left, int right, int x, int y)
 {
     this->body.type = RECTANGLE;
     this->id = SHOOTERENEMY;
-    this->body.width = 15;
-    this->body.height = 17;
+    this->body.width = 10;
+    this->body.height = 15;
     this->body.center[0] = x;
     this->body.center[1] = y;
     this->body.center[2] = 0;
@@ -38,7 +38,6 @@ ShooterEnemy::ShooterEnemy(int left, int right, int x, int y)
         sprite[i].x2 = Inc;
         Inc+= .1;
     }
-
 }
 
 ShooterEnemy::~ShooterEnemy()

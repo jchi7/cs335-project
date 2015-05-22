@@ -84,6 +84,7 @@ bool collisionRectTri(Shape * r, Shape * t)
     float yRectLow = r->center[1] - r->height;
     float yRectHigh = r->center[1] + r->height;
 
+    // store bounding rectangle of triangle
     float xTriLeft = getLowestX(t->corners[0], t->corners[1], t->corners[2]);
     float xTriRight = getHighestX(t->corners[0], t->corners[1], t->corners[2]); 
     float yTriHigh = getHighestY(t->corners[0], t->corners[1], t->corners[2]);
@@ -156,5 +157,6 @@ bool collisionRectTri(Shape * r, Shape * t)
 // {
 // 
 // }
+
 
 

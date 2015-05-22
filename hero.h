@@ -10,8 +10,6 @@ class Hero : public GameObject
 
         int leftPressed;
         int rightPressed;
-        Vec prevPosition;
-        Vec velocity;
 
         int numBullets;
         int maxBullets;
@@ -27,7 +25,6 @@ class Hero : public GameObject
         Coordinates heroJumpR[10];
         Coordinates heroJumpL[10];
         Coordinates heroDeath[10];
-
 
         // jumpInitiated is set to 1 when the jump key is pressed
         int jumpInitiated;

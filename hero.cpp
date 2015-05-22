@@ -11,13 +11,9 @@ Hero::Hero()
     id = HERO;
     body.width = 8;
     body.height = 15;
-    body.center[0] = 400;
-    body.center[1] = 250;
-    body.center[2] = 0;
-    prevPosition[0] = 400;
-    prevPosition[1] = 250;
-    velocity[0] = 0;
-    velocity[1] = 0;
+    vecMake(400, 250, body.center);
+    vecCopy(body.center, prevPosition);
+    vecZero(velocity);
 
     body.orientation = FACING_RIGHT;
 

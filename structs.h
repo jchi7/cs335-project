@@ -1,22 +1,22 @@
 #ifndef STUCTS_H_INCLUDED
 #define STUCTS_H_INCLUDED
 
-#include <vector>
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <sys/time.h>
-#include <typeinfo>
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
-#include <GL/glx.h>
+#include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
-#include <ctime>
 #include <cstring>
-//#include "jasonc.h"
+#include <ctime>
+#include <fstream>
+#include <GL/glx.h>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <sys/time.h>
+#include <typeinfo>
+#include <vector>
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
 
 #include "vecFxns.h"
 
