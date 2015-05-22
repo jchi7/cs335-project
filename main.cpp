@@ -1313,11 +1313,6 @@ void cleanupImages(void) {
     ppm6CleanupImage(walkLeftImage);
     ppm6CleanupImage(spikeImage);
     ppm6CleanupImage(bulletImage);
-    /*
-    walkRightImage = ppm6GetImage("./images/HeroWalkRight.ppm");
-    walkLeftImage = ppm6GetImage("./images/heroWalkLeft.ppm");
-    spikeImage = ppm6GetImage("./images/spike2.ppm");
-    bulletImage = ppm6GetImage("./images/bullet.ppm");*/
-
-    
+    ppm6CleanupImage(eShootingRightImage);
+    ppm6CleanupImage(eShootingLeftImage);
 }
