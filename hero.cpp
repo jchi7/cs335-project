@@ -147,6 +147,8 @@ void Hero::movement()
             initialJump = 0;
             jumpCount++;
 			//clearBuffer3();
+            playJump();
+
         }
         if (secondJump == 1) {
 
@@ -155,6 +157,7 @@ void Hero::movement()
             state = JUMPING;
             secondJump = 0;
             jumpCount++;
+            playJump();
         }
     }
     body.center[1] += velocity[1];

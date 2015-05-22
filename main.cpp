@@ -119,19 +119,22 @@ int main()
     newgame.respawnAtSavePoint();
 
 	//initilize openAL
-	initOpenal();
+/*	initOpenal();
 	createContent();
 	createContentGrunt();
 	createContentJump();
 	///////////////////////
 	//play theme music
-	playSound();	
+	playSound();	*/
 
+    initShit();
 
     bool render = true;
     bool doPhysics = true;
 
+    playMenuMusic();
     while(g_gamestate != EXIT_GAME) {
+
         gettimeofday(&Gthrottle, NULL);
         GtimeLapse = (Gthrottle.tv_usec >= GoldMilliSec) ? Gthrottle.tv_usec - GoldMilliSec :
             (1000000 - GoldMilliSec) + Gthrottle.tv_usec;
@@ -157,7 +160,7 @@ int main()
                 break;
             case PLAYING:
 				//stop theme musicc
-				clearBuffer();
+				//clearBuffer();
                 while(XPending(dpy)) {
                     XEvent e;
                     XNextEvent(dpy, &e);
@@ -628,15 +631,19 @@ void check_menu_button(XEvent *e, Game * game)
 					switch(i) {
 						case 0:
 							g_gamestate = PLAYING;
-              game->state = PLAYING;
+                            game->state = PLAYING;
+                            stopMenuMusic();
+                            playGameMusic();
 							break;
 						case 1:
 							g_gamestate = LEVEL_EDITOR;
-              game->state = LEVEL_EDITOR;
+                            game->state = LEVEL_EDITOR;
+                            stopMenuMusic();
+                            playGameMusic();
 							break;
-            case 2:
-              g_gamestate = EXIT_GAME;
-              break;
+                        case 2:
+                            g_gamestate = EXIT_GAME;
+                        break;
 					}
 				}
 			}
@@ -653,7 +660,7 @@ void check_death_input(XEvent *e,Game *game) {
         }
         if (key == XK_Return) {
 			//clear grunt sound
-			clearBuffer2(); 
+			//clearBuffer2(); 
             game->respawnAtSavePoint();
             renderNum = 0;
         }
@@ -867,6 +874,7 @@ void check_game_input(XEvent *e, Game *game)
     }
 }
 */
+bool savePointCollision = false;
 void physics(Game * game)
 {
     bool isCollision = false;
@@ -884,6 +892,7 @@ void physics(Game * game)
         isCollision = collisionRectRect(&game->hero->body, &room->savePoints[i]->body);
         if (isCollision == true) {
             game->setSavePoint(i);
+            //playSavePoint();
         }
     }
     //if (isCollision == false) {  BUG HERE...
@@ -916,14 +925,12 @@ void physics(Game * game)
         //game->hero->velocity[1] = 0;
     }
 	//play grunt sound
-/*	if(game->hero->state == DEATH && previous != DEATH) {
+	if(game->hero->state == DEATH && previous != DEATH) {
 	//////////initilize openAL
 	cout<<"grunt sound\n";
-	initOpenal();
-	createContentGrunt();
-	playGruntSound();
+	playDeath();
 
-	}*/
+	}
     game->checkRoom();
 }
 

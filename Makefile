@@ -3,7 +3,7 @@
 CFLAGS = -Wall -Wextra -I ./include
 LIB    = 
 LFLAGS = -std=c++0x -lX11 -lGLU -lGL -lm #-lXrandr
-MAC2FLAGS = -Wall -Wextra -lalut -lopenal -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11 -L/System/Library/Frameworks/OpenAL.framework -I/System/Library/Frameworks/OpenAL.framework
+MAC2FLAGS = -Wall -Wextra -lalut -lopenal -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11
 
 all: game.o hero.o basicEnemy.o room.o gameObject.o platform.o spikes.o vecFxns.o collisions.o savePoint.o main
 
