@@ -1,116 +1,126 @@
 #include "fernandoV.h"
 #include <iostream>
-#define FILENAME1 "sounds/menu_music.wav"
-#define FILENAME2 "sounds/grunt.wav"
-#define FILENAME3 "sounds/jump.wav"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <stdint.h>
+#include <inttypes.h>
+#include <unistd.h>
+#include <stdbool.h>
+
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+
+#include <AL/alut.h>
+
+#define TEST_ERROR(_msg)        \
+    error = alGetError();       \
+    if (error != AL_NO_ERROR) { \
+        fprintf(stderr, _msg "\n"); \
+        return;      \
+    }
+
 using namespace std;
-//global var//buffer is menu
-//buffer2 grunt
-//buffer3 jump
-	ALuint buffer,buffer2,buffer3,source, source2,source3;
-	ALint state;
 
-void initOpenal() {
-	//initialize
-	alutInit(0,0);	
-	alGetError();
-}
-
-//content functions
-void createContent() {
-	buffer = alutCreateBufferFromFile(FILENAME1);
-	
-
-}
-void createContentGrunt() {
-
-	buffer2 = alutCreateBufferFromFile(FILENAME2);
+void initShit(){
+    ALboolean enumeration;
+    const ALCchar *devices;
+    const ALCchar *defaultDeviceName;
+    int ret;
+    char *bufferData;
+    ALCdevice *device;
+    ALvoid *data;
+    ALCcontext *context;
+    ALsizei size, freq;
+    ALenum format;
+    ALuint buffer, source;
+    ALfloat listenerOri[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f };
+    ALboolean loop = AL_FALSE;
+    ALCenum error;
+    ALint source_state;
 
 
-}
+    enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
+    if (enumeration == AL_FALSE)
+        fprintf(stderr, "enumeration extension not available\n");
 
-void createContentJump() {
+//    list_audio_devices(alcGetString(NULL, ALC_DEVICE_SPECIFIER));
 
-	buffer3 = alutCreateBufferFromFile(FILENAME3);
+    if (!defaultDeviceName)
+        defaultDeviceName = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 
+    device = alcOpenDevice(defaultDeviceName);
+    if (!device) {
+        fprintf(stderr, "unable to open default device\n");
+        return;
+    }
 
-}
+    fprintf(stdout, "Device: %s\n", alcGetString(device, ALC_DEVICE_SPECIFIER));
 
+    alGetError();
 
+    context = alcCreateContext(device, NULL);
+    if (!alcMakeContextCurrent(context)) {
+        fprintf(stderr, "failed to make default context\n");
+        return;
+    }
+    TEST_ERROR("make default context");
 
-//sound functions
-void playSound() {
-	//cout << "debugPLAY\n";
-	alGenSources(1, &source);
-	alSourcei(source, AL_BUFFER, buffer);
-	//playsound
-	alSourcePlay(source);	
-	//wait for song to complete	
-	alGetSourcei(source, AL_SOURCE_STATE, &state);
+    /* set orientation */
+    alListener3f(AL_POSITION, 0, 0, 1.0f);
+    TEST_ERROR("listener position");
+        alListener3f(AL_VELOCITY, 0, 0, 0);
+    TEST_ERROR("listener velocity");
+    alListenerfv(AL_ORIENTATION, listenerOri);
+    TEST_ERROR("listener orientation");
 
+    alGenSources((ALuint)1, &source);
+    TEST_ERROR("source generation");
 
-}
+    alSourcef(source, AL_PITCH, 1);
+    TEST_ERROR("source pitch");
+    alSourcef(source, AL_GAIN, 1);
+    TEST_ERROR("source gain");
+    alSource3f(source, AL_POSITION, 0, 0, 0);
+    TEST_ERROR("source position");
+    alSource3f(source, AL_VELOCITY, 0, 0, 0);
+    TEST_ERROR("source velocity");
+    alSourcei(source, AL_LOOPING, AL_FALSE);
+    TEST_ERROR("source looping");
 
-void playGruntSound() {
-	//cout << "debugPLAY\n";
-	alGenSources(1, &source2);
-	alSourcei(source2, AL_BUFFER, buffer2);
-	//playsound
-	alSourcePlay(source2);
-	//wait for song to complete	
-	alGetSourcei(source2, AL_SOURCE_STATE, &state);
+    alGenBuffers(1, &buffer);
+    TEST_ERROR("buffer generation");
+    alutLoadWAVFile("test.wav", &format, &data, &size, &freq);
+    TEST_ERROR("loading wav file");
 
+    alBufferData(buffer, format, data, size, freq);
+    TEST_ERROR("buffer copy");
 
-}
-//jump sound
-void playJumpSound() {
-	//init openal
-	alutInit(0,0);
-	//create 	
-	buffer3 = alutCreateBufferFromFile(FILENAME3);
-	alGenSources(1, &source3);
-	alSourcei(source3, AL_BUFFER, buffer3);
-	//playsound
-	alSourcePlay(source3);
-	//wait for song to complete	
-	alGetSourcei(source3, AL_SOURCE_STATE, &state);
-	//loop for game
-	//alSourcei(source3, AL_LOOPING, AL_TRUE);
-	//test
-	//noway----clearBuffer3();
+    alSourcei(source, AL_BUFFER, buffer);
+    TEST_ERROR("buffer binding");
 
+    printf("size %d\n",sizeof(buffer));
 
+    int num;
+    printf("hello firned");
+    scanf("%d",&num);
+    alSourcePlay(source);
+    TEST_ERROR("source playing");
 
+    alGetSourcei(source, AL_SOURCE_STATE, &source_state);
+    TEST_ERROR("source state get");
+    while (source_state == AL_PLAYING) {
+        alGetSourcei(source, AL_SOURCE_STATE, &source_state);
+        TEST_ERROR("source state get");
+    }
 
-}
-
-
-
-void clearBuffer() {
-	//for menu
-
-	alDeleteSources(1, &source);
-	alDeleteBuffers(1,&buffer);
-	alutExit();
-
-
-}
-void clearBuffer2() {
-
-//AudioFileClose(FILENAME1); did not work
-//for grunt
-
-	alDeleteSources(1, &source2);
-	alDeleteBuffers(1,&buffer2);
-	alutExit();
-}
-
-void clearBuffer3() {
-
-//AudioFileClose(FILENAME1); did not work
-//for grunt
-
-	alDeleteSources(1, &source3);
-	alDeleteBuffers(1,&buffer3);
-	//alutExit();
+    /* exit context */
+    alDeleteSources(1, &source);
+    alDeleteBuffers(1, &buffer);
+    device = alcGetContextsDevice(context);
+    alcMakeContextCurrent(NULL);
+    alcDestroyContext(context);
+    alcCloseDevice(device);
+    return;
 }

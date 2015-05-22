@@ -142,7 +142,6 @@ void Hero::movement()
         }
         if (initialJump == 1){
 			//audio for jumping
-			playJumpSound();
             velocity[1] = 5.5;
             state = JUMPING;
             initialJump = 0;
@@ -152,7 +151,6 @@ void Hero::movement()
         if (secondJump == 1) {
 
 			//clearBuffer3();
-			playJumpSound();
             velocity[1] = 5.5;
             state = JUMPING;
             secondJump = 0;

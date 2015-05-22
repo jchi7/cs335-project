@@ -916,14 +916,14 @@ void physics(Game * game)
         //game->hero->velocity[1] = 0;
     }
 	//play grunt sound
-	if(game->hero->state == DEATH && previous != DEATH) {
+/*	if(game->hero->state == DEATH && previous != DEATH) {
 	//////////initilize openAL
 	cout<<"grunt sound\n";
 	initOpenal();
 	createContentGrunt();
 	playGruntSound();
 
-	}
+	}*/
     game->checkRoom();
 }
 
