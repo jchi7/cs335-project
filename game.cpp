@@ -277,6 +277,7 @@ void Game::fillLevel()
                         case 3:
                             orientation = FACING_RIGHT;
                             break;
+                        case 4:
                         default:
                             cout << "Error: could not read spike orientation\n";
                     }
@@ -399,6 +400,9 @@ void Game::writeSpike(GameObject * spike, ofstream & outf)
             break;
         case FACING_RIGHT:
             spikeFacing = 3;
+            break;
+        case STOP:
+        default:
             break;
     }
     outf << "SPIKE,"

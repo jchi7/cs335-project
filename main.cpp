@@ -53,6 +53,7 @@ int numCollisions;
 
 struct timeval Gthrottle;
 long long microseconds;
+long long afterDeath = 0;
 int GoldMilliSec = 0;
 int GtimeLapse = 0;
 int Gthreshold = 15000;
@@ -66,6 +67,8 @@ void setUpImage (GLuint texture, Ppmimage *picture);
 void convertToRGBA(Ppmimage *picture); 
 void renderTexture(GLuint imageTexture, float x1,float x2,float y1, float y2, int width, int height);
 GLuint getBMP(const char *path);
+Ppmimage *shooterDeathImage = NULL;
+Ppmimage *spikeDeathImage = NULL;
 Ppmimage *eShootingRightImage = NULL;
 Ppmimage *eShootingLeftImage = NULL;
 Ppmimage *bulletImage = NULL;
@@ -89,6 +92,8 @@ Ppmimage *mainMenuButtonsExitImage = NULL;
 Ppmimage *spikeImage = NULL;
 Ppmimage *deadMessageImage = NULL;
 //Creating the Textures
+GLuint shooterDeathTexture;
+GLuint spikeDeathTexture;
 GLuint eShootingRightTexture;
 GLuint eShootingLeftTexture;
 GLuint spikeTexture;
@@ -114,6 +119,8 @@ GLuint mainMenuButtonsExitTexture;
 bool forestBackgroundSet=true;
 CharacterState prevPosition;
 int numAnimation = 0;
+int spikeAnimation = 0;
+int bulletAnimation = 0;
 int shooterAnimation = 0;
 Room *savePointRoom;
 int currentSavePoint;
@@ -263,6 +270,8 @@ void init_opengl(void)
     //Importing Images
 
 
+    shooterDeathImage = ppm6GetImage("./images/shooterDeath.ppm");
+    spikeDeathImage = ppm6GetImage("./images/spikeDead.ppm");
     eShootingRightImage = ppm6GetImage("./images/mega_walkR.ppm");
     eShootingLeftImage = ppm6GetImage("./images/mega_walkL.ppm");
     keyImage = ppm6GetImage("./images/key.ppm");
@@ -309,7 +318,16 @@ void init_opengl(void)
     glGenTextures(1, &bulletTexture);
     glGenTextures(1, &eShootingRightTexture);
     glGenTextures(1, &eShootingLeftTexture);
+    glGenTextures(1, &spikeDeathTexture);
+    glGenTextures(1, &shooterDeathTexture);
 
+    //Setting up the shooter death texture
+    setUpImage(shooterDeathTexture,shooterDeathImage);
+    convertToRGBA(shooterDeathImage);
+    
+    setUpImage(spikeDeathTexture,spikeDeathImage);
+    convertToRGBA(spikeDeathImage);
+    
     //Settinf up the sprite sheets for the shooter enemy.
     setUpImage(eShootingRightTexture,eShootingRightImage);
     convertToRGBA(eShootingRightImage);
@@ -407,6 +425,8 @@ void cleanupImages(void) {
     ppm6CleanupImage(bulletImage);
     ppm6CleanupImage(eShootingRightImage);
     ppm6CleanupImage(eShootingLeftImage);
+    ppm6CleanupImage(spikeDeathImage);
+    ppm6CleanupImage(shooterDeathImage);
 }
 
 void cleanupXWindows(void)
@@ -800,7 +820,7 @@ void render_game(Game* game)
         renderBackground(forestTexture);
     }
 
-    int bulletAnimation = 0;
+    //int bulletAnimation = 0;
     for(auto entity : current_level->bullet) {
         renderBullet(entity, bulletAnimation);
         bulletAnimation = (bulletAnimation + 1)%10;
@@ -914,19 +934,17 @@ void render_game(Game* game)
             renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);
         }
     }
-    //if (game->hero->state == DEATH) {
-     //   renderNum++;
-    //}
 }
 
 void renderEnemy(GameObject * entity, int index)
 {
+
     float w = entity->body.width;
     float h = entity->body.height;
     glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
     if (entity->id == SHOOTERENEMY) {
-        w = entity->body.width;
-        h = entity->body.height;
+        w = entity->body.width+5;
+        h = entity->body.height+5;
         if( entity->body.orientation == FACING_RIGHT)
         {
             if ( microseconds > 80000) {
@@ -963,11 +981,27 @@ void renderEnemy(GameObject * entity, int index)
             glEnd();
             glPopMatrix();
         }
+        else {
+            glEnable(GL_TEXTURE_2D);
+            glColor4ub(255,255,255,255);
+            glPushMatrix();
+            glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+            glBindTexture(GL_TEXTURE_2D, shooterDeathTexture);
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0f,1.0f); glVertex2i(-w,-h);
+            glTexCoord2f(0.0f,0.0f); glVertex2i(-w,h);
+            glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
+            glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
+            glEnd();
+            glPopMatrix();
+            if(afterDeath > 75) {
+                ((ShooterEnemy*)entity)->state = DEATH;
+                afterDeath = 0;
+            }
+            afterDeath++;
+        }
     }
     else {
-
-        //std::cout<<((BasicEnemy*) entity)->state<<endl;
-        //std::cout<<entity->body.orientation<<endl;
         if( entity->body.orientation == FACING_RIGHT)
         {
             glEnable(GL_TEXTURE_2D);
@@ -976,12 +1010,13 @@ void renderEnemy(GameObject * entity, int index)
             glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
             glBindTexture(GL_TEXTURE_2D, spikeEnemyRightTexture);
             glBegin(GL_QUADS);
-                glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[index].x1,((BasicEnemy*)entity)->enemyWalkRight[index].y2); glVertex2i(-w,-h);
-                glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[index].x1,((BasicEnemy*)entity)->enemyWalkRight[index].y1); glVertex2i(-w,h);
-                glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[index].x2,((BasicEnemy*)entity)->enemyWalkRight[index].y1); glVertex2i(w,h);
-                glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[index].x2,((BasicEnemy*)entity)->enemyWalkRight[index].y2); glVertex2i(w,-h);
-                glEnd();
+            glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].x1,((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].y2); glVertex2i(-w,-h);
+            glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].x1,((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].y1); glVertex2i(-w,h);
+            glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].x2,((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].y1); glVertex2i(w,h);
+            glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].x2,((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].y2); glVertex2i(w,-h);
+            glEnd();
             glPopMatrix();
+            spikeAnimation = (spikeAnimation + 1) %10;
         }
         else if( entity->body.orientation == FACING_LEFT)
         {
@@ -991,13 +1026,34 @@ void renderEnemy(GameObject * entity, int index)
             glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
             glBindTexture(GL_TEXTURE_2D, spikeEnemyLeftTexture);
             glBegin(GL_QUADS);
-                glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[index].x1,((BasicEnemy*)entity)->enemyWalkRight[index].y2); glVertex2i(-w,-h);
-                glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[index].x1,((BasicEnemy*)entity)->enemyWalkRight[index].y1); glVertex2i(-w,h);
-                glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[index].x2,((BasicEnemy*)entity)->enemyWalkRight[index].y1); glVertex2i(w,h);
-                glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[index].x2,((BasicEnemy*)entity)->enemyWalkRight[index].y2); glVertex2i(w,-h);
+            glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].x1,((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].y2); glVertex2i(-w,-h);
+            glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].x1,((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].y1); glVertex2i(-w,h);
+            glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].x2,((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].y1); glVertex2i(w,h);
+            glTexCoord2f(((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].x2,((BasicEnemy*)entity)->enemyWalkRight[spikeAnimation].y2); glVertex2i(w,-h);
             glEnd();
             glPopMatrix();
+            spikeAnimation = (spikeAnimation + 1) %10;
         }
+        else {
+            glEnable(GL_TEXTURE_2D);
+            glColor4ub(255,255,255,255);
+            glPushMatrix();
+            glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+            glBindTexture(GL_TEXTURE_2D, spikeDeathTexture);
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0f,1.0f); glVertex2i(-w,-h);
+            glTexCoord2f(0.0f,0.0f); glVertex2i(-w,h);
+            glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
+            glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
+            glEnd();
+            glPopMatrix();
+            if(afterDeath > 75) {
+                ((BasicEnemy*)entity)->state = DEATH;
+                afterDeath = 0;
+            }
+            afterDeath++;
+        }
+
     }
 }
 

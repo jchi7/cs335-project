@@ -108,6 +108,7 @@ void enemyPhysics(Game *game)
                     }
                     entity->delay++;
                     break;
+                case STOP:
                 default:
                     break;
             }
@@ -117,6 +118,9 @@ void enemyPhysics(Game *game)
             entity->switchDirection();
         } else if (entity->body.orientation == FACING_RIGHT && (entity->body.center[0] + entity->body.width >= 1000)) {
             entity->switchDirection();
+        }
+        if (entity->state == PREDEATH) {
+            entity->body.orientation = STOP;
         }
         if (entity->state == DEATH) {
             current_level->enemies.erase(current_level->enemies.begin() + i);

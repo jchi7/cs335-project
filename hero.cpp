@@ -162,7 +162,9 @@ void Hero::movement()
 void Hero::onCollision(GameObject * obj)
 {
     if (obj->id == SPIKE || obj->id == ENEMY || obj->id == EBULLET) {
-        state = DEATH;
+            if (((BasicEnemy*)obj)->state != PREDEATH  || ((ShooterEnemy*)obj)->state != PREDEATH) {
+                state = DEATH;
+            }
     } else if (obj->id == HBULLET) {
         return;
     } else { // obj->id == PLATFORM
