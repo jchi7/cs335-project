@@ -73,6 +73,8 @@ void enemyPhysics(Game *game)
         }
         for (int i = 0; i < current_level->numBullet; i++) {
             isCollision = collisionRectRect(&entity->body, &current_level->bullet[i]->body);
+            if (current_level->bullet[i]->id == EBULLET || entity->state == PREDEATH)
+                continue;
             if (isCollision == true) {
                 entity->onCollision(current_level->bullet[i]);
                 current_level->bullet.erase(current_level->bullet.begin() + i);
