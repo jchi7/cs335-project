@@ -25,6 +25,7 @@ void resizePlatform(Game *game, GameObject * mouse);
 void editorRemovePlatform(Game *game, int index);
 void editorRemoveSpike(Game *game, int index);
 void editorRemoveSavePoint(Game *game, int index);
+void editorRemoveEnemy(Game *game, int index);
 
 void nextEnemy(Game *, GameObject *);
 void movablePlatformCollision(GameObject * movablePlatform, GameObject * stationaryPlatform){
@@ -289,7 +290,8 @@ void check_game_input(XEvent *e, Game *game)
               !game->isPlatformMovable &&
               !game->isPlatformResizable &&
               !game->isSpikeMovable &&
-              !game->isSavePointMovable)
+              !game->isSavePointMovable &&
+              !game->isEnemyMovable)
             {
                 Room * room = game->getRoomPtr();
                 for (unsigned int L = 0; L < room->savePoints.size(); L++){
@@ -318,6 +320,16 @@ void check_game_input(XEvent *e, Game *game)
                       &platformsV->at(p)->body))
                     {
                         editorRemovePlatform(game, p);
+                        return;
+                    }
+                }
+                vector<GameObject*> * enemiesV = game->getEnemiesVPtr();
+                for (unsigned int p = 0; p < enemiesV->size(); p++){
+                    if (collisionRectRect(
+                      &mouse.body,
+                      &enemiesV->at(p)->body))
+                    {
+                        editorRemoveEnemy(game, p);
                         return;
                     }
                 }
@@ -464,6 +476,13 @@ void editorRemoveSavePoint(Game * game, int index)
     Room * room = game->getRoomPtr();
     room->savePoints.erase(room->savePoints.begin() + index);
     room->numSavePoints--;
+}
+
+void editorRemoveEnemy(Game * game, int index)
+{
+    Room * room = game->getRoomPtr();
+    room->enemies.erase(room->enemies.begin() + index);
+    room->numBasicEnemies--;
 }
 
 
