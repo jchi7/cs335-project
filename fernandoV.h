@@ -1,8 +1,8 @@
 
 #ifndef AUDIO_H
 #define AUDIO_H
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 #include <AL/alut.h>
 void initShit();
 void playJump();
