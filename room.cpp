@@ -27,19 +27,19 @@ Room::Room(int nPlatform, int nSpike, int nSavePoints, int numBasic)
 
 Room::~Room()
 {
-    for (unsigned int i = 0; i <enemies.size(); i--) {
+    for (int i = (int) enemies.size() - 1; i >= 0; i--) {
         delete enemies[i];
     }
-    for (unsigned int i = 0; i < bullet.size(); i--) {
+    for (int i = (int) bullet.size() - 1; i >= 0; i--) {
         delete bullet[i];
     }
-    for (unsigned int i = 0; i < platforms.size(); i--) {
+    for (int i = platforms.size() - 1; i >= 0; i--) {
         delete platforms[i];
     }
-    for (unsigned int i = 0; i < savePoints.size(); i--) {
+    for (int i = savePoints.size() - 1; i >= 0; i--) {
         delete savePoints[i];
     }
-    for (unsigned int i = 0; i < spikes.size(); i--) {
+    for (int i = spikes.size() - 1; i >= 0; i--) {
         delete spikes[i];
     }
 }
