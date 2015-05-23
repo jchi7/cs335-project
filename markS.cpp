@@ -25,6 +25,70 @@ void editorRemovePlatform(Game *game, int index);
 void editorRemoveSpike(Game *game, int index);
 void editorRemoveSavePoint(Game *game, int index);
 
+void movablePlatformCollision(GameObject * movablePlatform, GameObject * stationaryPlatform){
+
+    // This function may be a bit hard to follow. The code seems to work fairly well. The trouble
+    // is trying to figure out if the movable platform should go above/below the stationary platform
+    // or to the left/right of the stationary platform.
+
+    float movablePlatformLeft = movablePlatform->body.center[0] - movablePlatform->body.width;
+    float movablePlatformRight = movablePlatform->body.center[0] + movablePlatform->body.width;
+    float movablePlatformTop = movablePlatform->body.center[1] + movablePlatform->body.height;
+    float movablePlatformBottom = movablePlatform->body.center[1] - movablePlatform->body.height;
+
+    float stationaryPlatformLeft = stationaryPlatform->body.center[0] - stationaryPlatform->body.width;
+    float stationaryPlatformRight = stationaryPlatform->body.center[0] + stationaryPlatform->body.width;
+    float stationaryPlatformTop = stationaryPlatform->body.center[1] + stationaryPlatform->body.height;
+    float stationaryPlatformBottom = stationaryPlatform->body.center[1] - stationaryPlatform->body.height;
+
+    // Check if the the right side of the movable platform is less than 10 pixels to the right of the left
+    // side of the stationary platform
+    if (movablePlatformRight < stationaryPlatformLeft + 10){
+        // check if the movable platform is not within 5 pixels of the top or bottom of the stationary 
+        // one
+        if ( !(movablePlatformTop > stationaryPlatformTop && 
+                movablePlatformBottom > stationaryPlatformTop - 5)
+                &&
+                !(movablePlatformBottom < stationaryPlatformBottom &&
+                 movablePlatformTop < stationaryPlatformBottom + 5))
+        {
+            movablePlatform->body.center[0] = stationaryPlatformLeft - movablePlatform->body.width;
+            // return here so that the movable platform doesnt get moved on its y axis further down 
+            // in this function
+            return;
+        }
+    }
+    // Check if the the left side of the movable platform is less than 10 pixels to the left of the right
+    // side of the stationary platform
+    if (movablePlatformLeft > stationaryPlatformRight - 10){
+        // check if the movable platform is not within 5 pixels of the top or bottom of the stationary 
+        // one
+        if ( !(movablePlatformTop > stationaryPlatformTop && 
+                movablePlatformBottom > stationaryPlatformTop - 5)
+                &&
+                !(movablePlatformBottom < stationaryPlatformBottom &&
+                 movablePlatformTop < stationaryPlatformBottom + 5))
+        {
+            movablePlatform->body.center[0] = stationaryPlatformRight + movablePlatform->body.width;
+            // return here so that the movable platform doesnt get moved on its y axis further down 
+            // in this function
+            return;
+        }
+    }
+
+    // If we get to this point then the movable platform will either be placed above the stationary one
+    // or below it based on these next two if statements
+
+    if (movablePlatform->body.center[1] < stationaryPlatform->body.center[1]){
+        movablePlatform->body.center[1] = stationaryPlatformBottom - movablePlatform->body.height;
+        return;
+    }
+    if (movablePlatform->body.center[1] > stationaryPlatform->body.center[1]){
+        movablePlatform->body.center[1] = stationaryPlatformTop + movablePlatform->body.height;
+        return;
+    }
+}
+
 
 void check_game_input(XEvent *e, Game *game)
 {
@@ -66,17 +130,19 @@ void check_game_input(XEvent *e, Game *game)
             if (key == XK_b){
                 game->saveRooms();
             }
-            if (key == XK_j){
-                game->moveRoomLeft();
-            }
-            if (key == XK_l){
-                game->moveRoomRight();
-            }
-            if (key == XK_k){
-                game->moveRoomDown();
-            }
-            if (key == XK_i){
-                game->moveRoomUp();
+            if (!game->isPlatformMovable && !game->isSpikeMovable && !game->isSavePointMovable){
+                if (key == XK_j){
+                    game->moveRoomLeft();
+                }
+                if (key == XK_l){
+                    game->moveRoomRight();
+                }
+                if (key == XK_k){
+                    game->moveRoomDown();
+                }
+                if (key == XK_i){
+                    game->moveRoomUp();
+                }
             }
             if (key == XK_5){
                 game->hero->body.center[0] = e->xbutton.x;
@@ -265,12 +331,12 @@ void editorAddSpike(Game * game, GameObject * mouse)
     spike[0][0] = mouse->body.center[0];
     spike[0][1] = mouse->body.center[1];
     spike[0][2] = 0;
-    spike[1][0] = mouse->body.center[0] + 30;
+    spike[1][0] = mouse->body.center[0] + 26;
     spike[1][1] = mouse->body.center[1];
     spike[1][2] = 0;
-    spike[2][0] = mouse->body.center[0] + 15;
+    spike[2][0] = mouse->body.center[0] + 13;
     // (sqrt(3) / 2 ) * width  = height for equilateral triangle
-    spike[2][1] = mouse->body.center[1] + 25.981;
+    spike[2][1] = mouse->body.center[1] + 22.981;
     spike[2][2] = 0;
 
     room->spikes.push_back(

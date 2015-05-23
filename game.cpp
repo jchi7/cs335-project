@@ -68,26 +68,46 @@ void Game::respawnAtSavePoint()
 void Game::checkRoom()
 {
     if (hero->body.center[0] > WINDOW_WIDTH){
-        currentHorizontalLevel++;
-        hero->body.center[0] = 0 + hero->body.width;
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable){
+            hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+        }
+        else{
+            currentHorizontalLevel++;
+            hero->body.center[0] = 0 + hero->body.width;
+        }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[0] < 0){
-        currentHorizontalLevel--;
-        hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable){
+            hero->body.center[0] = 0 + hero->body.width;
+        }
+        else{
+            currentHorizontalLevel--;
+            hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+        }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[1] > WINDOW_HEIGHT){
-        currentVerticalLevel++;
-        hero->body.center[1] = 0 + hero->body.height;
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable){
+            hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+        }
+        else {
+            currentVerticalLevel++;
+            hero->body.center[1] = 0 + hero->body.height;
+        }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[1] < 0){
-        currentVerticalLevel--;
-        hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable){
+            hero->body.center[1] = 0 +  hero->body.height;
+        }
+        else {
+            currentVerticalLevel--;
+            hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+        }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
@@ -106,7 +126,7 @@ GameObject * Game::getWorkingPlatformPtr()
         return NULL;
     }
     Room * room = this->getRoomPtr();
-    return room->platforms[this->movablePlatformIndex];
+    return room->platforms[this->resizablePlatformIndex];
 }
 
 GameObject * Game::getWorkingSpikePtr()
