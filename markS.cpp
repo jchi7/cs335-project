@@ -185,7 +185,8 @@ void check_game_input(XEvent *e, Game *game)
                 }
                 if (!game->isSpikeMovable &&
                   !game->isPlatformMovable &&
-                  !game->isPlatformMovable)
+                  !game->isPlatformResizable &&
+                  !game->isSavePointMovable)
                 {
                     editorAddSpike(game, &mouse);
                 }
