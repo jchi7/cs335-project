@@ -9,6 +9,8 @@ void enemyPhysics(Game *game)
     int i = (signed int) current_level->enemies.size() - 1;
 
     for(; i >= 0; i--) {
+        if (game->isEnemyMovable && i == game->movableEnemyIndex)
+            continue;
         BasicEnemy* entity = (BasicEnemy*) current_level->enemies[i];
         isCollision = false;
         isEdge = true;

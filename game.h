@@ -22,9 +22,11 @@ class Game
         bool isPlatformResizable;
         bool isSpikeMovable;
         bool isSavePointMovable;
+        bool isEnemyMovable;
         int movablePlatformIndex;
         int movableSpikeIndex;
         int movableSavePointIndex;
+        int movableEnemyIndex;
         int resizablePlatformIndex;
         int resizablePlatformX;
         int resizablePlatformY;
@@ -65,6 +67,7 @@ class Game
         GameObject * getWorkingSpikePtr();
         vector<GameObject*> * getPlatformsVPtr();
         vector<GameObject*> * getSpikesVPtr();
+        vector<GameObject*> * getEnemiesVPtr();
         void moveRoomLeft();
         void moveRoomRight();
         void moveRoomUp();
@@ -75,6 +78,7 @@ class Game
         void writePlatform(GameObject *, ofstream &);
         void writeSavePoint(GameObject *, ofstream &);
         void writeSpike(GameObject *, ofstream &);
+        void writeEnemy(GameObject *, ofstream &);
         void heroShoots();
     protected:
     private:

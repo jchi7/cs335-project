@@ -32,6 +32,7 @@ void check_death_input(XEvent *e, Game *newgame);
 void movePlatform(XEvent *e, Game * game);
 void moveSavePoint(XEvent *e, Game * game);
 void moveSpike(XEvent *e, Game * game);
+void moveEnemy(XEvent *e, Game * game);
 void physics(Game * game);
 void render_game(Game* game);
 void renderEnemy(GameObject *, int);
@@ -204,6 +205,8 @@ int main()
                         moveSpike(&e, &newgame);
                     if (newgame.isSavePointMovable == true)
                         moveSavePoint(&e, &newgame);
+                    if (newgame.isEnemyMovable == true)
+                        moveEnemy(&e, &newgame);
                 }
                 if (doPhysics == true){
                     physics(&newgame);
@@ -651,7 +654,13 @@ void moveSavePoint(XEvent *e, Game *game)
     currentRoom->savePoints[game->movableSavePointIndex]->body.center[0] = e->xbutton.x;
     currentRoom->savePoints[game->movableSavePointIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
 }
-
+void moveEnemy(XEvent *e, Game * game)
+{
+    Room * currentRoom = game->getRoomPtr();
+    currentRoom->enemies[game->movableEnemyIndex]->body.center[0] = e->xbutton.x;
+    currentRoom->enemies[game->movableEnemyIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+    
+}
 void moveSpike(XEvent *e, Game *game){
     Room * currentRoom = game->getRoomPtr();
     GameObject * currentSpike = currentRoom->spikes[game->movableSpikeIndex];

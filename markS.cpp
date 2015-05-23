@@ -20,11 +20,13 @@
 void editorAddPlatform(Game *game, GameObject * mouse);
 void editorAddSpike(Game *game, GameObject * mouse);
 void editorAddSavePoint(Game *game, GameObject * mouse);
+void editorAddEnemy(Game *game, GameObject * mouse);
 void resizePlatform(Game *game, GameObject * mouse);
 void editorRemovePlatform(Game *game, int index);
 void editorRemoveSpike(Game *game, int index);
 void editorRemoveSavePoint(Game *game, int index);
 
+void nextEnemy(Game *, GameObject *);
 void movablePlatformCollision(GameObject * movablePlatform, GameObject * stationaryPlatform){
 
     // This function may be a bit hard to follow. The code seems to work fairly well. The trouble
@@ -130,7 +132,8 @@ void check_game_input(XEvent *e, Game *game)
             if (key == XK_b){
                 game->saveRooms();
             }
-            if (!game->isPlatformMovable && !game->isSpikeMovable && !game->isSavePointMovable){
+            if (!game->isPlatformMovable && !game->isSpikeMovable && 
+                    !game->isSavePointMovable && !game->isEnemyMovable){
                 if (key == XK_j){
                     game->moveRoomLeft();
                 }
@@ -165,7 +168,17 @@ void check_game_input(XEvent *e, Game *game)
                 }
             }
             if (key == XK_f){
-                
+                if (game->isEnemyMovable)
+                {
+                    nextEnemy(game, &mouse);
+                }
+                if (!game->isPlatformMovable &&
+                    !game->isPlatformResizable &&
+                    !game->isSpikeMovable &&
+                    !game->isEnemyMovable)
+                {
+                    editorAddEnemy(game, &mouse);
+                }
             }
             if (key == XK_s){
                 if (game->isSpikeMovable){
@@ -207,6 +220,9 @@ void check_game_input(XEvent *e, Game *game)
                 if (game->isSavePointMovable){
                     game->isSavePointMovable = false;
                 }
+                if (game->isEnemyMovable){
+                    game->isEnemyMovable = false;
+                }
             }
             if (key == XK_z){
                 if (!game->isPlatformMovable &&
@@ -242,11 +258,22 @@ void check_game_input(XEvent *e, Game *game)
                             }
                         }
                     }
+                    if (!game->isSpikeMovable && !game->isSavePointMovable && !game->isPlatformMovable){
+                        vector<GameObject*> * enemiesV = game->getEnemiesVPtr();
+                        for (unsigned int k = 0; k < enemiesV->size(); k++){
+                            if (collisionRectRect(&mouse.body,&enemiesV->at(k)->body)){
+                                game->movableEnemyIndex = k;
+                                game->isEnemyMovable = true;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
             if (key == XK_c &&
               !game->isPlatformMovable &&
-              !game->isSpikeMovable)
+              !game->isSpikeMovable &&
+              !game->isPlatformResizable)
             {
                 vector<GameObject*> * platformsV = game->getPlatformsVPtr();
                 for (unsigned int k = 0; k < platformsV->size(); k++){
@@ -326,6 +353,40 @@ void editorAddPlatform(Game * game, GameObject * mouse)
     room->numPlatforms++;
     game->movablePlatformIndex = room->platforms.size() - 1;
     game->isPlatformMovable = true;
+}
+void editorAddEnemy(Game * game, GameObject * mouse)
+{
+    Room * room = game->getRoomPtr();
+    room->enemies.push_back(
+        new BasicEnemy(
+            10,
+            20,
+            mouse->body.center[0],
+            mouse->body.center[1]));
+    room->numBasicEnemies++;
+    game->movableEnemyIndex = room->enemies.size() - 1;
+    game->isEnemyMovable = true;
+}
+
+void nextEnemy(Game *game, GameObject * mouse)
+{
+    Room * room = game->getRoomPtr();
+    cout << "size before nextEnemy: " << room->enemies.size() << " ";
+    ObjectType id = room->enemies[game->movableEnemyIndex]->id;
+    delete room->enemies[game->movableEnemyIndex];
+    switch (id){
+        case ENEMY:
+            room->enemies[game->movableEnemyIndex] = new ShooterEnemy(
+                10,10,mouse->body.center[0], mouse->body.center[1]);
+            break;
+        case SHOOTERENEMY:
+            room->enemies[game->movableEnemyIndex] = new BasicEnemy(
+                10,10,mouse->body.center[0], mouse->body.center[1]);
+            break;
+        default:
+            break;
+    }
+    cout << "size after nextEnemy: " << room->enemies.size() << endl;
 }
 
 void editorAddSpike(Game * game, GameObject * mouse)
