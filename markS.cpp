@@ -164,6 +164,9 @@ void check_game_input(XEvent *e, Game *game)
                     editorAddSavePoint(game, &mouse);
                 }
             }
+            if (key == XK_f){
+                
+            }
             if (key == XK_s){
                 if (game->isSpikeMovable){
                     GameObject * curSpike = game->getWorkingSpikePtr();
