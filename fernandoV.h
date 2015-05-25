@@ -12,4 +12,5 @@ void stopMenuMusic();
 void stopGameMusic();
 void playSavePoint();
 void playLaser();
+void playEnemyDeath();
 #endif

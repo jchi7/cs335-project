@@ -161,7 +161,16 @@ void initShit(){
 
     alSourcei(sources[5][0], AL_BUFFER, sources[5][1]);
     TEST_ERROR("buffer binding");
-	
+	/////	
+    alSourcef(sources[6][0], AL_GAIN, 0.1);
+    alutLoadWAVFile((ALbyte *)"sounds/pain.wav", &format, &data, &size, &freq,&loop);
+    TEST_ERROR("loading wav file");
+
+    alBufferData(sources[6][1], format, data, size, freq);
+    TEST_ERROR("buffer copy");
+
+    alSourcei(sources[6][0], AL_BUFFER, sources[6][1]);
+    TEST_ERROR("buffer binding");
 
 }
 void playJump(){
@@ -173,6 +182,11 @@ void playJump(){
 
 void playDeath(){
     alSourcePlay(sources[1][0]);
+    TEST_ERROR("source playing");
+    return;
+}
+void playEnemyDeath(){
+    alSourcePlay(sources[6][0]);
     TEST_ERROR("source playing");
     return;
 }

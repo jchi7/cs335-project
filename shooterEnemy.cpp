@@ -1,4 +1,5 @@
 #include "shooterEnemy.h"
+#include "fernandoV.h"
 
 ShooterEnemy::ShooterEnemy(int left, int right, int x, int y)
 {
@@ -87,6 +88,8 @@ void ShooterEnemy::onCollision(GameObject * obj)
 {
     if (obj->id == SPIKE || obj->id == HBULLET) {
         state = PREDEATH;
+		//enemy grunt
+		playEnemyDeath();
     } else if (obj->id == EBULLET) {
         return;
     }
