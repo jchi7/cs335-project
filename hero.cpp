@@ -1,4 +1,5 @@
 #include "hero.h"
+#include "fernandoV.h"
 
 Hero::Hero()
 {
@@ -141,12 +142,14 @@ void Hero::movement()
             state = JUMPING;
             initialJump = 0;
             jumpCount++;
+			playJump();
         }
         if (secondJump == 1) {
             velocity[1] = 5.5;
             state = JUMPING;
             secondJump = 0;
             jumpCount++;
+			playJump();
         }
     }
     body.center[1] += velocity[1];

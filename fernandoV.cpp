@@ -42,7 +42,7 @@ using namespace std;
     ALCenum error;
     ALint source_state;
 
-void initOpenal(){
+void initShit(){
 
 
     enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
@@ -152,15 +152,16 @@ void initOpenal(){
     alSourcei(sources[4][0], AL_BUFFER, sources[4][1]);
     TEST_ERROR("buffer binding");
 	//////////	
-	
-    alSource3f(sources[5][0], AL_POSITION, 0, 0, 0);
-    //alSource3f(source, AL_POSITION, 0, 0, 0);
-	alutLoadWAVFile((ALbyte *)"sounds/black crows.wav", &format, &data, &size, &freq, &loop);
+    alSourcef(sources[5][0], AL_GAIN, 0.1);
+    alutLoadWAVFile((ALbyte *)"sounds/laser.wav", &format, &data, &size, &freq,&loop);
     TEST_ERROR("loading wav file");
+
     alBufferData(sources[5][1], format, data, size, freq);
-    //alBufferData(buffer, format, data, size, freq);
+    TEST_ERROR("buffer copy");
+
     alSourcei(sources[5][0], AL_BUFFER, sources[5][1]);
     TEST_ERROR("buffer binding");
+	
 
 }
 void playJump(){
@@ -175,6 +176,11 @@ void playDeath(){
     TEST_ERROR("source playing");
     return;
 }
+void playLaser(){
+    alSourcePlay(sources[5][0]);
+    TEST_ERROR("source playing");
+    return;
+}
 
 void playMenuMusic(){
     
@@ -184,12 +190,12 @@ void playMenuMusic(){
     return;
 }
 
-void playcrow() {
+/*void playcrow() {
 	//crow
 	//alSourceQueueBuffers();
     //alSourcePlay(sources[5][0]);
 	//sleep(15);
-}
+}*/
 
 void stopMenuMusic(){
     alSourceStop(sources[2][0]);

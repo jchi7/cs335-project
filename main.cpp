@@ -140,6 +140,9 @@ int main()
     newgame.hero = new Hero();
     newgame.respawnAtSavePoint();
 
+	//initialize openAL and menu music
+	initShit();
+	playMenuMusic();
 
     bool render = true;
     bool doPhysics = true;
@@ -159,7 +162,7 @@ int main()
         switch (g_gamestate) {
             case MAIN_MENU:
 	//initialize menu music
-	playMenuMusic();
+	//playMenuMusic();
                 while(XPending(dpy)) {
                     XEvent e;
                     XNextEvent(dpy, &e);
@@ -712,10 +715,14 @@ void check_menu_button(XEvent *e, Game * game)
             case 0:
               g_gamestate = PLAYING;
               game->state = PLAYING;
+			  stopMenuMusic();
+              playGameMusic();
               break;
             case 1:
               g_gamestate = LEVEL_EDITOR;
               game->state = LEVEL_EDITOR;
+			  stopMenuMusic();
+              playGameMusic();
               break;
             case 2:
               g_gamestate = EXIT_GAME;
@@ -747,7 +754,7 @@ void physics(Game * game)
 {
     bool isCollision = false;
     Room * room = game->getRoomPtr();
-
+	CharacterState previous = game->hero->state;
     game->hero->movement();
     if (game->hero->delay != 0) {
         game->hero->delay = (game->hero->delay + 1) % 20;
@@ -807,6 +814,16 @@ void physics(Game * game)
         game->hero->velocity[0] = 0;
         //game->hero->velocity[1] = 0;
     }
+	//play grunt sound
+	if(game->hero->state == DEATH && previous != DEATH) {
+	//////////initilize openAL
+	cout<<"grunt sound\n";
+	playDeath();
+
+	}
+
+
+
     game->checkRoom();
 }
 

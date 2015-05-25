@@ -1,4 +1,5 @@
 #include "game.h"
+#include "fernandoV.h"
 using namespace std;
 
 #define WINDOW_WIDTH 1000
@@ -417,6 +418,8 @@ void Game::writeSpike(GameObject * spike, ofstream & outf)
 
 void Game::heroShoots()
 {
+	//play laser
+	playLaser();
     Room* current_level = getRoomPtr();
     switch(hero->body.orientation) {
         case FACING_RIGHT:

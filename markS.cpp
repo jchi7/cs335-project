@@ -14,6 +14,7 @@
 #include "collisions.h"
 #include <chrono>
 #include <GL/glx.h>
+#include "fernandoV.h"
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
 
@@ -46,6 +47,8 @@ void check_game_input(XEvent *e, Game *game)
         }
         if (key == XK_Escape){
             g_gamestate = MAIN_MENU;
+			stopGameMusic();
+            playMenuMusic();
         }
         if (key == XK_e){
             if (game->hero->delay == 0) {
