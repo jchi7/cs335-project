@@ -9,11 +9,9 @@
 #include "game.h"
 #include "collisions.h"
 #include "jasonc.h"
-<<<<<<< HEAD
 #include "fernandoV.h"
-=======
+//=======
 #include "markS.h"
->>>>>>> 27723e883f96d7554eac544d6c2ef433f28bcb4c
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
 
