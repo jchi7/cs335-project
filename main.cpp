@@ -9,7 +9,11 @@
 #include "game.h"
 #include "collisions.h"
 #include "jasonc.h"
+<<<<<<< HEAD
 #include "fernandoV.h"
+=======
+#include "markS.h"
+>>>>>>> 27723e883f96d7554eac544d6c2ef433f28bcb4c
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
 
@@ -32,6 +36,7 @@ void check_death_input(XEvent *e, Game *newgame);
 void movePlatform(XEvent *e, Game * game);
 void moveSavePoint(XEvent *e, Game * game);
 void moveSpike(XEvent *e, Game * game);
+void moveEnemy(XEvent *e, Game * game);
 void physics(Game * game);
 void render_game(Game* game);
 void renderEnemy(GameObject *, int);
@@ -128,7 +133,7 @@ int currentSavePoint;
 auto start = std::chrono::high_resolution_clock::now();
 //End
 
-//GameObject mouse;
+GameObject mouse;
 
 int main()
 {
@@ -210,6 +215,8 @@ int main()
                         moveSpike(&e, &newgame);
                     if (newgame.isSavePointMovable == true)
                         moveSavePoint(&e, &newgame);
+                    if (newgame.isEnemyMovable == true)
+                        moveEnemy(&e, &newgame);
                 }
                 if (doPhysics == true){
                     physics(&newgame);
@@ -624,9 +631,31 @@ void render_MainMenu(void)
 }
 void movePlatform(XEvent *e, Game *game){
 
-    Room * currentRoom = game->getRoomPtr();
-    currentRoom->platforms[game->movablePlatformIndex]->body.center[0] = e->xbutton.x;
-    currentRoom->platforms[game->movablePlatformIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+    Room * room = game->getRoomPtr();
+    mouse.body.center[0] = e->xbutton.x;
+    mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+    mouse.body.width = room->platforms[game->movablePlatformIndex]->body.width;
+    mouse.body.height = room->platforms[game->movablePlatformIndex]->body.height;
+    bool isCollision = false;
+    int collisionCount = 0;
+    if (game->isPlatformMovable){
+        for (int i = 0; i < room->numPlatforms; i++){
+            if (i != game->movablePlatformIndex){
+                isCollision = collisionRectRect(&mouse.body , &room->platforms[i]->body);
+                if (isCollision == true) {
+                    collisionCount++;
+                    movablePlatformCollision(&mouse, room->platforms[i]);
+                    room->platforms[game->movablePlatformIndex]->body.center[0] = mouse.body.center[0];
+                    room->platforms[game->movablePlatformIndex]->body.center[1] = mouse.body.center[1];
+                }
+            }
+        }
+        if (collisionCount <= 0){
+
+            room->platforms[game->movablePlatformIndex]->body.center[0] = e->xbutton.x;
+            room->platforms[game->movablePlatformIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+        }
+    }
 }
 
 void moveSavePoint(XEvent *e, Game *game)
@@ -635,7 +664,13 @@ void moveSavePoint(XEvent *e, Game *game)
     currentRoom->savePoints[game->movableSavePointIndex]->body.center[0] = e->xbutton.x;
     currentRoom->savePoints[game->movableSavePointIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
 }
-
+void moveEnemy(XEvent *e, Game * game)
+{
+    Room * currentRoom = game->getRoomPtr();
+    currentRoom->enemies[game->movableEnemyIndex]->body.center[0] = e->xbutton.x;
+    currentRoom->enemies[game->movableEnemyIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+    
+}
 void moveSpike(XEvent *e, Game *game){
     Room * currentRoom = game->getRoomPtr();
     GameObject * currentSpike = currentRoom->spikes[game->movableSpikeIndex];
@@ -646,28 +681,28 @@ void moveSpike(XEvent *e, Game *game){
     spike[0][0] = e->xbutton.x;
     spike[0][1] = WINDOW_HEIGHT - e->xbutton.y;
     if (currentSpike->body.orientation == FACING_UP){
-        spike[1][0] = e->xbutton.x + 30;
+        spike[1][0] = e->xbutton.x + 26;
         spike[1][1] = WINDOW_HEIGHT - e->xbutton.y;
-        spike[2][0] = e->xbutton.x + 15;
-        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 25.981;
+        spike[2][0] = e->xbutton.x + 13;
+        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 22.981;
     }
     if (currentSpike->body.orientation == FACING_LEFT){
         spike[1][0] = e->xbutton.x;
-        spike[1][1] = WINDOW_HEIGHT - e->xbutton.y + 30;
-        spike[2][0] = e->xbutton.x - 25.981;
-        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 15;
+        spike[1][1] = WINDOW_HEIGHT - e->xbutton.y + 26;
+        spike[2][0] = e->xbutton.x - 22.981;
+        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y + 13;
     }
     if (currentSpike->body.orientation == FACING_DOWN){
-        spike[1][0] = e->xbutton.x - 30;
+        spike[1][0] = e->xbutton.x - 26;
         spike[1][1] = WINDOW_HEIGHT - e->xbutton.y;
-        spike[2][0] = e->xbutton.x - 15;
-        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y - 25.981;
+        spike[2][0] = e->xbutton.x - 13;
+        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y - 22.981;
     }
     if (currentSpike->body.orientation == FACING_RIGHT){
         spike[1][0] = e->xbutton.x;
-        spike[1][1] = WINDOW_HEIGHT - e->xbutton.y - 30;
-        spike[2][0] = e->xbutton.x + 25.981;
-        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y - 15;
+        spike[1][1] = WINDOW_HEIGHT - e->xbutton.y - 26;
+        spike[2][0] = e->xbutton.x + 22.981;
+        spike[2][1] = WINDOW_HEIGHT - e->xbutton.y - 13;
     }
     vecCopy(spike[0], currentRoom->spikes[game->movableSpikeIndex]->body.corners[0]);
     vecCopy(spike[1], currentRoom->spikes[game->movableSpikeIndex]->body.corners[1]);

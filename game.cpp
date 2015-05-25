@@ -23,10 +23,12 @@ Game::Game()
     this->isPlatformResizable = false;
     this->isSpikeMovable = false;
     this->isSavePointMovable = false;
+    this->isEnemyMovable = false;
     
     this->movablePlatformIndex = 0;
     this->movableSpikeIndex = 0;
     this->movableSavePointIndex = 0;
+    this->movableEnemyIndex = 0;
     this->resizablePlatformIndex = 0;
     
     this->resizablePlatformX = 0;
@@ -69,26 +71,46 @@ void Game::respawnAtSavePoint()
 void Game::checkRoom()
 {
     if (hero->body.center[0] > WINDOW_WIDTH){
-        currentHorizontalLevel++;
-        hero->body.center[0] = 0 + hero->body.width;
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
+            hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+        }
+        else{
+            currentHorizontalLevel++;
+            hero->body.center[0] = 0 + hero->body.width;
+        }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[0] < 0){
-        currentHorizontalLevel--;
-        hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
+            hero->body.center[0] = 0 + hero->body.width;
+        }
+        else{
+            currentHorizontalLevel--;
+            hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+        }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[1] > WINDOW_HEIGHT){
-        currentVerticalLevel++;
-        hero->body.center[1] = 0 + hero->body.height;
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
+            hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+        }
+        else {
+            currentVerticalLevel++;
+            hero->body.center[1] = 0 + hero->body.height;
+        }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[1] < 0){
-        currentVerticalLevel--;
-        hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
+            hero->body.center[1] = 0 +  hero->body.height;
+        }
+        else {
+            currentVerticalLevel--;
+            hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+        }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
@@ -107,7 +129,7 @@ GameObject * Game::getWorkingPlatformPtr()
         return NULL;
     }
     Room * room = this->getRoomPtr();
-    return room->platforms[this->movablePlatformIndex];
+    return room->platforms[this->resizablePlatformIndex];
 }
 
 GameObject * Game::getWorkingSpikePtr()
@@ -130,6 +152,12 @@ vector<GameObject*> * Game::getSpikesVPtr()
 {
     Room * room = this->getRoomPtr();
     return &(room->spikes);
+}
+
+vector<GameObject*> * Game::getEnemiesVPtr()
+{
+    Room * room = this->getRoomPtr();
+    return &(room->enemies);
 }
 
 void Game::moveRoomLeft()
@@ -364,6 +392,9 @@ void Game::saveRooms()
     for (unsigned int i = 0; i < level[vert][horz].spikes.size(); ++i) {
         writeSpike(level[vert][horz].spikes[i], file);
     }
+    for (unsigned int i = 0; i < level[vert][horz].enemies.size(); ++i) {
+        writeEnemy(level[vert][horz].enemies[i], file);
+    }
     file.close();
     return;
 }
@@ -384,6 +415,30 @@ void Game::writeSavePoint(GameObject * savept, ofstream & outf)
       << savept->body.height << ","
       << savept->body.center[0] << ","
       << savept->body.center[1] << "\n";
+}
+
+void Game::writeEnemy(GameObject * enemy, ofstream & outf)
+{
+    switch (enemy->id)
+    {
+        case ENEMY:
+            outf << "ENEMY,"
+                << "10" << ","
+                << "10" << ","
+                << enemy->body.center[0] << ","
+                << enemy->body.center[1] << "\n";
+            break;
+        case SHOOTERENEMY:
+            outf << "SHOOTER,"
+                << "10" << ","
+                << "10" << ","
+                << enemy->body.center[0] << ","
+                << enemy->body.center[1] << "\n";
+            break;
+        default:
+            break;
+    }
+
 }
 
 void Game::writeSpike(GameObject * spike, ofstream & outf)
