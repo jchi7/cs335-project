@@ -12,4 +12,5 @@ void playGameMusic();
 void stopMenuMusic();
 void stopGameMusic();
 void playSavePoint();
+void playcrow();
 #endif

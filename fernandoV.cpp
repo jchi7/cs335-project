@@ -9,10 +9,11 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 
 #include <AL/alut.h>
+#define FILENAME "sounds/black crows.wav"
 
 #define TEST_ERROR(_msg)        \
     error = alGetError();       \
@@ -92,11 +93,14 @@ void initShit(){
         TEST_ERROR("source velocity");
         alSourcei(sources[i][0], AL_LOOPING, AL_FALSE);
         TEST_ERROR("source looping");
-
         alGenBuffers(1, &sources[i][1]);
         TEST_ERROR("buffer generation");
     }
-    alutLoadWAVFile("sounds/jump.wav", &format, &data, &size, &freq);
+
+
+
+
+    alutLoadWAVFile((ALbyte *)"sounds/jump.wav", &format, &data, &size, &freq,&loop);
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[0][1], format, data, size, freq);
@@ -104,9 +108,10 @@ void initShit(){
 
     alSourcei(sources[0][0], AL_BUFFER, sources[0][1]);
     TEST_ERROR("buffer binding");
+	////////////
 
     alSourcef(sources[1][0], AL_GAIN, 0.1);
-    alutLoadWAVFile("sounds/grunt.wav", &format, &data, &size, &freq);
+    alutLoadWAVFile((ALbyte *)"sounds/grunt.wav", &format, &data, &size, &freq,&loop);
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[1][1], format, data, size, freq);
@@ -114,8 +119,10 @@ void initShit(){
 
     alSourcei(sources[1][0], AL_BUFFER, sources[1][1]);
     TEST_ERROR("buffer binding");
+	////////////
 
-    alutLoadWAVFile("sounds/menu_music.wav", &format, &data, &size, &freq);
+    alSourcef(sources[2][0], AL_GAIN,.20) ;
+    alutLoadWAVFile((ALbyte *)"sounds/Opening.wav", &format, &data, &size, &freq,&loop);
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[2][1], format, data, size, freq);
@@ -123,9 +130,10 @@ void initShit(){
 
     alSourcei(sources[2][0], AL_BUFFER, sources[2][1]);
     TEST_ERROR("buffer binding");
+	///////////
     
     alSourcef(sources[3][0], AL_GAIN, 0.05);
-    alutLoadWAVFile("sounds/gameSound.wav", &format, &data, &size, &freq);
+    alutLoadWAVFile((ALbyte *)"sounds/gameSound.wav", &format, &data, &size, &freq,&loop);
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[3][1], format, data, size, freq);
@@ -133,8 +141,9 @@ void initShit(){
 
     alSourcei(sources[3][0], AL_BUFFER, sources[3][1]);
     TEST_ERROR("buffer binding");
+	//////////
 
-    alutLoadWAVFile("sounds/savepoint.wav", &format, &data, &size, &freq);
+    alutLoadWAVFile((ALbyte *)"sounds/savepoint.wav", &format, &data, &size, &freq,&loop);
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[4][1], format, data, size, freq);
@@ -142,25 +151,22 @@ void initShit(){
 
     alSourcei(sources[4][0], AL_BUFFER, sources[4][1]);
     TEST_ERROR("buffer binding");
+	//////////	
+	
+    alSource3f(sources[5][0], AL_POSITION, 0, 0, 0);
+    //alSource3f(source, AL_POSITION, 0, 0, 0);
+	alutLoadWAVFile((ALbyte *)"sounds/black crows.wav", &format, &data, &size, &freq, &loop);
+    TEST_ERROR("loading wav file");
+    alBufferData(sources[5][1], format, data, size, freq);
+    //alBufferData(buffer, format, data, size, freq);
+    alSourcei(sources[5][0], AL_BUFFER, sources[5][1]);
+    TEST_ERROR("buffer binding");
+
 }
 void playJump(){
     alSourcePlay(sources[0][0]);
     TEST_ERROR("source playing");
 
-/*    alGetSourcei(source, AL_SOURCE_STATE, &source_state);
-    TEST_ERROR("source state get");
-    while (source_state == AL_PLAYING) {
-        alGetSourcei(source, AL_SOURCE_STATE, &source_state);
-        TEST_ERROR("source state get");
-    }
-*/
-    /* exit context */
-/*    alDeleteSources(1, &source);
-    alDeleteBuffers(1, &buffer);
-    device = alcGetContextsDevice(context);
-    alcMakeContextCurrent(NULL);
-    alcDestroyContext(context);
-    alcCloseDevice(device);*/
     return;
 }
 
@@ -172,17 +178,29 @@ void playDeath(){
 
 void playMenuMusic(){
     
+	alSourcei(sources[2][0],AL_LOOPING,AL_TRUE);
     alSourcePlay(sources[2][0]);
     TEST_ERROR("source playing");
     return;
 }
+
+void playcrow() {
+	//crow
+	//alSourceQueueBuffers();
+    //alSourcePlay(sources[5][0]);
+	//sleep(15);
+}
+
 void stopMenuMusic(){
     alSourceStop(sources[2][0]);
 }
+
 void playGameMusic(){
+	alSourcei(sources[3][0],AL_LOOPING,AL_TRUE);
     alSourcePlay(sources[3][0]);
     TEST_ERROR("sourece playing");
 }
+
 void stopGameMusic(){
     alSourceStop(sources[3][0]);
 }

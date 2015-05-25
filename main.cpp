@@ -119,16 +119,8 @@ int main()
     newgame.respawnAtSavePoint();
 
 	//initilize openAL
-/*	initOpenal();
-	createContent();
-	createContentGrunt();
-	createContentJump();
-	///////////////////////
-	//play theme music
-	playSound();	*/
 
     initShit();
-
     bool render = true;
     bool doPhysics = true;
 
@@ -161,6 +153,7 @@ int main()
             case PLAYING:
 				//stop theme musicc
 				//clearBuffer();
+				//playcrow();
                 while(XPending(dpy)) {
                     XEvent e;
                     XNextEvent(dpy, &e);
