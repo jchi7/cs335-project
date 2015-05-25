@@ -1,0 +1,2 @@
+
+void movablePlatformCollision(GameObject *, GameObject *);
