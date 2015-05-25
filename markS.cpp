@@ -105,6 +105,12 @@ void check_game_input(XEvent *e, Game *game)
     if (e->type == KeyPress){
         //cout << e->xbutton.x << endl;
         int key = XLookupKeysym(&e->xkey,0);
+        if (key == XK_m){
+            if (g_gamestate == MAP)
+                g_gamestate = LEVEL_EDITOR;
+            else
+                g_gamestate = MAP;
+        }
         if (key == XK_Left){
             game->hero->leftPressed = 1;
         }

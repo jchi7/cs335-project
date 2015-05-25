@@ -37,6 +37,8 @@ class Game
         int savePointVerticalRoom;
         int savePointIndex;
 
+        std::vector< Grid * > mapGrid;
+
         // position of current room:
         int currentHorizontalLevel;
         int currentVerticalLevel;
@@ -59,6 +61,9 @@ class Game
         Game();
         ~Game();
 
+        void initializeMap(int, int);
+        void checkMapInput(XEvent*);
+        void renderMap();
         void respawnAtSavePoint();
         void setSavePoint(int index);
         void checkRoom();

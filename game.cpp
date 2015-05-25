@@ -36,6 +36,7 @@ Game::Game()
     this->platformTextureWidth = 15;
     initLevel();
     fillLevel();
+    initializeMap(totalHorizontal, totalVertical);
 }
 
 Game::~Game()
@@ -45,6 +46,66 @@ Game::~Game()
     //dtor
 }
 
+void Game::initializeMap(int numHorizontal, int numVertical)
+{
+    float left = 250;
+    float right = 750;
+    float top = 600;
+    float bottom = 100;
+    float gridWidth = 500 / numHorizontal;
+    float gridHeight = 500 / numVertical;
+    Grid *currentGrid;
+    for (int row = 0; row < numHorizontal; row++)
+    {
+        for (int column = 0; column < numVertical; column++)
+        {
+            mapGrid.push_back(new Grid());
+            currentGrid = mapGrid[(row*column) + column];
+            currentGrid->r.left = left + (column * gridWidth);
+            currentGrid->r.bot = bottom + (row * gridHeight);
+            currentGrid->r.right = currentGrid->r.left + gridWidth;
+            currentGrid->r.top = currentGrid->r.bot + gridHeight;
+            currentGrid->r.width = gridWidth;
+            currentGrid->r.height = gridHeight;
+            currentGrid->over = false;
+            currentGrid->click = false;
+            currentGrid->color[0] = 0.7f;
+            currentGrid->color[1] = 0.7f;
+            currentGrid->color[2] = 0.7f;
+            currentGrid->hoverColor[0] = 0.5f;
+            currentGrid->hoverColor[1] = 0.5f;
+            currentGrid->hoverColor[2] = 0.5f;
+            currentGrid->horizontalRoom = row;
+            currentGrid->verticalRoom = column;
+        }
+    }
+}
+void Game::checkMapInput(XEvent *e)
+{
+    
+}
+
+void Game::renderMap()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    int row = 0;
+    for (int row = 0; row < totalHorizontal * totalVertical; row++)
+    {
+        glPushMatrix();
+        glColor3ub(100,100,100);
+        glBegin(GL_QUADS);
+        glVertex2i(mapGrid[row]->r.left, mapGrid[row]->r.bot);
+        glVertex2i(mapGrid[row]->r.left, mapGrid[row]->r.top);
+        glVertex2i(mapGrid[row]->r.right, mapGrid[row]->r.top);
+        glVertex2i(mapGrid[row]->r.right, mapGrid[row]->r.bot);
+        glVertex2i(200, 200);
+        glVertex2i(200, 400);
+        glVertex2i(400, 400);
+        glVertex2i(400, 200);
+        glEnd();
+        glPopMatrix();
+    }
+}
 void Game::setSavePoint(int index)
 {
     this->savePointHorizontalRoom = this->currentHorizontalLevel;

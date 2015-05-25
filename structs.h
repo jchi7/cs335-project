@@ -23,7 +23,7 @@
 using namespace std;
 
 enum ShapeType {RECTANGLE, TRIANGLE/*, CIRCLE*/};
-enum GameState {MAIN_MENU, PLAYING, EXIT_GAME, LEVEL_EDITOR};
+enum GameState {MAIN_MENU, PLAYING, EXIT_GAME, LEVEL_EDITOR, MAP};
 enum ObjectType {HERO, ENEMY, SPIKE, PLATFORM, SAVEPOINT, SHOOTERENEMY, MELEEENEMY, HBULLET, EBULLET};
 enum CharacterState {STANDING, WALKING, JUMPING, PREDEATH,DEATH};
 enum ShapeOrientation {FACING_UP, FACING_LEFT, FACING_DOWN, FACING_RIGHT,STOP};
@@ -53,6 +53,16 @@ typedef struct t_button
 	unsigned int text_color;
 } Button;
 
+struct Grid
+{
+    Rect r;
+    bool over;
+    bool click;
+    float color[3];
+    float hoverColor[3];
+    int horizontalRoom;
+    int verticalRoom;
+};
 // Shape structure used to represent dimensions and position on the screen
 struct Shape
 {

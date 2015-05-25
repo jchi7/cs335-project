@@ -218,6 +218,23 @@ int main()
                     glXSwapBuffers(dpy, win);
                 }
                 break;
+            case MAP:
+                while(XPending(dpy)) {
+                    XEvent e;
+                    XNextEvent(dpy, &e);
+                    if ( newgame.hero->state != DEATH) {
+                        check_game_input(&e, &newgame);
+                    }
+                    else {
+                        check_death_input(&e, &newgame);
+                    }
+                }
+                if (render == true){
+                    newgame.renderMap();
+                    glXSwapBuffers(dpy, win);
+                }
+
+                break;
             case EXIT_GAME:
                 break;
             default:
