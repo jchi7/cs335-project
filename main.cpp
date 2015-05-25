@@ -140,8 +140,6 @@ int main()
     newgame.hero = new Hero();
     newgame.respawnAtSavePoint();
 
-	//initialize menu music
-	playMenuMusic();
 
     bool render = true;
     bool doPhysics = true;
@@ -160,6 +158,8 @@ int main()
  
         switch (g_gamestate) {
             case MAIN_MENU:
+	//initialize menu music
+	playMenuMusic();
                 while(XPending(dpy)) {
                     XEvent e;
                     XNextEvent(dpy, &e);

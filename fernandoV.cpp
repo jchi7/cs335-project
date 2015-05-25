@@ -122,7 +122,7 @@ void initOpenal(){
 	////////////
 
     alSourcef(sources[2][0], AL_GAIN,.20) ;
-    alutLoadWAVFile((ALbyte *)"sounds/theme.wav", &format, &data, &size, &freq,&loop);
+    alutLoadWAVFile((ALbyte *)"sounds/Opening.wav", &format, &data, &size, &freq,&loop);
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[2][1], format, data, size, freq);
