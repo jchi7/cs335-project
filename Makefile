@@ -3,12 +3,12 @@
 CFLAGS = -Wall -Wextra -I ./include
 LIB    = 
 LFLAGS = -std=c++0x -lX11 -lGLU -lGL -lm #-lXrandr
-MAC2FLAGS = -Wall -Wextra -lX11 -lGL -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11
+MAC2FLAGS = -Wall -Wextra -lX11 -lGL -lalut -lopenal -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11
 
 all: game.o hero.o basicEnemy.o room.o gameObject.o platform.o spikes.o vecFxns.o collisions.o savePoint.o main
 
 mac2:
-	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp gameObject.cpp platform.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp collisions.cpp vecFxns.cpp jasonc.cpp basicBullet.cpp shooterEnemy.cpp -Wall -o Game $(MAC2FLAGS)
+	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp fernandoV.cpp gameObject.cpp platform.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp collisions.cpp vecFxns.cpp jasonc.cpp basicBullet.cpp shooterEnemy.cpp -Wall -o Game $(MAC2FLAGS)
 
 315:
 	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp gameObject.cpp platform.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp jasonc.cpp collisions.cpp vecFxns.cpp basicBullet.cpp shooterEnemy.cpp -Wall -o Game $(MAC2FLAGS) -L/usr/lib/nvidia-331/

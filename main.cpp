@@ -9,6 +9,7 @@
 #include "game.h"
 #include "collisions.h"
 #include "jasonc.h"
+#include "fernandoV.h"
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
 
@@ -138,6 +139,9 @@ int main()
     Game newgame;
     newgame.hero = new Hero();
     newgame.respawnAtSavePoint();
+
+	//initialize menu music
+	playMenuMusic();
 
     bool render = true;
     bool doPhysics = true;
