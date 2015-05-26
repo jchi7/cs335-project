@@ -848,7 +848,6 @@ void physics(Game * game)
             currentSavePoint = i;
             savePointRoom = room;
         }
-		
     }
 	if(isCollision == false) {
 

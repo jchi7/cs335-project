@@ -8,6 +8,7 @@ class GameObject
     public:
         Shape body;
         ObjectType id;
+        int tex_id;
 
         Vec prevPosition;
         Vec velocity;

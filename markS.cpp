@@ -428,11 +428,13 @@ void editorAddPlatform(Game * game, GameObject * mouse)
         game->platformTextureWidth,
         game->platformTextureHeight,
         mouse->body.center[0],
-        mouse->body.center[1]));
+        mouse->body.center[1],
+        0)); // !!!! should be texture's current id !!!!
     room->numPlatforms++;
     game->movablePlatformIndex = room->platforms.size() - 1;
     game->isPlatformMovable = true;
 }
+
 void editorAddEnemy(Game * game, GameObject * mouse)
 {
     Room * room = game->getRoomPtr();

@@ -1,10 +1,11 @@
 #include "platform.h"
 
 /* --------------- Platform Class --------------- */
-Platform::Platform(int width, int height, int x, int y)
+Platform::Platform(int width, int height, int x, int y, int tex)
 {
     body.type = RECTANGLE;
     id = PLATFORM;
+    tex_id = tex;
 
     vecMake(x,y,body.center);
     vecCopy(body.center, prevPosition);
@@ -26,6 +27,7 @@ Platform::Platform(GameObject * source)
     body.type = RECTANGLE;
     id = PLATFORM;
 
+    tex_id = source->tex_id;
     vecCopy(source->body.center, body.center);
     vecCopy(source->prevPosition, prevPosition);
     vecCopy(source->velocity, velocity);

@@ -279,14 +279,18 @@ void Game::fillLevel()
 
                 // read a single platform
                 if (objType == "GROUND") {
+                    int convValTex;
                     float convVal[4];
                     for (int col = 0; col < 4; ++col) {
                         getline(iss, val, ',');
                         stringstream converter(val);
                         converter >> convVal[col];
                     }
+                    getline(iss, val, ',');
+                    stringstream converter(val);
+                    converter >> convValTex;
                     // create platform
-                    level[vert][horz].platforms.push_back(new Platform(convVal[0], convVal[1], convVal[2], convVal[3]));
+                    level[vert][horz].platforms.push_back(new Platform(convVal[0], convVal[1], convVal[2], convVal[3], convValTex));
                     level[vert][horz].numPlatforms++;
                     // DEBUG:
 //                    cout << "Created platform in " << "[" << vert << "][" << horz <<"]\n";
@@ -447,7 +451,8 @@ void Game::writePlatform(GameObject * platform, ofstream & outf)
       << platform->body.width << ","
       << platform->body.height << ","
       << platform->body.center[0] << ","
-      << platform->body.center[1] << "\n";
+      << platform->body.center[1] << ","
+      << platform->tex_id << "\n";
 }
 
 void Game::writeSavePoint(GameObject * savept, ofstream & outf)
@@ -480,7 +485,6 @@ void Game::writeEnemy(GameObject * enemy, ofstream & outf)
         default:
             break;
     }
-
 }
 
 void Game::writeSpike(GameObject * spike, ofstream & outf)
