@@ -5,7 +5,7 @@ Platform::Platform(int width, int height, int x, int y, int tex)
 {
     body.type = RECTANGLE;
     id = PLATFORM;
-    tex_id = tex;
+    tex_id = 0;
 
     vecMake(x,y,body.center);
     vecCopy(body.center, prevPosition);

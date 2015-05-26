@@ -1,7 +1,7 @@
 #include "elevator.h"
 
 /* --------------- Elevator Class --------------- */
-Elevator::Elevator(float centerX, float lowerY, float upperY)
+Elevator::Elevator(float centerX, float lowerY, float upperY, int texture)
 {
     body.type = RECTANGLE;
     id = ELEVATOR;
@@ -20,6 +20,7 @@ Elevator::Elevator(float centerX, float lowerY, float upperY)
     prevPosition[0] = body.center[0];
     prevPosition[1] = body.center[1];
 
+    tex_id = texture;
     textureWidth = 15;  // !!!!! need to merge with game's texture data !!!!!
     textureHeight = 15;
     body.width = textureWidth * 2;

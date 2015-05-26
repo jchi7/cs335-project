@@ -8,7 +8,7 @@ class Elevator : public GameObject
     public:
         int delay;
 
-        Elevator(float centerX, float lowerY, float upperY);
+        Elevator(float centerX, float lowerY, float upperY,int);
         virtual ~Elevator();
         void setUpperLimit(float newLimit);
         void setLowerLimit(float newLimit);

@@ -47,7 +47,7 @@ void renderBullet(GameObject *, int);
 void renderSpike(GameObject *);
 void renderPlatform(GameObject *);
 void renderSavePoint(GameObject *, int);
-void renderElevator(GameObject *);
+//void renderElevator(GameObject *);
 void renderElevatorShadow(Elevator *, float);
 
 //X Windows variables
@@ -102,6 +102,10 @@ Ppmimage *mainMenuButtonsImage = NULL;
 Ppmimage *mainMenuButtonsExitImage = NULL;
 Ppmimage *spikeImage = NULL;
 Ppmimage *deadMessageImage = NULL;
+Ppmimage *elevatorImage = NULL;
+Ppmimage *coalImage = NULL;
+Ppmimage *woodImage = NULL;
+
 //Creating the Textures
 GLuint shooterDeathTexture;
 GLuint spikeDeathTexture;
@@ -118,7 +122,8 @@ GLuint heroDeathTexture;
 GLuint idleLeftTexture;
 GLuint guiBackgroundTexture;
 GLuint mainMenuButtonsEditTexture;
-GLuint rockTexture;
+//GLuint rockTexture;
+GLuint platformTextures[4];
 GLuint idleRightTexture;
 GLuint jumpRightTexture;
 GLuint jumpLeftTexture;
@@ -317,6 +322,9 @@ void init_opengl(void)
     walkLeftImage = ppm6GetImage("./images/heroWalkLeft.ppm");
     spikeImage = ppm6GetImage("./images/spike2.ppm");
     bulletImage = ppm6GetImage("./images/bullet.ppm");
+    elevatorImage = ppm6GetImage("./images/elevator.ppm");
+    woodImage = ppm6GetImage("./images/wood.ppm");
+    coalImage = ppm6GetImage("./images/coal.ppm");
 
     //Binding the textures... 
     glGenTextures(1, &keyTexture); 
@@ -327,7 +335,11 @@ void init_opengl(void)
     glGenTextures(1, &idleRightTexture);
     glGenTextures(1, &mainMenuButtonsEditTexture);
     glGenTextures(1, &forestTexture);
-    glGenTextures(1, &rockTexture);
+    //The following is an array of platforms
+    glGenTextures(1, &platformTextures[0]);
+    glGenTextures(1, &platformTextures[1]);
+    glGenTextures(1, &platformTextures[2]);
+    glGenTextures(1, &platformTextures[3]);
     glGenTextures(1, &mainMenuButtonsTexture);
     glGenTextures(1, &guiBackgroundTexture);
     glGenTextures(1, &mainMenuButtonsExitTexture);
@@ -417,7 +429,14 @@ void init_opengl(void)
     //Setting up the ExitButton texture..
     setUpImage(mainMenuButtonsExitTexture,mainMenuButtonsExitImage);
     //Setting up the Rock Platforms Texture....
-    setUpImage(rockTexture,rockImage);
+    setUpImage(platformTextures[0],rockImage);
+    //Setting up the elevator texture
+    setUpImage(platformTextures[1],elevatorImage);
+    //Setting up the wood image 
+    setUpImage(platformTextures[2],woodImage);
+    convertToRGBA(woodImage);
+    //Setting up the coal Image
+    setUpImage(platformTextures[3],coalImage);
     //Setting up the background image
     setUpImage(forestTexture,backgroundImage);
     //Setting up the Gui Background image.
@@ -450,6 +469,7 @@ void cleanupImages(void) {
     ppm6CleanupImage(eShootingLeftImage);
     ppm6CleanupImage(spikeDeathImage);
     ppm6CleanupImage(shooterDeathImage);
+    ppm6CleanupImage(elevatorImage);
 }
 
 void cleanupXWindows(void)
@@ -951,7 +971,7 @@ void render_game(Game* game)
         renderElevatorShadow(current_level->elevators[game->resizableElevatorIndex], 0.5);
     }
     for(auto entity : current_level->elevators) {
-        renderElevator(entity);
+        renderPlatform(entity);
     }
     for(auto entity : current_level->platforms) {
         renderPlatform(entity);
@@ -1227,7 +1247,7 @@ void renderPlatform(GameObject * entity)
             glPushMatrix();
             //glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
             glTranslatef(colOffset, rowOffset, entity->body.center[2]);
-            glBindTexture(GL_TEXTURE_2D, rockTexture);
+            glBindTexture(GL_TEXTURE_2D, platformTextures[entity->tex_id]);
             glBegin(GL_QUADS);
                 glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
                 glTexCoord2f(0.1f,0.0f); glVertex2i(-w,h);
@@ -1274,7 +1294,7 @@ void renderSavePoint(GameObject * entity, int index)
     }
 }
 
-void renderElevator(GameObject * entity)
+/*void renderElevator(GameObject * entity)
 {
     float w = entity -> textureWidth;
     float h = entity -> textureHeight;
@@ -1289,26 +1309,26 @@ void renderElevator(GameObject * entity)
         for (int column = 0; column < entity->horizontalTiles; column++){
             //The follwoing code is to draw the platforms
             int colOffset = cornerX + (column * entity->textureWidth * 2) + entity->textureWidth;
-//            glEnable(GL_TEXTURE_2D);
-            glDisable(GL_TEXTURE_2D);
-//            glColor4ub(255,255,255,255);
+            glEnable(GL_TEXTURE_2D);
+            glColor4ub(255,255,255,255);
             glPushMatrix();
             glTranslatef(colOffset, rowOffset, entity->body.center[2]);
-//            glBindTexture(GL_TEXTURE_2D, rockTexture);
+            std::cout<<"TEXT ID: "<<entity->tex_id<<"\n";
+            glBindTexture(GL_TEXTURE_2D, platformTextures[entity->tex_id]);
             glBegin(GL_QUADS);
                 glVertex2f(-w,-h);
                 glVertex2f(-w,h);
                 glVertex2f(w,h);
                 glVertex2f(w,-h);
-                //glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
-                //glTexCoord2f(0.1f,0.0f); glVertex2i(-w,h);
-                //glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
-                //glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
+                glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
+                glTexCoord2f(0.1f,0.0f); glVertex2i(-w,h);
+                glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
+                glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
             glEnd();
             glPopMatrix();
         }
     }
-}
+}*/
 
 void renderElevatorShadow(Elevator * entity, float alpha)
 {

@@ -276,10 +276,10 @@ void Game::fillLevel()
                 getline (iss, val, ',');
                 stringstream typeConv(val);
                 objType = typeConv.str();
+                int convValTex;
 
                 // read a single platform
                 if (objType == "GROUND") {
-                    int convValTex;
                     float convVal[4];
                     for (int col = 0; col < 4; ++col) {
                         getline(iss, val, ',');
@@ -376,8 +376,12 @@ void Game::fillLevel()
                         stringstream converter(val);
                         converter >> convVal[col];
                     }
+                    getline(iss, val, ',');
+                    stringstream converter(val);
+                    converter >> convValTex;
+
                     // create Elevator
-                    level[vert][horz].elevators.push_back(new Elevator(convVal[0], convVal[1], convVal[2]));
+                    level[vert][horz].elevators.push_back(new Elevator(convVal[0], convVal[1], convVal[2],convValTex));
                     level[vert][horz].numElevators++;
                 }
             }
@@ -522,7 +526,8 @@ void Game::writeElevator(Elevator * elev, ofstream & outf)
     outf << "ELEVATOR,"
       << elev->body.center[0] << ","
       << elev->getLowerLimit() << ","
-      << elev->getUpperLimit() << "\n";
+      << elev->getUpperLimit() << ","
+      << elev->tex_id << "\n";
 }
 
 void Game::heroShoots()

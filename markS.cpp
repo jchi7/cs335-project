@@ -181,6 +181,13 @@ void check_game_input(XEvent *e, Game *game)
                 }
             }
             if (key == XK_g){
+                if (game->isElevatorMovable)
+                {
+                    Room * curRoom = game->getRoomPtr();
+                    curRoom->elevators[game->movableElevatorIndex]->tex_id++;
+                    curRoom->elevators[game->movableElevatorIndex]->tex_id %= 4;
+                     
+                }
                 if (!game->isPlatformMovable &&
                   !game->isPlatformResizable &&
                   !game->isSpikeMovable &&
@@ -509,7 +516,8 @@ void editorAddElevator(Game *game, GameObject * mouse)
       new Elevator(
         mouse->body.center[0],
         mouse->body.center[1],
-        mouse->body.center[1] + (game->platformTextureHeight * 2)
+        mouse->body.center[1] + (game->platformTextureHeight * 2),
+        0
     ));
     room->numElevators++;
     game->movableElevatorIndex = room->elevators.size() - 1;
