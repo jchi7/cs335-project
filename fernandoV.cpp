@@ -13,7 +13,6 @@
 #include <AL/alc.h>
 
 #include <AL/alut.h>
-#define FILENAME "sounds/black crows.wav"
 
 #define TEST_ERROR(_msg)        \
     error = alGetError();       \
@@ -133,7 +132,7 @@ void initShit(){
 	///////////
     
     alSourcef(sources[3][0], AL_GAIN, 0.05);
-    alutLoadWAVFile((ALbyte *)"sounds/gameSound.wav", &format, &data, &size, &freq,&loop);
+    alutLoadWAVFile((ALbyte *)"sounds/gameSound2.wav", &format, &data, &size, &freq,&loop);
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[3][1], format, data, size, freq);
