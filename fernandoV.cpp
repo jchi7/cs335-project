@@ -173,11 +173,11 @@ void initShit(){
     TEST_ERROR("buffer binding");
 
 	//crow//////////////////
-	alSourcef(source, AL_GAIN,1);
+	/*alSourcef(source, AL_GAIN,1);
     alutLoadWAVFile((ALbyte *)"FILENAME", &format, &data, &size, &freq,&loop);
     alBufferData(source, format, data, size, freq);
     alSourcei(source, AL_BUFFER, buffer);
-	alSourceQueueBuffers(source,1,&buffer);
+	alSourceQueueBuffers(source,1,&buffer);*/
 
 
 }
@@ -214,7 +214,7 @@ void playMenuMusic(){
 
 void playcrow() {
 	//crow
-    alSourcePlay(source);
+    //alSourcePlay(source);
 }
 
 void stopMenuMusic(){
