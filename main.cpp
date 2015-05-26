@@ -130,6 +130,8 @@ Room *savePointRoom;
 int currentSavePoint;
 auto start = std::chrono::high_resolution_clock::now();
 //End
+//value for save point sound
+bool Scollision = true;
 
 GameObject mouse;
 
@@ -801,12 +803,23 @@ void physics(Game * game)
     isCollision = false;
     for (int i = 0; i < room->numSavePoints; i++) {
         isCollision = collisionRectRect(&game->hero->body, &room->savePoints[i]->body);
+		//save point collision 
         if (isCollision == true) {
+			if(Scollision == true) {
+				playSavePoint();
+				Scollision = false;
+			}
             game->setSavePoint(i);
             currentSavePoint = i;
             savePointRoom = room;
         }
+		
     }
+	if(isCollision == false) {
+
+		Scollision = true;
+
+	}
     //if (isCollision == false) {  BUG HERE...
     for (int i = 0; i < room->numSpikes; i++) {
         isCollision = collisionRectTri(&game->hero->body, &room->spikes[i]->body);

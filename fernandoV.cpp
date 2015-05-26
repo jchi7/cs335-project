@@ -142,7 +142,7 @@ void initShit(){
     alSourcei(sources[3][0], AL_BUFFER, sources[3][1]);
     TEST_ERROR("buffer binding");
 	//////////
-
+    alSourcef(sources[4][0], AL_GAIN, 0.05);
     alutLoadWAVFile((ALbyte *)"sounds/savepoint.wav", &format, &data, &size, &freq,&loop);
     TEST_ERROR("loading wav file");
 
@@ -171,6 +171,14 @@ void initShit(){
 
     alSourcei(sources[6][0], AL_BUFFER, sources[6][1]);
     TEST_ERROR("buffer binding");
+
+	//crow//////////////////
+	alSourcef(source, AL_GAIN,1);
+    alutLoadWAVFile((ALbyte *)"FILENAME", &format, &data, &size, &freq,&loop);
+    alBufferData(source, format, data, size, freq);
+    alSourcei(source, AL_BUFFER, buffer);
+	alSourceQueueBuffers(source,1,&buffer);
+
 
 }
 void playJump(){
@@ -204,12 +212,10 @@ void playMenuMusic(){
     return;
 }
 
-/*void playcrow() {
+void playcrow() {
 	//crow
-	//alSourceQueueBuffers();
-    //alSourcePlay(sources[5][0]);
-	//sleep(15);
-}*/
+    alSourcePlay(source);
+}
 
 void stopMenuMusic(){
     alSourceStop(sources[2][0]);
@@ -226,5 +232,5 @@ void stopGameMusic(){
 }
 void playSavePoint(){
     alSourcePlay(sources[4][0]);
-    TEST_ERROR("source playing");
+    TEST_ERROR("Save point source playing");
 }

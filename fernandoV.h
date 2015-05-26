@@ -13,4 +13,5 @@ void stopGameMusic();
 void playSavePoint();
 void playLaser();
 void playEnemyDeath();
+void playcrow();
 #endif
