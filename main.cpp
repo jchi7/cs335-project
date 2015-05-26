@@ -105,6 +105,7 @@ Ppmimage *deadMessageImage = NULL;
 Ppmimage *elevatorImage = NULL;
 Ppmimage *coalImage = NULL;
 Ppmimage *woodImage = NULL;
+Ppmimage *dirtImage = NULL;
 
 //Creating the Textures
 GLuint shooterDeathTexture;
@@ -122,8 +123,7 @@ GLuint heroDeathTexture;
 GLuint idleLeftTexture;
 GLuint guiBackgroundTexture;
 GLuint mainMenuButtonsEditTexture;
-//GLuint rockTexture;
-GLuint platformTextures[4];
+GLuint platformTextures[5];
 GLuint idleRightTexture;
 GLuint jumpRightTexture;
 GLuint jumpLeftTexture;
@@ -325,6 +325,7 @@ void init_opengl(void)
     elevatorImage = ppm6GetImage("./images/elevator.ppm");
     woodImage = ppm6GetImage("./images/wood.ppm");
     coalImage = ppm6GetImage("./images/coal.ppm");
+    dirtImage = ppm6GetImage("./images/dirt.ppm");
 
     //Binding the textures... 
     glGenTextures(1, &keyTexture); 
@@ -340,6 +341,7 @@ void init_opengl(void)
     glGenTextures(1, &platformTextures[1]);
     glGenTextures(1, &platformTextures[2]);
     glGenTextures(1, &platformTextures[3]);
+    glGenTextures(1, &platformTextures[4]);
     glGenTextures(1, &mainMenuButtonsTexture);
     glGenTextures(1, &guiBackgroundTexture);
     glGenTextures(1, &mainMenuButtonsExitTexture);
@@ -437,6 +439,8 @@ void init_opengl(void)
     convertToRGBA(woodImage);
     //Setting up the coal Image
     setUpImage(platformTextures[3],coalImage);
+    //Setting up the dirt image
+    setUpImage(platformTextures[4],dirtImage);
     //Setting up the background image
     setUpImage(forestTexture,backgroundImage);
     //Setting up the Gui Background image.
@@ -470,6 +474,9 @@ void cleanupImages(void) {
     ppm6CleanupImage(spikeDeathImage);
     ppm6CleanupImage(shooterDeathImage);
     ppm6CleanupImage(elevatorImage);
+    ppm6CleanupImage(dirtImage);
+    ppm6CleanupImage(woodImage);
+    ppm6CleanupImage(coalImage);
 }
 
 void cleanupXWindows(void)

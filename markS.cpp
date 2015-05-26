@@ -144,6 +144,13 @@ void check_game_input(XEvent *e, Game *game)
                 game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
             }
             if (key == XK_Shift_L){
+                if (game->isPlatformMovable)
+                {
+                    Room * curRoom = game->getRoomPtr();
+                    curRoom->platforms[game->movablePlatformIndex]->tex_id++;
+                    curRoom->platforms[game->movablePlatformIndex]->tex_id %= 5;
+                     
+                }
                 if (!game->isPlatformMovable &&
                   !game->isPlatformResizable &&
                   !game->isSpikeMovable &&
