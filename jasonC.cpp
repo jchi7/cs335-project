@@ -9,6 +9,8 @@ void enemyPhysics(Game *game)
     int i = (signed int) current_level->enemies.size() - 1;
 
     for(; i >= 0; i--) {
+        if (game->isEnemyMovable && i == game->movableEnemyIndex)
+            continue;
         BasicEnemy* entity = (BasicEnemy*) current_level->enemies[i];
         isCollision = false;
         isEdge = true;
@@ -71,6 +73,8 @@ void enemyPhysics(Game *game)
         }
         for (int i = 0; i < current_level->numBullet; i++) {
             isCollision = collisionRectRect(&entity->body, &current_level->bullet[i]->body);
+            if (current_level->bullet[i]->id == EBULLET || entity->state == PREDEATH)
+                continue;
             if (isCollision == true) {
                 entity->onCollision(current_level->bullet[i]);
                 current_level->bullet.erase(current_level->bullet.begin() + i);
@@ -108,6 +112,7 @@ void enemyPhysics(Game *game)
                     }
                     entity->delay++;
                     break;
+                case STOP:
                 default:
                     break;
             }
@@ -117,6 +122,9 @@ void enemyPhysics(Game *game)
             entity->switchDirection();
         } else if (entity->body.orientation == FACING_RIGHT && (entity->body.center[0] + entity->body.width >= 1000)) {
             entity->switchDirection();
+        }
+        if (entity->state == PREDEATH) {
+            entity->body.orientation = STOP;
         }
         if (entity->state == DEATH) {
             current_level->enemies.erase(current_level->enemies.begin() + i);
