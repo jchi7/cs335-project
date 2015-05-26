@@ -229,6 +229,17 @@ void Game::renderMap(Display * dpy, Window * win)
     glEnd();
     glPopMatrix();
     
+    glPushMatrix();
+    glColor3ub(255,255,255);
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(30,280);
+    glVertex2i(970,280);
+    glVertex2i(970,30);
+    glVertex2i(30,30);
+    glVertex2i(30,280);
+    glEnd();
+    glPopMatrix();
+
     glEnable(GL_TEXTURE_2D);
     Rect r;
     r.bot = 660;
@@ -288,6 +299,17 @@ void Game::renderMap(Display * dpy, Window * win)
     coords[6] = (gridHoverVertical / 10) + 48;
     coords[7] = (gridHoverVertical % 10) + 48;
     ggprint16(&r, 0, 0xffffffff, coords);
+
+    r.bot = 290;
+    r.left = 420;
+    r.center = 0;
+    ggprint16(&r,0,0xffffffff, "Level Editor KeyBinds");
+    
+    r.bot = 260;
+    r.left = 40;
+    r.center = 0;
+    ggprint8b(&r,0,0xffffffff, "Left Shift: Create Platform");
+
 /*    ggprint06(&r, 20, 0x00ff0000, "ggprint06");
     ggprint07(&r, 20, 0x00ffff00, "ggprint07");
     ggprint08(&r, 20, 0x00ffff00, "ggprint08");
@@ -326,8 +348,16 @@ void Game::checkRoom()
             hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
         }
         else{
-            currentHorizontalLevel++;
-            hero->body.center[0] = 0 + hero->body.width;
+            if ( currentHorizontalLevel > totalHorizontal - 2)
+            {
+                hero->body.center[0] = 500;
+                hero->body.center[1] = 350;
+            }
+            else
+            {
+                currentHorizontalLevel++;
+                hero->body.center[0] = 0 + hero->body.width;
+            }
         }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
@@ -337,8 +367,16 @@ void Game::checkRoom()
             hero->body.center[0] = 0 + hero->body.width;
         }
         else{
-            currentHorizontalLevel--;
-            hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+            if (currentHorizontalLevel <= 0)
+            {
+                hero->body.center[0] = 500;
+                hero->body.center[1] = 350;
+            }
+            else
+            {
+                currentHorizontalLevel--;
+                hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+            }
         }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
@@ -348,8 +386,16 @@ void Game::checkRoom()
             hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
         }
         else {
-            currentVerticalLevel++;
-            hero->body.center[1] = 0 + hero->body.height;
+            if (currentVerticalLevel > totalVertical - 2)
+            {
+                hero->body.center[0] = 500;
+                hero->body.center[1] = 350;
+            }
+            else
+            {
+                currentVerticalLevel++;
+                hero->body.center[1] = 0 + hero->body.height;
+            }
         }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
@@ -359,8 +405,16 @@ void Game::checkRoom()
             hero->body.center[1] = 0 +  hero->body.height;
         }
         else {
-            currentVerticalLevel--;
-            hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+            if (currentVerticalLevel <= 0)
+            {
+                hero->body.center[0] = 500;
+                hero->body.center[1] = 350;
+            }
+            else
+            {
+                currentVerticalLevel--;
+                hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+            }
         }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
