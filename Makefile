@@ -5,24 +5,26 @@ LIB    =
 LFLAGS = -std=c++0x -lX11 -lGLU -lGL -lm #-lXrandr
 MAC2FLAGS = -Wall -Wextra -lX11 -lGL -lalut -lopenal -lGLU -lm -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -std=c++11
 
-all: game.o hero.o basicEnemy.o room.o gameObject.o platform.o spikes.o vecFxns.o collisions.o savePoint.o main
+all: game.o hero.o basicEnemy.o room.o gameObject.o platform.o elevator.o spikes.o vecFxns.o collisions.o savePoint.o main
 
 mac2:
-	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp fernandoV.cpp gameObject.cpp platform.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp collisions.cpp vecFxns.cpp jasonC.cpp basicBullet.cpp shooterEnemy.cpp -Wall -o Game $(MAC2FLAGS)
+	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp fernandoV.cpp gameObject.cpp platform.cpp elevator.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp collisions.cpp vecFxns.cpp jasonC.cpp basicBullet.cpp shooterEnemy.cpp -Wall -o Game $(MAC2FLAGS)
 
 315:
-	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp gameObject.cpp platform.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp jasonC.cpp collisions.cpp vecFxns.cpp basicBullet.cpp shooterEnemy.cpp -Wall -o Game $(MAC2FLAGS) -L/usr/lib/nvidia-331/
+	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp gameObject.cpp platform.cpp elevator.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp jasonC.cpp collisions.cpp vecFxns.cpp basicBullet.cpp shooterEnemy.cpp -Wall -o Game $(MAC2FLAGS) -L/usr/lib/nvidia-331/
 
 linux:
 	g++ main.cpp -Wall -o Game -lX11 -lGL -lGLU -lm
 
 main:  main.cpp
-	g++ $(CFLAGS) main.cpp game.o hero.o basicEnemy.o room.o gameObject.o platform.o collisions.o vecFxns.o savePoint.o -Wall -Wextra $(LFLAGS) -o Game
+	g++ $(CFLAGS) main.cpp game.o hero.o basicEnemy.o room.o gameObject.o platform.o elevator.o collisions.o vecFxns.o savePoint.o -Wall -Wextra $(LFLAGS) -o Game
 
 basicEnemy.o: basicEnemy.cpp basicEnemy.h
 	g++ -c basicEnemy.cpp
 collisions.o: collisions.cpp collisions.h
 	g++ -c collisions.cpp
+elevator.o: elevator.cpp elevator.h
+	g++ -c elevator.cpp
 game.o:  game.h game.cpp
 	g++ -c game.cpp
 gameObject.o: gameObject.h gameObject.cpp
@@ -40,8 +42,8 @@ savePoint.o: savePoint.cpp savePoint.h
 vecFxns.o: vecFxns.cpp vecFxns.h
 	g++ -c vecFxns.cpp
 
-UnitTests: jasjotS.h jasjotS.cpp game.o gameObject.o hero.o basicEnemy.o room.o platform.o spike.o collisions.o vecFxns.o savePoint.o
-	g++ -o UnitTests jasjotS.cpp game.o gameObject.o hero.o basicEnemy.o room.o platform.o spike.o collisions.o vecFxns.o savePoint.o $(MAC2FLAGS)
+UnitTests: jasjotS.h jasjotS.cpp game.o gameObject.o hero.o basicEnemy.o room.o platform.o spike.o collisions.o elevators.o vecFxns.o savePoint.o
+	g++ -o UnitTests jasjotS.cpp game.o gameObject.o hero.o basicEnemy.o room.o platform.o spike.o collisions.o elevators.o vecFxns.o savePoint.o $(MAC2FLAGS)
 
 Debug:
 	g++ main.cpp -Wall -o Game -lX11 -lGL -lGLU -lm

@@ -78,3 +78,4 @@ void GameObject::onCollision(GameObject *obj)
 void GameObject::switchDirection()
 {
 }
+

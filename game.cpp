@@ -23,16 +23,21 @@ Game::Game()
     this->isPlatformResizable = false;
     this->isSpikeMovable = false;
     this->isSavePointMovable = false;
+    this->isElevatorMovable = false;
+    this->isElevatorResizable = false;
     this->isEnemyMovable = false;
     
     this->movablePlatformIndex = 0;
     this->movableSpikeIndex = 0;
     this->movableSavePointIndex = 0;
+    this->movableElevatorIndex = 0;
     this->movableEnemyIndex = 0;
-    this->resizablePlatformIndex = 0;
-    
+
+    this->resizablePlatformIndex = 0;    
     this->resizablePlatformX = 0;
     this->resizablePlatformY = 0;
+    this->resizableElevatorIndex = 0;
+
     this->platformTextureHeight = 15;
     this->platformTextureWidth = 15;
     initLevel();
@@ -129,6 +134,9 @@ GameObject * Game::getWorkingPlatformPtr()
         return NULL;
     }
     Room * room = this->getRoomPtr();
+    if (this->isPlatformMovable) {
+        return room->platforms[this->movablePlatformIndex];
+    }
     return room->platforms[this->resizablePlatformIndex];
 }
 
@@ -142,6 +150,19 @@ GameObject * Game::getWorkingSpikePtr()
     return room->spikes[this->movableSpikeIndex];
 }
 
+Elevator * Game::getWorkingElevatorPtr()
+{
+    if (!this->isElevatorMovable && !this->isElevatorResizable) {
+        cout << "ERROR getWorkingElevatorPtr: elevator not resizable or movable\n";
+        return NULL;
+    }
+    Room * room = this->getRoomPtr();
+    if (this->isElevatorMovable) {
+        return room->elevators[this->movableElevatorIndex];
+    }
+    return room->elevators[this->resizableElevatorIndex];
+}
+
 vector<GameObject*> * Game::getPlatformsVPtr()
 {
     Room * room = this->getRoomPtr();
@@ -153,6 +174,13 @@ vector<GameObject*> * Game::getSpikesVPtr()
     Room * room = this->getRoomPtr();
     return &(room->spikes);
 }
+
+vector<Elevator*> * Game::getElevatorsVPtr()
+{
+    Room * room = this->getRoomPtr();
+    return &(room->elevators);
+}
+
 
 vector<GameObject*> * Game::getEnemiesVPtr()
 {
@@ -316,7 +344,7 @@ void Game::fillLevel()
 //                    cout << "Created spike in " << "[" << vert << "][" << horz <<"]: " << vecPrint(spikePts[0]) << ", " << vecPrint(spikePts[1]) << ", " << vecPrint(spikePts[2]) << ", " << orientation << endl;
                 }
                 else if (objType == "ENEMY") {
-                    float convVal[4]; //four
+                    float convVal[4];
                     for (int col = 0; col < 4; col++) {
                         getline(iss, val, ',');
                         stringstream converter(val);
@@ -327,15 +355,26 @@ void Game::fillLevel()
                     level[vert][horz].numBasicEnemies++;
                 }
                 else if (objType == "SHOOTER") {
-                    float convVal[4]; //four
+                    float convVal[4];
                     for (int col = 0; col < 4; col++) {
                         getline(iss, val, ',');
                         stringstream converter(val);
                         converter >> convVal[col];
                     }
-                    // create Enemy
+                    // create Shooter Enemy
                     level[vert][horz].enemies.push_back(new ShooterEnemy(convVal[0], convVal[1], convVal[2], convVal[3]));
                     level[vert][horz].numBasicEnemies++;
+                }
+                else if (objType == "ELEVATOR") {
+                    float convVal[3];
+                    for (int col = 0; col < 3; col++) {
+                        getline(iss, val, ',');
+                        stringstream converter(val);
+                        converter >> convVal[col];
+                    }
+                    // create Elevator
+                    level[vert][horz].elevators.push_back(new Elevator(convVal[0], convVal[1], convVal[2]));
+                    level[vert][horz].numElevators++;
                 }
             }
             file.close();
@@ -391,6 +430,9 @@ void Game::saveRooms()
     }
     for (unsigned int i = 0; i < level[vert][horz].spikes.size(); ++i) {
         writeSpike(level[vert][horz].spikes[i], file);
+    }
+    for (unsigned int i = 0; i < level[vert][horz].elevators.size(); ++i) {
+        writeElevator(level[vert][horz].elevators[i], file);
     }
     for (unsigned int i = 0; i < level[vert][horz].enemies.size(); ++i) {
         writeEnemy(level[vert][horz].enemies[i], file);
@@ -471,6 +513,14 @@ void Game::writeSpike(GameObject * spike, ofstream & outf)
       << spikeFacing << "\n";
 }
 
+void Game::writeElevator(Elevator * elev, ofstream & outf)
+{
+    outf << "ELEVATOR,"
+      << elev->body.center[0] << ","
+      << elev->getLowerLimit() << ","
+      << elev->getUpperLimit() << "\n";
+}
+
 void Game::heroShoots()
 {
 	//play laser
@@ -489,3 +539,4 @@ void Game::heroShoots()
             break;
     }
 }
+

@@ -1,11 +1,5 @@
 #include "collisions.h"
 
-// returns true and point if intersection, false otherwise
-// bool lineSegIntersect(Vec * line1, Vec * line2, Vec pt)
-// {
-// http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-// }
-
 bool ptInRect(Shape * r, Vec pt)
 {
     if (r->type != RECTANGLE) {
@@ -48,7 +42,7 @@ bool threeHalfSpace(Shape * t, Vec pt)
 
 bool collisionRectRect(Shape * r1, Shape * r2)
 {
-    if (r1->type != RECTANGLE && r2->type != RECTANGLE) {
+    if (r1->type != RECTANGLE && r2->type != RECTANGLE) { // shoud be OR
         std::cout << "bool collisionRectRect: ERROR, passed incompatable Shape types\n";
         exit(1);
     }
@@ -121,6 +115,94 @@ bool collisionRectTri(Shape * r, Shape * t)
         return true;
     }
     return false;
+}
+
+extern bool topOnlyCollisionRectRect(Shape * top, Shape * bottom, Vec topPrev)
+{
+    if (top->type != RECTANGLE || bottom->type != RECTANGLE) {
+        std::cout << "bool topOnlyCollisionRectRect: ERROR, passed incompatable Shape types\n";
+        exit(1);
+    }
+
+    if (top->center[1]-top->height < bottom->center[1]+bottom->height) {
+      return false;
+    }
+
+    bool topLeftCollision=false, topRightCollision=false;
+    Vec bottomUpperSegment[2];//, bottomRightSegment[2];
+    Vec topRightSegment[2], topLeftSegment[2];
+    vecMake(
+      bottom->center[0]-bottom->width,
+      bottom->center[1]+bottom->height,
+      bottomUpperSegment[0]);
+    vecMake(
+      bottom->center[0]+bottom->width,
+      bottom->center[1]+bottom->height,
+      bottomUpperSegment[1]);
+    vecMake(
+      top->center[0]-top->width,
+      top->center[1]-top->height,
+      topRightSegment[0]);
+    vecMake(
+      top->center[0]-top->width,
+      top->center[1]+top->height,
+      topRightSegment[1]);
+    vecMake(
+      top->center[0]+top->width,
+      top->center[1]-top->height,
+      topLeftSegment[0]);
+    vecMake(
+      top->center[0]+top->width,
+      top->center[1]+top->height,
+      topLeftSegment[1]);
+
+    if (lineSegCollision(bottomUpperSegment, topLeftSegment)) {
+      topLeftCollision = true;
+    }
+    if (lineSegCollision(bottomUpperSegment, topRightSegment)) {
+      topRightCollision = true;
+    }
+    if (!topLeftCollision && !topRightCollision) {
+      return false;
+    }
+    if (topLeftCollision && topRightCollision) {
+      return true;
+    }
+
+    if(topLeftCollision) {
+        if (topPrev[0]-top->width > bottom->center[0]+bottom->width) {
+            return false;
+        }
+        return true;
+    }
+    else { // topRightCollision
+        if (topPrev[0]+top->width > bottom->center[0]-bottom->width) {
+            return false;
+        }
+        return true;
+    }
+}
+
+extern bool lineSegCollision(Vec segAB[2], Vec segCD[2])
+{
+  float eps = 0.001;
+  float signC, signD;
+
+  signC = ((segAB[1][0]-segAB[0][0])*(segCD[0][1]-segAB[1][1])) -
+    ((segAB[1][1]-segAB[0][1])*(segCD[0][0]-segAB[1][0]));
+
+  signD = ((segAB[1][0]-segAB[0][0])*(segCD[1][1]-segAB[1][1])) -
+    ((segAB[1][1]-segAB[0][1])*(segCD[1][0]-segAB[1][0]));
+
+  if (fabs(signC) < eps || fabs(signD) < eps) {
+    return true;
+  }
+  if ((signC >= eps && signD >= eps) ||
+    (signC <= -eps && signD <= -eps))
+  {
+    return true;
+  }
+  return false;
 }
 
 // bool collision(Rectangle * r, Circle * c)

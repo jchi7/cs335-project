@@ -1,5 +1,4 @@
 #include "hero.h"
-#include "fernandoV.h"
 
 Hero::Hero()
 {
@@ -170,9 +169,11 @@ void Hero::onCollision(GameObject * obj)
             if (((BasicEnemy*)obj)->state != PREDEATH  || ((ShooterEnemy*)obj)->state != PREDEATH) {
                 state = DEATH;
             }
-    } else if (obj->id == HBULLET) {
+    }
+    else if (obj->id == HBULLET) {
         return;
-    } else { // obj->id == PLATFORM
+    }
+    else { // obj->id == PLATFORM || ELEVATOR
         if (prevPosition[0]  < obj->body.center[0] - obj->body.width) {
             if (prevPosition[1] - body.height < obj->body.center[1] + obj->body.height){
                 body.center[0] = obj->body.center[0] - obj->body.width - body.width;
@@ -208,6 +209,12 @@ void Hero::onCollision(GameObject * obj)
             }
             else {
                 state = STANDING;
+            }
+        }
+        if (obj->id == ELEVATOR) {
+            if (topOnlyCollisionRectRect(&body, &(obj->body), prevPosition))
+            {
+                velocity[1] = obj->velocity[1];
             }
         }
     }

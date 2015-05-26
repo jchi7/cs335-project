@@ -12,23 +12,11 @@
 #include "ppm.h"
 #include "game.h"
 #include "collisions.h"
-#include <chrono>
-#include <GL/glx.h>
 #include "fernandoV.h"
+#include "markS.h"
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
 
-void editorAddPlatform(Game *game, GameObject * mouse);
-void editorAddSpike(Game *game, GameObject * mouse);
-void editorAddSavePoint(Game *game, GameObject * mouse);
-void editorAddEnemy(Game *game, GameObject * mouse);
-void resizePlatform(Game *game, GameObject * mouse);
-void editorRemovePlatform(Game *game, int index);
-void editorRemoveSpike(Game *game, int index);
-void editorRemoveSavePoint(Game *game, int index);
-void editorRemoveEnemy(Game *game, int index);
-
-void nextEnemy(Game *, GameObject *);
 void movablePlatformCollision(GameObject * movablePlatform, GameObject * stationaryPlatform){
 
     // This function may be a bit hard to follow. The code seems to work fairly well. The trouble
@@ -158,7 +146,10 @@ void check_game_input(XEvent *e, Game *game)
             if (key == XK_Shift_L){
                 if (!game->isPlatformMovable &&
                   !game->isPlatformResizable &&
-                  !game->isSpikeMovable)
+                  !game->isSpikeMovable &&
+                  !game->isEnemyMovable &&
+                  !game->isElevatorMovable &&
+                  !game->isElevatorResizable)
                 {
                     editorAddPlatform(game, &mouse);
                 }
@@ -166,7 +157,10 @@ void check_game_input(XEvent *e, Game *game)
             if (key == XK_a){
                 if (!game->isPlatformMovable &&
                   !game->isPlatformResizable &&
-                  !game->isSpikeMovable)
+                  !game->isSpikeMovable &&
+                  !game->isEnemyMovable &&
+                  !game->isElevatorMovable &&
+                  !game->isElevatorResizable)
                 {
                     editorAddSavePoint(game, &mouse);
                 }
@@ -179,9 +173,21 @@ void check_game_input(XEvent *e, Game *game)
                 if (!game->isPlatformMovable &&
                     !game->isPlatformResizable &&
                     !game->isSpikeMovable &&
-                    !game->isEnemyMovable)
+                    !game->isEnemyMovable &&
+                    !game->isElevatorMovable &&
+                    !game->isElevatorResizable)
                 {
                     editorAddEnemy(game, &mouse);
+                }
+            }
+            if (key == XK_g){
+                if (!game->isPlatformMovable &&
+                  !game->isPlatformResizable &&
+                  !game->isSpikeMovable &&
+                  !game->isElevatorMovable &&
+                  !game->isElevatorResizable)
+                {
+                    editorAddElevator(game, &mouse);
                 }
             }
             if (key == XK_s){
@@ -206,7 +212,10 @@ void check_game_input(XEvent *e, Game *game)
                 if (!game->isSpikeMovable &&
                   !game->isPlatformMovable &&
                   !game->isPlatformResizable &&
-                  !game->isSavePointMovable)
+                  !game->isSavePointMovable &&
+                  !game->isEnemyMovable &&
+                  !game->isElevatorMovable &&
+                  !game->isElevatorResizable)
                 {
                     editorAddSpike(game, &mouse);
                 }
@@ -217,6 +226,12 @@ void check_game_input(XEvent *e, Game *game)
                 }
                 if (game->isPlatformResizable){
                     game->isPlatformResizable = false;
+                }
+                if (game->isElevatorMovable){
+                    game->isElevatorMovable = false;
+                }
+                if (game->isElevatorResizable){
+                    game->isElevatorResizable = false;
                 }
                 if (game->isSpikeMovable){
                     game->isSpikeMovable = false;
@@ -232,7 +247,10 @@ void check_game_input(XEvent *e, Game *game)
                 if (!game->isPlatformMovable &&
                   !game->isPlatformResizable &&
                   !game->isSpikeMovable &&
-                  !game->isSavePointMovable)
+                  !game->isSavePointMovable &&
+                  !game->isEnemyMovable &&
+                  !game->isElevatorMovable &&
+                  !game->isElevatorResizable)
                 {
                     Room * room = game->getRoomPtr();
                     for (unsigned int k = 0; k < room->savePoints.size(); k++){
@@ -252,7 +270,9 @@ void check_game_input(XEvent *e, Game *game)
                             }
                         }
                     }
-                    if (!game->isSpikeMovable && !game->isSavePointMovable){
+                    if (!game->isSpikeMovable &&
+                      !game->isSavePointMovable)
+                    {
                         vector<GameObject*> * platformsV = game->getPlatformsVPtr();
                         for (unsigned int k = 0; k < platformsV->size(); k++){
                             if (collisionRectRect(&mouse.body,&platformsV->at(k)->body)){
@@ -262,7 +282,10 @@ void check_game_input(XEvent *e, Game *game)
                             }
                         }
                     }
-                    if (!game->isSpikeMovable && !game->isSavePointMovable && !game->isPlatformMovable){
+                    if (!game->isSpikeMovable &&
+                      !game->isSavePointMovable &&
+                      !game->isPlatformMovable)
+                    {
                         vector<GameObject*> * enemiesV = game->getEnemiesVPtr();
                         for (unsigned int k = 0; k < enemiesV->size(); k++){
                             if (collisionRectRect(&mouse.body,&enemiesV->at(k)->body)){
@@ -272,12 +295,29 @@ void check_game_input(XEvent *e, Game *game)
                             }
                         }
                     }
+                    if (!game->isSpikeMovable &&
+                      !game->isSavePointMovable &&
+                      !game->isEnemyMovable &&
+                      !game->isPlatformMovable)
+                    {
+                        vector<Elevator*> * elevatorsV = game->getElevatorsVPtr();
+                        for (unsigned int k = 0; k < elevatorsV->size(); k++){
+                            if (collisionRectRect(&mouse.body,&elevatorsV->at(k)->body)){
+                                game->movableElevatorIndex = k;
+                                game->isElevatorMovable = true;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
             if (key == XK_c &&
               !game->isPlatformMovable &&
-              !game->isSpikeMovable &&
-              !game->isPlatformResizable)
+              !game->isPlatformResizable &&
+              !game->isEnemyMovable &&
+              !game->isElevatorMovable &&
+              !game->isElevatorResizable &&
+              !game->isSpikeMovable)
             {
                 vector<GameObject*> * platformsV = game->getPlatformsVPtr();
                 for (unsigned int k = 0; k < platformsV->size(); k++){
@@ -288,12 +328,23 @@ void check_game_input(XEvent *e, Game *game)
                         game->resizablePlatformY = platformsV->at(k)->body.center[1];
                     }
                 }
+                if (!game->isPlatformResizable) {
+                    vector<Elevator*> * elevatorsV = game->getElevatorsVPtr();
+                    for (unsigned int k = 0; k < elevatorsV->size(); k++){
+                        if (collisionRectRect(&mouse.body,&elevatorsV->at(k)->body)){
+                            game->resizableElevatorIndex = k;
+                            game->isElevatorResizable = true;
+                        }
+                    }
+                }
             }
             if (key == XK_d &&
               !game->isPlatformMovable &&
               !game->isPlatformResizable &&
               !game->isSpikeMovable &&
               !game->isSavePointMovable &&
+              !game->isElevatorMovable &&
+              !game->isElevatorResizable &&
               !game->isEnemyMovable)
             {
                 Room * room = game->getRoomPtr();
@@ -336,6 +387,16 @@ void check_game_input(XEvent *e, Game *game)
                         return;
                     }
                 }
+                vector<Elevator*> * elevatorsV = game->getElevatorsVPtr();
+                for (unsigned int e = 0; e < elevatorsV->size(); e++){
+                    if (collisionRectRect(
+                      &mouse.body,
+                      &elevatorsV->at(e)->body))
+                    {
+                        editorRemoveElevator(game, e);
+                        return;
+                    }
+                }
             }
         }
     }
@@ -353,6 +414,9 @@ void check_game_input(XEvent *e, Game *game)
     }
     if (game->isPlatformResizable){
         resizePlatform(game, &mouse);
+    }
+    else if (game->isElevatorResizable){
+        resizeElevator(game, &mouse);
     }
 }
 
@@ -436,6 +500,20 @@ void editorAddSavePoint(Game * game, GameObject * mouse)
     game->movableSavePointIndex = room->savePoints.size() - 1;
 }
 
+void editorAddElevator(Game *game, GameObject * mouse)
+{
+    Room * room = game->getRoomPtr();
+    room->elevators.push_back(
+      new Elevator(
+        mouse->body.center[0],
+        mouse->body.center[1],
+        mouse->body.center[1] + (game->platformTextureHeight * 2)
+    ));
+    room->numElevators++;
+    game->movableElevatorIndex = room->elevators.size() - 1;
+    game->isElevatorMovable = true;
+}
+
 void resizePlatform(Game * game, GameObject * mouse)
 {
     GameObject * platform = game->getWorkingPlatformPtr();
@@ -458,6 +536,12 @@ void resizePlatform(Game * game, GameObject * mouse)
         platform->body.height = height;
         platform->verticalTiles = platform->body.height / platform->textureHeight;
     }
+}
+
+void resizeElevator(Game *game, GameObject * mouse)
+{
+    Elevator * elevator = game->getWorkingElevatorPtr();
+    elevator->setUpperLimit(mouse->body.center[1]);
 }
 
 void editorRemovePlatform(Game * game, int index)
@@ -486,6 +570,13 @@ void editorRemoveEnemy(Game * game, int index)
     Room * room = game->getRoomPtr();
     room->enemies.erase(room->enemies.begin() + index);
     room->numBasicEnemies--;
+}
+
+void editorRemoveElevator(Game *game, int index)
+{
+    Room * room = game->getRoomPtr();
+    room->elevators.erase(room->elevators.begin() + index);
+    room->numElevators--;
 }
 
 
