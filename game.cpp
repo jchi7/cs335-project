@@ -1,6 +1,7 @@
 #include "game.h"
 using namespace std;
 #include "fonts.h"
+#include "markS.h"
 
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 700
@@ -16,7 +17,7 @@ Game::Game()
     this->savePointVerticalRoom = 1;
     this->savePointIndex = 0;
     this->totalHorizontal = 20;
-    this->totalVertical = 5;
+    this->totalVertical = 10;
     this->state = MAIN_MENU;
     
     this->isPlatformMovable = false;
@@ -50,10 +51,10 @@ Game::~Game()
 
 void Game::initializeMap(int numHorizontal, int numVertical)
 {
-    float left = 150;
-    float right = 850;
-    float top = 500;
-    float bottom = 200;
+    float left = 200;
+    float right = 900;
+    float top = 650;
+    float bottom = 350;
     float gridWidth = 700 / numHorizontal;
     float gridHeight = 300 / numVertical;
     Grid *currentGrid;
@@ -74,9 +75,12 @@ void Game::initializeMap(int numHorizontal, int numVertical)
             currentGrid->color[0] = 50;
             currentGrid->color[1] = 100;
             currentGrid->color[2] = 100;
-            currentGrid->hoverColor[0] = 0.5f;
-            currentGrid->hoverColor[1] = 0.5f;
-            currentGrid->hoverColor[2] = 0.5f;
+            currentGrid->hoverColor[0] = 100;
+            currentGrid->hoverColor[1] = 100;
+            currentGrid->hoverColor[2] = 250;
+            currentGrid->currentCellColor[0] = 150;
+            currentGrid->currentCellColor[1] = 200;
+            currentGrid->currentCellColor[2] = 200;
             currentGrid->horizontalRoom = column;
             currentGrid->verticalRoom = row;
 //            cout << currentGrid->r.left << " " << currentGrid->r.right << " " << currentGrid->r.bot << " " << currentGrid->r.top << endl;
@@ -87,70 +91,89 @@ void Game::checkMapInput(XEvent *e)
 {
     int xClick;
     int yClick;
-       if (e->type == ButtonPress)
-       {
-           if (e->xbutton.button == 1)
-           {
-                xClick = e->xbutton.x;
-                yClick = WINDOW_HEIGHT - e->xbutton.y;
-                for ( int row = 0; row < totalHorizontal * totalVertical; row++)
+    if (e->type == ButtonPress)
+    {
+        if (e->xbutton.button == 1)
+        {
+            xClick = e->xbutton.x;
+            yClick = WINDOW_HEIGHT - e->xbutton.y;
+            for ( int row = 0; row < totalHorizontal * totalVertical; row++)
+            {
+                if (xClick > mapGrid[row]->r.left &&
+                        xClick < mapGrid[row]->r.right &&
+                        yClick > mapGrid[row]->r.bot &&
+                        yClick < mapGrid[row]->r.top)
                 {
-                    if (xClick > mapGrid[row]->r.left &&
-                            xClick < mapGrid[row]->r.right &&
-                            yClick > mapGrid[row]->r.bot &&
-                            yClick < mapGrid[row]->r.top)
-                    {
-                        cout << mapGrid[row]->horizontalRoom << endl;
-                        currentHorizontalLevel = mapGrid[row]->horizontalRoom;
-                        currentVerticalLevel = mapGrid[row]->verticalRoom;
-                        g_gamestate = LEVEL_EDITOR;
-                        return;
-                    }
+                    cout << mapGrid[row]->horizontalRoom << endl;
+                    currentHorizontalLevel = mapGrid[row]->horizontalRoom;
+                    currentVerticalLevel = mapGrid[row]->verticalRoom;
+                    g_gamestate = LEVEL_EDITOR;
+                    return;
                 }
-           }
-       }
-       if (e->type == KeyPress)
-       {
-           int key = XLookupKeysym(&e->xkey,0);
-           if (key == XK_m){
-               g_gamestate = LEVEL_EDITOR;
-           }
-       }
-
+            }
+        }
+    }
+    if (e->type == KeyPress)
+    {
+        int key = XLookupKeysym(&e->xkey,0);
+        if (key == XK_m){
+            g_gamestate = LEVEL_EDITOR;
+        }
+        if (currentlyEditable(this))
+        {
+            if (key == XK_j){
+                moveRoomLeft();
+            }
+            if (key == XK_l){
+                moveRoomRight();
+            }
+            if (key == XK_k){
+                moveRoomDown();
+            }
+            if (key == XK_i){
+                moveRoomUp();
+            }
+        }
+        if (key == XK_Escape){
+            g_gamestate = MAIN_MENU;
+        }
+    }
 }
 
 void Game::renderMap(Display * dpy, Window * win)
 {
     int root_x, root_y, win_x, win_y;
+    int gridHoverHorizontal = -1;
+    int gridHoverVertical = -1;
     unsigned int maskReturned;
     Window rootWin, childWin;
     XQueryPointer(dpy,*win,&rootWin,&childWin,&root_x,&root_y,&win_x,&win_y,&maskReturned);
-
-    root_y = WINDOW_HEIGHT - root_y; 
-    int bottom = 200;
-    int top = 500;
-    int left = 150;
-    int right = 850;
+    win_y = WINDOW_HEIGHT - win_y; 
+    int bottom = 350;
+    int top = 650;
+    int left = 200;
+    int right = 900;
     int cellWidth = mapGrid[0]->r.width;
     int cellHeight = mapGrid[0]->r.height;
     glDisable(GL_TEXTURE_2D);
     glClear(GL_COLOR_BUFFER_BIT);
     int row = 0;
-//    cout << "starting" << endl;
     for (int row = 0; row < totalHorizontal * totalVertical; row++)
     {
         glPushMatrix();
-        if (currentHorizontalLevel == mapGrid[row]->horizontalRoom &&
+        if(win_x < mapGrid[row]->r.right &&
+                win_x > mapGrid[row]->r.left &&
+                win_y < mapGrid[row]->r.top &&
+                win_y > mapGrid[row]->r.bot)
+        {
+            gridHoverHorizontal = mapGrid[row]->horizontalRoom;
+            gridHoverVertical = mapGrid[row]->verticalRoom;
+            glColor3ub(mapGrid[row]->hoverColor[0], mapGrid[row]->hoverColor[1], mapGrid[row]->hoverColor[2]);
+        }
+        else if (currentHorizontalLevel == mapGrid[row]->horizontalRoom &&
                 currentVerticalLevel == mapGrid[row]->verticalRoom)
         {
-            glColor3ub(mapGrid[row]->color[0] + 40,mapGrid[row]->color[1] +40,mapGrid[row]->color[2] + 40);
-        }
-        else if(root_x < mapGrid[row]->r.right &&
-                root_x > mapGrid[row]->r.left &&
-                root_y < mapGrid[row]->r.top &&
-                root_y > mapGrid[row]->r.bot)
-        {
-            glColor3ub(mapGrid[row]->color[0] + 80,mapGrid[row]->color[1] + 80,mapGrid[row]->color[2] + 80);
+            glColor3ub(mapGrid[row]->currentCellColor[0], mapGrid[row]->currentCellColor[1], mapGrid[row]->currentCellColor[2]);
         }
         else
         {
@@ -185,20 +208,94 @@ void Game::renderMap(Display * dpy, Window * win)
         glEnd();
         glPopMatrix();
     }
+    
+    glPushMatrix();
+    glColor3ub(mapGrid[row]->hoverColor[0], mapGrid[row]->hoverColor[1], mapGrid[row]->hoverColor[2]);
+    glBegin(GL_QUADS);
+    glVertex2i(70,600);
+    glVertex2i(70,560);
+    glVertex2i(110,560);
+    glVertex2i(110,600);
+    glEnd();
+    glPopMatrix();
+    
+    glPushMatrix();
+    glColor3ub(mapGrid[row]->currentCellColor[0], mapGrid[row]->currentCellColor[1], mapGrid[row]->currentCellColor[2]);
+    glBegin(GL_QUADS);
+    glVertex2i(70,450);
+    glVertex2i(70,410);
+    glVertex2i(110,410);
+    glVertex2i(110,450);
+    glEnd();
+    glPopMatrix();
+    
     glEnable(GL_TEXTURE_2D);
     Rect r;
-    //
-    r.bot = 700 - 20;
-    r.left = 10;
+    r.bot = 660;
+    r.left = 450;
     r.center = 0;
-    ggprint06(&r, 20, 0x00ff0000, "ggprint06");
+    ggprint16(&r, 0, 0xffffffff, "Map and Key Binds");
+    char str[10];
+    for (int row = 0; row < totalVertical; row++)
+    {
+        str[0] = (row + 48);
+        str[1] = 0;
+        r.bot = bottom + 5 + row*cellHeight;
+        r.left = left -20;
+        r.center = 0;
+        ggprint12(&r, 0, 0xff00ff00, str);
+    }
+    for (int row = 0; row < totalHorizontal; row++)
+    {
+        str[0] = (row/10) + 48;
+        str[1] = (row % 10) + 48;
+        str[2] = 0;
+        r.bot = bottom -20;
+        r.left = left + 5 + row*cellWidth;
+        r.center = 0;
+        ggprint12(&r, 0, 0xff00ff00, str);
+    }
+    //
+    r.bot = 390;
+    r.left = 30;
+    r.center = 0;
+    ggprint16(&r, 0, 0xffffffff, "Current Room");
+    r.bot = 370;
+    r.left = 50;
+    r.center = 0;
+    char coords[10];
+    coords[0] = '(';
+    coords[1] = (currentHorizontalLevel / 10) + 48;
+    coords[2] = (currentHorizontalLevel % 10) + 48;
+    coords[3] = ' ';
+    coords[4] = ',';
+    coords[5] = ' ';
+    coords[6] = (currentVerticalLevel / 10) + 48;
+    coords[7] = (currentVerticalLevel % 10) + 48;
+    coords[8] = ')';
+    coords[9] = 0;
+    ggprint16(&r, 0, 0xffffffff, coords);
+    
+    r.bot = 540;
+    r.left = 30;
+    r.center = 0;
+    ggprint16(&r, 0, 0xffffffff, "Mouse Hover");
+    r.bot = 520;
+    r.left = 50;
+    r.center = 0;
+    coords[1] = (gridHoverHorizontal / 10) + 48;
+    coords[2] = (gridHoverHorizontal % 10) + 48;
+    coords[6] = (gridHoverVertical / 10) + 48;
+    coords[7] = (gridHoverVertical % 10) + 48;
+    ggprint16(&r, 0, 0xffffffff, coords);
+/*    ggprint06(&r, 20, 0x00ff0000, "ggprint06");
     ggprint07(&r, 20, 0x00ffff00, "ggprint07");
     ggprint08(&r, 20, 0x00ffff00, "ggprint08");
     ggprint10(&r, 20, 0x00ffff00, "ggprint10");
     ggprint12(&r, 20, 0x00ffff00, "ggprint12");
     ggprint8b(&r, 20, 0x00ffff00, "ggprint8b");
     ggprint13(&r, 20, 0x00ff00ff, "ggprint13");
-    ggprint16(&r, 20, 0x00ff0000, "ggprint16");
+    ggprint16(&r, 20, 0x00ff0000, "ggprint16");*/
 }
 void Game::setSavePoint(int index)
 {
@@ -322,13 +419,13 @@ void Game::moveRoomLeft()
 
 void Game::moveRoomRight()
 {
-    if (currentHorizontalLevel < 19)
+    if (currentHorizontalLevel < totalHorizontal-1)
         currentHorizontalLevel++;
 }
 
 void Game::moveRoomUp()
 {
-    if (currentVerticalLevel < 4)
+    if (currentVerticalLevel < totalVertical-1)
         currentVerticalLevel++;
 }
 

@@ -13,10 +13,10 @@
 #include "collisions.h"
 #include <chrono>
 #include <GL/glx.h>
+#include "markS.h"
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
 
-bool currentlyEditable(Game*);
 void editorAddPlatform(Game *game, GameObject * mouse);
 void editorAddSpike(Game *game, GameObject * mouse);
 void editorAddSavePoint(Game *game, GameObject * mouse);

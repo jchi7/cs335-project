@@ -59,7 +59,8 @@ struct Grid
     bool over;
     bool click;
     int color[3];
-    float hoverColor[3];
+    int hoverColor[3];
+    int currentCellColor[3];
     int horizontalRoom;
     int verticalRoom;
 };
