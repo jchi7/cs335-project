@@ -1,5 +1,6 @@
 #include "game.h"
 using namespace std;
+#include "fonts.h"
 
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 700
@@ -71,8 +72,8 @@ void Game::initializeMap(int numHorizontal, int numVertical)
             currentGrid->over = false;
             currentGrid->click = false;
             currentGrid->color[0] = 50;
-            currentGrid->color[1] = 150;
-            currentGrid->color[2] = 150;
+            currentGrid->color[1] = 100;
+            currentGrid->color[2] = 100;
             currentGrid->hoverColor[0] = 0.5f;
             currentGrid->hoverColor[1] = 0.5f;
             currentGrid->hoverColor[2] = 0.5f;
@@ -84,11 +85,48 @@ void Game::initializeMap(int numHorizontal, int numVertical)
 }
 void Game::checkMapInput(XEvent *e)
 {
-    
+    int xClick;
+    int yClick;
+       if (e->type == ButtonPress)
+       {
+           if (e->xbutton.button == 1)
+           {
+                xClick = e->xbutton.x;
+                yClick = WINDOW_HEIGHT - e->xbutton.y;
+                for ( int row = 0; row < totalHorizontal * totalVertical; row++)
+                {
+                    if (xClick > mapGrid[row]->r.left &&
+                            xClick < mapGrid[row]->r.right &&
+                            yClick > mapGrid[row]->r.bot &&
+                            yClick < mapGrid[row]->r.top)
+                    {
+                        cout << mapGrid[row]->horizontalRoom << endl;
+                        currentHorizontalLevel = mapGrid[row]->horizontalRoom;
+                        currentVerticalLevel = mapGrid[row]->verticalRoom;
+                        g_gamestate = LEVEL_EDITOR;
+                        return;
+                    }
+                }
+           }
+       }
+       if (e->type == KeyPress)
+       {
+           int key = XLookupKeysym(&e->xkey,0);
+           if (key == XK_m){
+               g_gamestate = LEVEL_EDITOR;
+           }
+       }
+
 }
 
-void Game::renderMap()
+void Game::renderMap(Display * dpy, Window * win)
 {
+    int root_x, root_y, win_x, win_y;
+    unsigned int maskReturned;
+    Window rootWin, childWin;
+    XQueryPointer(dpy,*win,&rootWin,&childWin,&root_x,&root_y,&win_x,&win_y,&maskReturned);
+
+    root_y = WINDOW_HEIGHT - root_y; 
     int bottom = 200;
     int top = 500;
     int left = 150;
@@ -106,6 +144,13 @@ void Game::renderMap()
                 currentVerticalLevel == mapGrid[row]->verticalRoom)
         {
             glColor3ub(mapGrid[row]->color[0] + 40,mapGrid[row]->color[1] +40,mapGrid[row]->color[2] + 40);
+        }
+        else if(root_x < mapGrid[row]->r.right &&
+                root_x > mapGrid[row]->r.left &&
+                root_y < mapGrid[row]->r.top &&
+                root_y > mapGrid[row]->r.bot)
+        {
+            glColor3ub(mapGrid[row]->color[0] + 80,mapGrid[row]->color[1] + 80,mapGrid[row]->color[2] + 80);
         }
         else
         {
@@ -141,6 +186,19 @@ void Game::renderMap()
         glPopMatrix();
     }
     glEnable(GL_TEXTURE_2D);
+    Rect r;
+    //
+    r.bot = 700 - 20;
+    r.left = 10;
+    r.center = 0;
+    ggprint06(&r, 20, 0x00ff0000, "ggprint06");
+    ggprint07(&r, 20, 0x00ffff00, "ggprint07");
+    ggprint08(&r, 20, 0x00ffff00, "ggprint08");
+    ggprint10(&r, 20, 0x00ffff00, "ggprint10");
+    ggprint12(&r, 20, 0x00ffff00, "ggprint12");
+    ggprint8b(&r, 20, 0x00ffff00, "ggprint8b");
+    ggprint13(&r, 20, 0x00ff00ff, "ggprint13");
+    ggprint16(&r, 20, 0x00ff0000, "ggprint16");
 }
 void Game::setSavePoint(int index)
 {

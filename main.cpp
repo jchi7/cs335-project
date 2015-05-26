@@ -13,6 +13,8 @@
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
 
+#include "fonts.h"
+
 #define GRAVITY -0.35
 #define MAXBUTTONS 4
 
@@ -141,10 +143,8 @@ int main()
     Game newgame;
     newgame.hero = new Hero();
     newgame.respawnAtSavePoint();
-
     bool render = true;
     bool doPhysics = true;
-
     while(g_gamestate != EXIT_GAME) {
         gettimeofday(&Gthrottle, NULL);
         GtimeLapse = (Gthrottle.tv_usec >= GoldMilliSec) ? Gthrottle.tv_usec - GoldMilliSec :
@@ -226,15 +226,16 @@ int main()
                 while(XPending(dpy)) {
                     XEvent e;
                     XNextEvent(dpy, &e);
-                    if ( newgame.hero->state != DEATH) {
+                    newgame.checkMapInput(&e);
+              /*      if ( newgame.hero->state != DEATH) {
                         check_game_input(&e, &newgame);
                     }
                     else {
                         check_death_input(&e, &newgame);
-                    }
+                    }*/
                 }
                 if (render == true){
-                    newgame.renderMap();
+                    newgame.renderMap(dpy, &win);
                     glXSwapBuffers(dpy, win);
                 }
 
@@ -291,6 +292,9 @@ void init_opengl(void)
     glOrtho(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT, -1, 1);
     //Set the screen background color
     glClearColor(0.1, 0.1, 0.1, 1.0);
+
+    glEnable(GL_TEXTURE_2D);
+    initialize_fonts();
 
     //Importing Images
 

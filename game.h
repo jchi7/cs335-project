@@ -64,7 +64,7 @@ class Game
 
         void initializeMap(int, int);
         void checkMapInput(XEvent*);
-        void renderMap();
+        void renderMap(Display *, Window *);
         void respawnAtSavePoint();
         void setSavePoint(int index);
         void checkRoom();

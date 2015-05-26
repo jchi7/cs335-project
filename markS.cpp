@@ -1,7 +1,6 @@
 //Mark Stevens
 //This function handles game input.
 
-
 #include "structs.h"
 #include "gameObject.h"
 #include "hero.h"
@@ -17,6 +16,7 @@
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
 
+bool currentlyEditable(Game*);
 void editorAddPlatform(Game *game, GameObject * mouse);
 void editorAddSpike(Game *game, GameObject * mouse);
 void editorAddSavePoint(Game *game, GameObject * mouse);
@@ -105,10 +105,10 @@ void check_game_input(XEvent *e, Game *game)
     if (e->type == KeyPress){
         //cout << e->xbutton.x << endl;
         int key = XLookupKeysym(&e->xkey,0);
-        if (key == XK_m){
+        if (key == XK_m && currentlyEditable(game)){
             if (g_gamestate == MAP)
                 g_gamestate = LEVEL_EDITOR;
-            else
+            else if (g_gamestate == LEVEL_EDITOR)
                 g_gamestate = MAP;
         }
         if (key == XK_Left){
@@ -494,5 +494,18 @@ void editorRemoveEnemy(Game * game, int index)
     room->enemies.erase(room->enemies.begin() + index);
     room->numBasicEnemies--;
 }
-
+bool currentlyEditable(Game * game)
+{
+    if (!game->isPlatformMovable &&
+            !game->isSpikeMovable &&
+            !game->isEnemyMovable &&
+            !game->isPlatformResizable)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
