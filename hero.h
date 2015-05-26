@@ -1,7 +1,10 @@
 #ifndef HERO_H
 #define HERO_H
-
+#include "basicEnemy.h"
+#include "shooterEnemy.h"
 #include "gameObject.h"
+#include "collisions.h"
+#include "fernandoV.h"
 
 class Hero : public GameObject
 {

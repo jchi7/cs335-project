@@ -1,4 +1,5 @@
 #include "game.h"
+#include "fernandoV.h"
 using namespace std;
 
 #define WINDOW_WIDTH 1000
@@ -22,14 +23,21 @@ Game::Game()
     this->isPlatformResizable = false;
     this->isSpikeMovable = false;
     this->isSavePointMovable = false;
+    this->isElevatorMovable = false;
+    this->isElevatorResizable = false;
+    this->isEnemyMovable = false;
     
     this->movablePlatformIndex = 0;
     this->movableSpikeIndex = 0;
     this->movableSavePointIndex = 0;
-    this->resizablePlatformIndex = 0;
-    
+    this->movableElevatorIndex = 0;
+    this->movableEnemyIndex = 0;
+
+    this->resizablePlatformIndex = 0;    
     this->resizablePlatformX = 0;
     this->resizablePlatformY = 0;
+    this->resizableElevatorIndex = 0;
+
     this->platformTextureHeight = 15;
     this->platformTextureWidth = 15;
     initLevel();
@@ -68,26 +76,46 @@ void Game::respawnAtSavePoint()
 void Game::checkRoom()
 {
     if (hero->body.center[0] > WINDOW_WIDTH){
-        currentHorizontalLevel++;
-        hero->body.center[0] = 0 + hero->body.width;
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
+            hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+        }
+        else{
+            currentHorizontalLevel++;
+            hero->body.center[0] = 0 + hero->body.width;
+        }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[0] < 0){
-        currentHorizontalLevel--;
-        hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
+            hero->body.center[0] = 0 + hero->body.width;
+        }
+        else{
+            currentHorizontalLevel--;
+            hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+        }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[1] > WINDOW_HEIGHT){
-        currentVerticalLevel++;
-        hero->body.center[1] = 0 + hero->body.height;
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
+            hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+        }
+        else {
+            currentVerticalLevel++;
+            hero->body.center[1] = 0 + hero->body.height;
+        }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[1] < 0){
-        currentVerticalLevel--;
-        hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
+            hero->body.center[1] = 0 +  hero->body.height;
+        }
+        else {
+            currentVerticalLevel--;
+            hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+        }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
@@ -106,7 +134,10 @@ GameObject * Game::getWorkingPlatformPtr()
         return NULL;
     }
     Room * room = this->getRoomPtr();
-    return room->platforms[this->movablePlatformIndex];
+    if (this->isPlatformMovable) {
+        return room->platforms[this->movablePlatformIndex];
+    }
+    return room->platforms[this->resizablePlatformIndex];
 }
 
 GameObject * Game::getWorkingSpikePtr()
@@ -119,6 +150,19 @@ GameObject * Game::getWorkingSpikePtr()
     return room->spikes[this->movableSpikeIndex];
 }
 
+Elevator * Game::getWorkingElevatorPtr()
+{
+    if (!this->isElevatorMovable && !this->isElevatorResizable) {
+        cout << "ERROR getWorkingElevatorPtr: elevator not resizable or movable\n";
+        return NULL;
+    }
+    Room * room = this->getRoomPtr();
+    if (this->isElevatorMovable) {
+        return room->elevators[this->movableElevatorIndex];
+    }
+    return room->elevators[this->resizableElevatorIndex];
+}
+
 vector<GameObject*> * Game::getPlatformsVPtr()
 {
     Room * room = this->getRoomPtr();
@@ -129,6 +173,19 @@ vector<GameObject*> * Game::getSpikesVPtr()
 {
     Room * room = this->getRoomPtr();
     return &(room->spikes);
+}
+
+vector<Elevator*> * Game::getElevatorsVPtr()
+{
+    Room * room = this->getRoomPtr();
+    return &(room->elevators);
+}
+
+
+vector<GameObject*> * Game::getEnemiesVPtr()
+{
+    Room * room = this->getRoomPtr();
+    return &(room->enemies);
 }
 
 void Game::moveRoomLeft()
@@ -277,6 +334,7 @@ void Game::fillLevel()
                         case 3:
                             orientation = FACING_RIGHT;
                             break;
+                        case 4:
                         default:
                             cout << "Error: could not read spike orientation\n";
                     }
@@ -286,7 +344,7 @@ void Game::fillLevel()
 //                    cout << "Created spike in " << "[" << vert << "][" << horz <<"]: " << vecPrint(spikePts[0]) << ", " << vecPrint(spikePts[1]) << ", " << vecPrint(spikePts[2]) << ", " << orientation << endl;
                 }
                 else if (objType == "ENEMY") {
-                    float convVal[4]; //four
+                    float convVal[4];
                     for (int col = 0; col < 4; col++) {
                         getline(iss, val, ',');
                         stringstream converter(val);
@@ -297,15 +355,26 @@ void Game::fillLevel()
                     level[vert][horz].numBasicEnemies++;
                 }
                 else if (objType == "SHOOTER") {
-                    float convVal[4]; //four
+                    float convVal[4];
                     for (int col = 0; col < 4; col++) {
                         getline(iss, val, ',');
                         stringstream converter(val);
                         converter >> convVal[col];
                     }
-                    // create Enemy
+                    // create Shooter Enemy
                     level[vert][horz].enemies.push_back(new ShooterEnemy(convVal[0], convVal[1], convVal[2], convVal[3]));
                     level[vert][horz].numBasicEnemies++;
+                }
+                else if (objType == "ELEVATOR") {
+                    float convVal[3];
+                    for (int col = 0; col < 3; col++) {
+                        getline(iss, val, ',');
+                        stringstream converter(val);
+                        converter >> convVal[col];
+                    }
+                    // create Elevator
+                    level[vert][horz].elevators.push_back(new Elevator(convVal[0], convVal[1], convVal[2]));
+                    level[vert][horz].numElevators++;
                 }
             }
             file.close();
@@ -362,6 +431,12 @@ void Game::saveRooms()
     for (unsigned int i = 0; i < level[vert][horz].spikes.size(); ++i) {
         writeSpike(level[vert][horz].spikes[i], file);
     }
+    for (unsigned int i = 0; i < level[vert][horz].elevators.size(); ++i) {
+        writeElevator(level[vert][horz].elevators[i], file);
+    }
+    for (unsigned int i = 0; i < level[vert][horz].enemies.size(); ++i) {
+        writeEnemy(level[vert][horz].enemies[i], file);
+    }
     file.close();
     return;
 }
@@ -384,6 +459,30 @@ void Game::writeSavePoint(GameObject * savept, ofstream & outf)
       << savept->body.center[1] << "\n";
 }
 
+void Game::writeEnemy(GameObject * enemy, ofstream & outf)
+{
+    switch (enemy->id)
+    {
+        case ENEMY:
+            outf << "ENEMY,"
+                << "10" << ","
+                << "10" << ","
+                << enemy->body.center[0] << ","
+                << enemy->body.center[1] << "\n";
+            break;
+        case SHOOTERENEMY:
+            outf << "SHOOTER,"
+                << "10" << ","
+                << "10" << ","
+                << enemy->body.center[0] << ","
+                << enemy->body.center[1] << "\n";
+            break;
+        default:
+            break;
+    }
+
+}
+
 void Game::writeSpike(GameObject * spike, ofstream & outf)
 {
     int spikeFacing = 0;
@@ -400,6 +499,9 @@ void Game::writeSpike(GameObject * spike, ofstream & outf)
         case FACING_RIGHT:
             spikeFacing = 3;
             break;
+        case STOP:
+        default:
+            break;
     }
     outf << "SPIKE,"
       << spike->body.corners[0][0] << ","
@@ -411,8 +513,18 @@ void Game::writeSpike(GameObject * spike, ofstream & outf)
       << spikeFacing << "\n";
 }
 
+void Game::writeElevator(Elevator * elev, ofstream & outf)
+{
+    outf << "ELEVATOR,"
+      << elev->body.center[0] << ","
+      << elev->getLowerLimit() << ","
+      << elev->getUpperLimit() << "\n";
+}
+
 void Game::heroShoots()
 {
+	//play laser
+	playLaser();
     Room* current_level = getRoomPtr();
     switch(hero->body.orientation) {
         case FACING_RIGHT:
@@ -427,3 +539,4 @@ void Game::heroShoots()
             break;
     }
 }
+

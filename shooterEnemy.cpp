@@ -1,4 +1,5 @@
 #include "shooterEnemy.h"
+#include "fernandoV.h"
 
 ShooterEnemy::ShooterEnemy(int left, int right, int x, int y)
 {
@@ -65,7 +66,7 @@ void ShooterEnemy::movement()
 {
     prevPosition[0] = body.center[0];
     prevPosition[1] = body.center[1];
-    if(state != DEATH) {
+    if(state != DEATH || state != PREDEATH) {
         switch(body.orientation) {
             case FACING_LEFT:
                 body.center[0] += -0.5;
@@ -73,6 +74,7 @@ void ShooterEnemy::movement()
             case FACING_RIGHT:
                 body.center[0] += 0.5;
                 break;
+            case STOP:
             default:
                 break;
         }
@@ -85,7 +87,9 @@ void ShooterEnemy::movement()
 void ShooterEnemy::onCollision(GameObject * obj)
 {
     if (obj->id == SPIKE || obj->id == HBULLET) {
-        state = DEATH;
+        state = PREDEATH;
+		//enemy grunt
+		playEnemyDeath();
     } else if (obj->id == EBULLET) {
         return;
     }

@@ -4,6 +4,7 @@
 #include "gameObject.h"
 #include "room.h"
 #include "platform.h"
+#include "elevator.h"
 #include "spike.h"
 #include "hero.h"
 #include "savePoint.h"
@@ -18,16 +19,26 @@ class Game
         int rightPressed;
         int shootPressed;
         GameState state;
+
         bool isPlatformMovable;
         bool isPlatformResizable;
         bool isSpikeMovable;
         bool isSavePointMovable;
+        bool isElevatorMovable;
+        bool isElevatorResizable;
+        bool isEnemyMovable;
+
         int movablePlatformIndex;
         int movableSpikeIndex;
         int movableSavePointIndex;
+        int movableElevatorIndex;
+        int movableEnemyIndex;
+
         int resizablePlatformIndex;
         int resizablePlatformX;
         int resizablePlatformY;
+        int resizableElevatorIndex;
+
         int platformTextureWidth;
         int platformTextureHeight;
 
@@ -63,8 +74,11 @@ class Game
         Room * getRoomPtr();
         GameObject * getWorkingPlatformPtr();
         GameObject * getWorkingSpikePtr();
+        Elevator * getWorkingElevatorPtr();
         vector<GameObject*> * getPlatformsVPtr();
         vector<GameObject*> * getSpikesVPtr();
+        vector<GameObject*> * getEnemiesVPtr();
+        vector<Elevator*> * getElevatorsVPtr();
         void moveRoomLeft();
         void moveRoomRight();
         void moveRoomUp();
@@ -75,6 +89,8 @@ class Game
         void writePlatform(GameObject *, ofstream &);
         void writeSavePoint(GameObject *, ofstream &);
         void writeSpike(GameObject *, ofstream &);
+        void writeElevator(Elevator *, ofstream &);
+        void writeEnemy(GameObject *, ofstream &);
         void heroShoots();
     protected:
     private:

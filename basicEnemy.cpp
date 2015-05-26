@@ -63,7 +63,7 @@ void BasicEnemy::movement()
 {
     prevPosition[0] = body.center[0];
     prevPosition[1] = body.center[1];
-    if(state != DEATH) {
+    if(state != DEATH  || state != PREDEATH) {
         switch(body.orientation) {
             case FACING_LEFT:
                 body.center[0] += -0.5;
@@ -83,7 +83,7 @@ void BasicEnemy::movement()
 void BasicEnemy::onCollision(GameObject * obj)
 {
     if (obj->id == SPIKE || obj->id == HBULLET) {
-        state = DEATH;
+        state = PREDEATH;
     } else if (obj->id == EBULLET) {
         return;
     }

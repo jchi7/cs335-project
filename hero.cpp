@@ -141,17 +141,21 @@ void Hero::movement()
             state = JUMPING;
             initialJump = 0;
             jumpCount++;
+			playJump();
         }
         if (secondJump == 1) {
             velocity[1] = 5.5;
             state = JUMPING;
             secondJump = 0;
             jumpCount++;
+			playJump();
         }
     }
     body.center[1] += velocity[1];
     if (velocity[1] > -7)
         velocity[1] += gravity;
+    if (jumpRelease == 3 && velocity[1] > 2)
+        velocity[1] = 1;
     if (prevPosition[1] > (body.center[1] + 2) && (state == STANDING || state == WALKING)){
         state = JUMPING;
         jumpCount = 1;
@@ -162,16 +166,24 @@ void Hero::movement()
 void Hero::onCollision(GameObject * obj)
 {
     if (obj->id == SPIKE || obj->id == ENEMY || obj->id == EBULLET) {
-        state = DEATH;
-    } else if (obj->id == HBULLET) {
+            if (((BasicEnemy*)obj)->state != PREDEATH  || ((ShooterEnemy*)obj)->state != PREDEATH) {
+                state = DEATH;
+            }
+    }
+    else if (obj->id == HBULLET) {
         return;
-    } else { // obj->id == PLATFORM
+    }
+    else { // obj->id == PLATFORM || ELEVATOR
         if (prevPosition[0]  < obj->body.center[0] - obj->body.width) {
-            body.center[0] = obj->body.center[0] - obj->body.width - body.width;
+            if (prevPosition[1] - body.height < obj->body.center[1] + obj->body.height){
+                body.center[0] = obj->body.center[0] - obj->body.width - body.width;
+            }
         }
 
         if (prevPosition[0]  > obj->body.center[0] + obj->body.width) {
-            body.center[0] = obj->body.center[0] + obj->body.width + body.width;
+            if (prevPosition[1] - body.height < obj->body.center[1] + obj->body.height){
+                body.center[0] = obj->body.center[0] + obj->body.width + body.width;
+            }
         }
 
         if (body.center[1] < obj->body.center[1] &&
@@ -197,6 +209,12 @@ void Hero::onCollision(GameObject * obj)
             }
             else {
                 state = STANDING;
+            }
+        }
+        if (obj->id == ELEVATOR) {
+            if (topOnlyCollisionRectRect(&body, &(obj->body), prevPosition))
+            {
+                velocity[1] = obj->velocity[1];
             }
         }
     }
