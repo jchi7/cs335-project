@@ -18,6 +18,7 @@ class GameObject
         int textureHeight;
         int horizontalTiles;
         int verticalTiles;
+
         GameObject();
         virtual ~GameObject();
         virtual void update();

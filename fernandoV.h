@@ -14,4 +14,5 @@ void playSavePoint();
 void playLaser();
 void playEnemyDeath();
 void playcrow();
+void closeDevices();
 #endif

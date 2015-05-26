@@ -18,11 +18,12 @@ L key: move right one room horizontally
 
 Shift key: create a platform
 F key: create an enemy / rotate between enemy types if you currenlty have an enemy selected
+G key: create an elevator
 S key: create a spike / rotate spike if you currently have it selected
 A key: create save point
 Z key: grabs an object on the screen and makes it movable
 X Key: stops an object from being movable / resizable (basically pastes the object to the screen)
-C key: lets you resize a platform on the screen (press X to stop resizing)
+C key: lets you resize a platform / elevator on the screen (press X to stop resizing)
 D key: delete any object on the screen. If objets are stacked, 
         the one closest to the foreground will be deleted first
 

@@ -234,3 +234,22 @@ void playSavePoint(){
     alSourcePlay(sources[4][0]);
     TEST_ERROR("Save point source playing");
 }
+
+
+//close devices 
+void closeDevices() {
+/* exit context */
+	
+ for (int i = 0; i < MAX_SOURCES; i++){
+	alDeleteSources(1, &sources[i][0]);
+	alDeleteBuffers(1, &sources[0][i]);
+	}
+	device = alcGetContextsDevice(context);
+	alcMakeContextCurrent(NULL);
+	alcDestroyContext(context);
+	alcCloseDevice(device);
+
+
+
+
+}

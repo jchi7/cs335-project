@@ -9,17 +9,23 @@ Room::Room()
     this->numBullet = 0;
     this->numSavePoints = 0;
     this->numBasicEnemies = 0;
+    this->numElevators = 0;
     this->currentPlatform = 0;
     this->currentBasicEnemy = 0;
 }
 
-Room::Room(int nPlatform, int nSpike, int nSavePoints, int numBasic)
+Room::Room(int nPlatform, int nSpike, int nSavePoints, int numBasic, int nElevators)
 {
     this->numPlatforms = nPlatform;
+    this->numSpikes = nSpike;
+    this->numSavePoints = nSavePoints;
+    this->numBasicEnemies = numBasic;
+    this->numElevators = nElevators;
+
     this->platforms.reserve(nPlatform);
     this->spikes.reserve(nSpike);
     this->savePoints.reserve(nSavePoints);
-    this->numBasicEnemies = numBasic;
+    this->elevators.reserve(nElevators);
     if (this->numBasicEnemies > 0)
         this->enemies.reserve(numBasic);
     this->currentBasicEnemy = 0;
@@ -41,5 +47,8 @@ Room::~Room()
     }
     for (int i = spikes.size() - 1; i >= 0; i--) {
         delete spikes[i];
+    }
+    for (int i = elevators.size() - 1; i >= 0; i--) {
+        delete elevators[i];
     }
 }

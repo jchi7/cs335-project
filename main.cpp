@@ -3,12 +3,13 @@
 #include "hero.h"
 #include "basicEnemy.h"
 #include "platform.h"
+#include "elevator.h"
 #include "spike.h"
 #include "room.h"
 #include "ppm.h"
 #include "game.h"
 #include "collisions.h"
-#include "jasonc.h"
+#include "jasonC.h"
 #include "fernandoV.h"
 //=======
 #include "markS.h"
@@ -24,6 +25,7 @@ void initXWindows(void);
 void init_opengl(void);
 void cleanupXWindows(void);
 void cleanupImages(void);
+
 void set_title(void);
 void renderBackground(GLuint);
 void init_MainMenuButtons(void);
@@ -31,17 +33,22 @@ void render_MainMenu(void);
 void check_menu_button(XEvent *e, Game * game);
 void check_game_input(XEvent *e, Game * game);
 void check_death_input(XEvent *e, Game *newgame);
+
 void movePlatform(XEvent *e, Game * game);
 void moveSavePoint(XEvent *e, Game * game);
 void moveSpike(XEvent *e, Game * game);
+void moveElevator(XEvent *e, Game * game);
 void moveEnemy(XEvent *e, Game * game);
 void physics(Game * game);
+
 void render_game(Game* game);
 void renderEnemy(GameObject *, int);
 void renderBullet(GameObject *, int);
 void renderSpike(GameObject *);
 void renderPlatform(GameObject *);
 void renderSavePoint(GameObject *, int);
+void renderElevator(GameObject *);
+void renderElevatorShadow(Elevator *, float);
 
 //X Windows variables
 Display *dpy;
@@ -215,6 +222,8 @@ int main()
                         moveSpike(&e, &newgame);
                     if (newgame.isSavePointMovable == true)
                         moveSavePoint(&e, &newgame);
+                    if (newgame.isElevatorMovable == true)
+                        moveElevator(&e, &newgame);
                     if (newgame.isEnemyMovable == true)
                         moveEnemy(&e, &newgame);
                 }
@@ -236,6 +245,8 @@ int main()
     }
     cleanupImages();
     cleanupXWindows();
+	//close audio devices
+	closeDevices();
     return 0;
 }
 
@@ -282,8 +293,6 @@ void init_opengl(void)
     glClearColor(0.1, 0.1, 0.1, 1.0);
 
     //Importing Images
-
-
     shooterDeathImage = ppm6GetImage("./images/shooterDeath.ppm");
     spikeDeathImage = ppm6GetImage("./images/spikeDead.ppm");
     eShootingRightImage = ppm6GetImage("./images/mega_walkR.ppm");
@@ -629,8 +638,9 @@ void render_MainMenu(void)
         }
     }
 }
-void movePlatform(XEvent *e, Game *game){
 
+void movePlatform(XEvent *e, Game *game)
+{
     Room * room = game->getRoomPtr();
     mouse.body.center[0] = e->xbutton.x;
     mouse.body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
@@ -709,6 +719,19 @@ void moveSpike(XEvent *e, Game *game){
     vecCopy(spike[2], currentRoom->spikes[game->movableSpikeIndex]->body.corners[2]);
 }
 
+void moveElevator(XEvent *e, Game * game)
+{
+    Room * currentRoom = game->getRoomPtr();
+    Elevator * currentElevator = currentRoom->elevators[game->movableElevatorIndex];
+    float mouseX = e->xbutton.x;
+    float mouseY = WINDOW_HEIGHT - e->xbutton.y;
+    currentElevator->setUpperLimit(
+      (currentElevator->getUpperLimit() - currentElevator->getLowerLimit()) + mouseY);
+    currentElevator->setLowerLimit(mouseY);
+    currentElevator->body.center[0] = mouseX;
+    currentElevator->body.center[1] = mouseY;
+}
+
 void check_menu_button(XEvent *e, Game * game)
 {
   static int savex = 0;
@@ -782,7 +805,6 @@ void check_death_input(XEvent *e,Game *game)
             renderNum = 0;
         }
     }
-
 }
 
 void physics(Game * game)
@@ -794,12 +816,25 @@ void physics(Game * game)
     if (game->hero->delay != 0) {
         game->hero->delay = (game->hero->delay + 1) % 20;
     }
+    for (auto entity : room->elevators) {
+        entity->movement();
+    }
+
     for (int i = 0; i < room->numPlatforms; i++) {
         isCollision = collisionRectRect(&game->hero->body, &room->platforms[i]->body);
         if (isCollision == true) {
             game->hero->onCollision(room->platforms[i]);
         }
     }
+
+    isCollision = false;
+    for(int i = 0; i < room->numElevators; i++) {
+        isCollision = collisionRectRect(&game->hero->body, &room->elevators[i]->body);
+        if (isCollision == true) {
+            game->hero->onCollision(room->elevators[i]);
+        }
+    }
+
     isCollision = false;
     for (int i = 0; i < room->numSavePoints; i++) {
         isCollision = collisionRectRect(&game->hero->body, &room->savePoints[i]->body);
@@ -821,6 +856,8 @@ void physics(Game * game)
 
 	}
     //if (isCollision == false) {  BUG HERE...
+
+    isCollision = false;
     for (int i = 0; i < room->numSpikes; i++) {
         isCollision = collisionRectTri(&game->hero->body, &room->spikes[i]->body);
         if (isCollision == true) {
@@ -837,6 +874,7 @@ void physics(Game * game)
             game->hero->onCollision(room->enemies[i]);
         }
     }
+
     isCollision = false;
     for (int i = room->numBullet - 1 ; i >= 0; i--) {
         isCollision = collisionRectRect(&game->hero->body, &room->bullet[i]->body);
@@ -909,6 +947,12 @@ void render_game(Game* game)
             renderSavePoint(entity, -1);
         }
         savePointCounter++;
+    }
+    if(game->isElevatorResizable) {
+        renderElevatorShadow(current_level->elevators[game->resizableElevatorIndex], 0.5);
+    }
+    for(auto entity : current_level->elevators) {
+        renderElevator(entity);
     }
     for(auto entity : current_level->platforms) {
         renderPlatform(entity);
@@ -1005,10 +1049,10 @@ void render_game(Game* game)
 
 void renderEnemy(GameObject * entity, int index)
 {
-
     float w = entity->body.width;
     float h = entity->body.height;
     glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+
     if (entity->id == SHOOTERENEMY) {
         w = entity->body.width+5;
         h = entity->body.height+5;
@@ -1120,7 +1164,6 @@ void renderEnemy(GameObject * entity, int index)
             }
             afterDeath++;
         }
-
     }
 }
 
@@ -1230,5 +1273,69 @@ void renderSavePoint(GameObject * entity, int index)
         glEnd();
         glPopMatrix();
     }
+}
+
+void renderElevator(GameObject * entity)
+{
+    float w = entity -> textureWidth;
+    float h = entity -> textureHeight;
+    
+    int cornerX = entity->body.center[0] - entity->body.width;
+    int cornerY = entity->body.center[1] + entity -> body.height;
+
+    glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+    for (int row = 0; row < entity->verticalTiles; row++){
+        int rowOffset = cornerY - ((row * entity->textureHeight * 2) + entity->textureHeight);    
+
+        for (int column = 0; column < entity->horizontalTiles; column++){
+            //The follwoing code is to draw the platforms
+            int colOffset = cornerX + (column * entity->textureWidth * 2) + entity->textureWidth;
+//            glEnable(GL_TEXTURE_2D);
+            glDisable(GL_TEXTURE_2D);
+//            glColor4ub(255,255,255,255);
+            glPushMatrix();
+            glTranslatef(colOffset, rowOffset, entity->body.center[2]);
+//            glBindTexture(GL_TEXTURE_2D, rockTexture);
+            glBegin(GL_QUADS);
+                glVertex2f(-w,-h);
+                glVertex2f(-w,h);
+                glVertex2f(w,h);
+                glVertex2f(w,-h);
+                //glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
+                //glTexCoord2f(0.1f,0.0f); glVertex2i(-w,h);
+                //glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
+                //glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
+            glEnd();
+            glPopMatrix();
+        }
+    }
+}
+
+void renderElevatorShadow(Elevator * entity, float alpha)
+{
+    float w = entity->body.width;
+    float h = entity->body.height;
+    float leftBound = entity->body.center[0] + w;
+    float rightBound = entity->body.center[0] - w;
+    float upperBound = entity->getUpperLimit() + h;
+    float lowerBound = entity->getLowerLimit() - h;
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(
+      ((float)entity->rgb[0])/255.0,
+      ((float)entity->rgb[1])/255.0,
+      ((float)entity->rgb[2])/255.0,
+      alpha);
+    glPushMatrix();
+    glBegin(GL_QUADS);
+        glVertex2f(leftBound, lowerBound);
+        glVertex2f(leftBound, upperBound);
+        glVertex2f(rightBound, upperBound);
+        glVertex2f(rightBound, lowerBound);
+    glEnd();
+    glPopMatrix();
+    glDisable(GL_BLEND);
+    glEnable(GL_TEXTURE_2D);
 }
 
