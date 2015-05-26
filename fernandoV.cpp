@@ -171,13 +171,14 @@ void initShit(){
 
     alSourcei(sources[6][0], AL_BUFFER, sources[6][1]);
     TEST_ERROR("buffer binding");
+	/////
+    alSourcef(sources[7][0], AL_GAIN, 0.5);
+    alutLoadWAVFile((ALbyte *)"sounds/snort.wav", &format, &data, &size, &freq,&loop);
+    TEST_ERROR("loading wav file");
+    alBufferData(sources[7][1], format, data, size, freq);
+    TEST_ERROR("buffer copy");
+    alSourcei(sources[7][0], AL_BUFFER, sources[7][1]);
 
-	//crow//////////////////
-	/*alSourcef(source, AL_GAIN,1);
-    alutLoadWAVFile((ALbyte *)"FILENAME", &format, &data, &size, &freq,&loop);
-    alBufferData(source, format, data, size, freq);
-    alSourcei(source, AL_BUFFER, buffer);
-	alSourceQueueBuffers(source,1,&buffer);*/
 
 
 }
@@ -190,6 +191,11 @@ void playJump(){
 
 void playDeath(){
     alSourcePlay(sources[1][0]);
+    TEST_ERROR("source playing");
+    return;
+}
+void playSpikeDeath(){
+    alSourcePlay(sources[7][0]);
     TEST_ERROR("source playing");
     return;
 }
@@ -244,12 +250,9 @@ void closeDevices() {
 	alDeleteSources(1, &sources[i][0]);
 	alDeleteBuffers(1, &sources[0][i]);
 	}
+	cout<<"all devices are closed\n";
 	device = alcGetContextsDevice(context);
 	alcMakeContextCurrent(NULL);
 	alcDestroyContext(context);
 	alcCloseDevice(device);
-
-
-
-
 }

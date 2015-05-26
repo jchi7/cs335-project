@@ -138,7 +138,7 @@ int currentSavePoint;
 auto start = std::chrono::high_resolution_clock::now();
 //End
 //value for save point sound
-bool Scollision = true;
+bool Scollision = false;
 
 GameObject mouse;
 

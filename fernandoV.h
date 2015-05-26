@@ -13,6 +13,7 @@ void stopGameMusic();
 void playSavePoint();
 void playLaser();
 void playEnemyDeath();
+void playSpikeDeath();
 void playcrow();
 void closeDevices();
 #endif

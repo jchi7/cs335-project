@@ -1,4 +1,5 @@
 #include "basicEnemy.h"
+#include "fernandoV.h"
 
 BasicEnemy::BasicEnemy(int left, int right, int x, int y)
 {
@@ -83,6 +84,8 @@ void BasicEnemy::movement()
 void BasicEnemy::onCollision(GameObject * obj)
 {
     if (obj->id == SPIKE || obj->id == HBULLET) {
+		//spike enemy death grunt
+		playSpikeDeath();
         state = PREDEATH;
     } else if (obj->id == EBULLET) {
         return;
