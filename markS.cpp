@@ -155,8 +155,12 @@ void check_game_input(XEvent *e, Game *game)
                 }
             }
             if (key == XK_5){
-                game->hero->body.center[0] = e->xbutton.x;
-                game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+                if (game->isHeroMovable)
+                    game->isHeroMovable = false;
+                else
+                    game->isHeroMovable = true;
+             //   game->hero->body.center[0] = e->xbutton.x;
+             //   game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
             }
             if (key == XK_Shift_L){
                 if (!game->isPlatformMovable &&

@@ -23,6 +23,7 @@ class Game
         bool isSpikeMovable;
         bool isSavePointMovable;
         bool isEnemyMovable;
+        bool isHeroMovable;
         int movablePlatformIndex;
         int movableSpikeIndex;
         int movableSavePointIndex;
