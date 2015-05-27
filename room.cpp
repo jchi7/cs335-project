@@ -86,3 +86,11 @@ void Room::respawn() {
         }
     }
 }
+
+void Room::clearBullets() {
+    for (int i = (int) bullet.size() - 1; i >= 0; i--) {
+        delete bullet[i];
+        bullet.erase(bullet.begin() + i);
+    }
+    numBullet = 0;
+}

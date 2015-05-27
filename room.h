@@ -33,6 +33,7 @@ class Room
         Room(int nPlatform, int nSpikes, int nSavePoints, int numBasic, int nElevators);
         ~Room();
         void respawn();
+        void clearBullets();
     protected:
     private:
 };

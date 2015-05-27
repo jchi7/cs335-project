@@ -75,12 +75,15 @@ void Game::respawnAtSavePoint()
 
 void Game::checkRoom()
 {
+    Room *oldRoom;
     Room *newRoom;
     if (hero->body.center[0] > WINDOW_WIDTH){
         if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
             hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
         }
         else{
+            oldRoom = getRoomPtr();
+            oldRoom->clearBullets();
             currentHorizontalLevel++;
             hero->body.center[0] = 0 + hero->body.width;
             newRoom = getRoomPtr();
@@ -94,6 +97,8 @@ void Game::checkRoom()
             hero->body.center[0] = 0 + hero->body.width;
         }
         else{
+            oldRoom = getRoomPtr();
+            oldRoom->clearBullets();
             currentHorizontalLevel--;
             hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
             newRoom = getRoomPtr();
@@ -107,6 +112,8 @@ void Game::checkRoom()
             hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
         }
         else {
+            oldRoom = getRoomPtr();
+            oldRoom->clearBullets();
             currentVerticalLevel++;
             hero->body.center[1] = 0 + hero->body.height;
             newRoom = getRoomPtr();
@@ -120,6 +127,8 @@ void Game::checkRoom()
             hero->body.center[1] = 0 +  hero->body.height;
         }
         else {
+            oldRoom = getRoomPtr();
+            oldRoom->clearBullets();
             currentVerticalLevel--;
             hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
             newRoom = getRoomPtr();

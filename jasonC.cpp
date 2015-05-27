@@ -77,6 +77,7 @@ void enemyPhysics(Game *game)
                 continue;
             if (isCollision == true) {
                 entity->onCollision(current_level->bullet[i]);
+                delete current_level->bullet[i];
                 current_level->bullet.erase(current_level->bullet.begin() + i);
                 current_level->numBullet--;
             }
@@ -169,7 +170,10 @@ void bulletPhysics(Game *game)
                 entity->onCollision(current_level->spikes[i]);
             }
         }
+        if (entity->body.center[0] > 1000 || entity->body.center[0] <= 0)
+            entity->state = DEATH;
         if (entity->state == DEATH) {
+            delete current_level->bullet[i];
             current_level->bullet.erase(current_level->bullet.begin() + i);
             current_level->numBullet--;
         }

@@ -511,7 +511,7 @@ void init_MainMenuButtons(void)
     button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
     button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
     button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
-    strcpy(button[nbuttons].text, "Reset");
+    //strcpy(button[nbuttons].text, "Reset");
     button[nbuttons].down = 0;
     button[nbuttons].click = 0;
     button[nbuttons].color[0] = 0.4f;
@@ -530,7 +530,7 @@ void init_MainMenuButtons(void)
     button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
     button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
     button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
-    strcpy(button[nbuttons].text, "Level Editor");
+    //strcpy(button[nbuttons].text, "Level Editor");
     button[nbuttons].down = 0;
     button[nbuttons].click = 0;
     button[nbuttons].color[0] = 0.3f;
@@ -549,7 +549,7 @@ void init_MainMenuButtons(void)
     button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
     button[nbuttons].r.centerx = (button[nbuttons].r.left + button[nbuttons].r.right) / 2;
     button[nbuttons].r.centery = (button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
-    strcpy(button[nbuttons].text, "Quit");
+    //strcpy(button[nbuttons].text, "Quit");
     button[nbuttons].down = 0;
     button[nbuttons].click = 0;
     button[nbuttons].color[0] = 0.3f;
@@ -565,7 +565,7 @@ void init_MainMenuButtons(void)
 void render_MainMenu(void)
 {
     //Rect r;
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
     //glColor3ub(200,200,200);
     glColor3f(1.0,1.0,1.0);
 
@@ -575,6 +575,7 @@ void render_MainMenu(void)
   
   glPushMatrix();
   for (int i=0; i<nbuttons; i++) {
+    
     if (button[i].over) {
       int w=2;
       glColor3f(1.0f, 1.0f, 0.0f);
@@ -589,6 +590,7 @@ void render_MainMenu(void)
       glEnd();
       glLineWidth(1);
     }
+    
     if (button[i].down) {
       glColor3fv(button[i].dcolor);
     } else {
@@ -611,7 +613,6 @@ void render_MainMenu(void)
     }
     */
     glPopMatrix();
-    
         //Rendering the menu Items
         if (i == 0) {
             glEnable(GL_TEXTURE_2D);
@@ -910,6 +911,7 @@ void physics(Game * game)
         if (isCollision == true) {
             if (room->bullet[i]->id != HBULLET) {
                 game->hero->onCollision(room->bullet[i]);
+                delete room->bullet[i];
                 room->bullet.erase(room->bullet.begin() + i);
                 room->numBullet--;
             }
@@ -946,7 +948,7 @@ void render_game(Game* game)
     microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     Room* current_level = game->getRoomPtr();
 
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
     float w, h;
     
     glColor3f(1.0,1.0,1.0);
