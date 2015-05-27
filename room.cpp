@@ -36,24 +36,31 @@ Room::~Room()
 {
     for (int i = (int) enemies.size() - 1; i >= 0; i--) {
         delete enemies[i];
+        enemies.erase(enemies.begin() + i);
     }
     for (int i = (int) bullet.size() - 1; i >= 0; i--) {
         delete bullet[i];
+        bullet.erase(bullet.begin() + i);
     }
     for (int i = platforms.size() - 1; i >= 0; i--) {
         delete platforms[i];
+        platforms.erase(platforms.begin() + i);
     }
     for (int i = savePoints.size() - 1; i >= 0; i--) {
         delete savePoints[i];
+        savePoints.erase(savePoints.begin() + i);
     }
     for (int i = spikes.size() - 1; i >= 0; i--) {
         delete spikes[i];
+        spikes.erase(spikes.begin() + i);
     }
     for (int i = elevators.size() - 1; i >= 0; i--) {
         delete elevators[i];
+        elevators.erase(elevators.begin() + i);
     }
     for (int i = spawnPoints.size() - 1; i >= 0; i--) {
         delete spawnPoints[i];
+        spawnPoints.erase(spawnPoints.begin() + i);
     }
 }
 
@@ -61,7 +68,7 @@ void Room::respawn() {
     
     for (int i = (int) enemies.size() - 1; i >= 0; i--) {
         delete enemies[i];
-        //enemies.erase(enemies.begin() + i);
+        enemies.erase(enemies.begin() + i);
     }
     this->numBasicEnemies = 0;
     for (auto &point: spawnPoints) {
