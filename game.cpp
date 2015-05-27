@@ -75,6 +75,7 @@ void Game::respawnAtSavePoint()
 
 void Game::checkRoom()
 {
+    Room *newRoom;
     if (hero->body.center[0] > WINDOW_WIDTH){
         if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
             hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
@@ -82,6 +83,8 @@ void Game::checkRoom()
         else{
             currentHorizontalLevel++;
             hero->body.center[0] = 0 + hero->body.width;
+            newRoom = getRoomPtr();
+            newRoom->respawn();
         }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
@@ -93,6 +96,8 @@ void Game::checkRoom()
         else{
             currentHorizontalLevel--;
             hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
+            newRoom = getRoomPtr();
+            newRoom->respawn();
         }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
@@ -104,6 +109,8 @@ void Game::checkRoom()
         else {
             currentVerticalLevel++;
             hero->body.center[1] = 0 + hero->body.height;
+            newRoom = getRoomPtr();
+            newRoom->respawn();
         }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
@@ -115,6 +122,8 @@ void Game::checkRoom()
         else {
             currentVerticalLevel--;
             hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
+            newRoom = getRoomPtr();
+            newRoom->respawn();
         }
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
@@ -357,6 +366,7 @@ void Game::fillLevel()
                     // create Enemy
                     level[vert][horz].enemies.push_back(new BasicEnemy(convVal[0], convVal[1], convVal[2], convVal[3]));
                     level[vert][horz].numBasicEnemies++;
+                    level[vert][horz].spawnPoints.push_back(new SpawnPoint(convVal[2], convVal[3], ENEMY));
                 }
                 else if (objType == "SHOOTER") {
                     float convVal[4];
@@ -368,6 +378,7 @@ void Game::fillLevel()
                     // create Shooter Enemy
                     level[vert][horz].enemies.push_back(new ShooterEnemy(convVal[0], convVal[1], convVal[2], convVal[3]));
                     level[vert][horz].numBasicEnemies++;
+                    level[vert][horz].spawnPoints.push_back(new SpawnPoint(convVal[2], convVal[3], SHOOTERENEMY));
                 }
                 else if (objType == "ELEVATOR") {
                     float convVal[3];

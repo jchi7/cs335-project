@@ -11,6 +11,7 @@
 #include "basicEnemy.h"
 #include "shooterEnemy.h"
 #include "basicBullet.h"
+#include "spawnPoint.h"
 
 class Game
 {

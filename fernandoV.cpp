@@ -107,6 +107,7 @@ void initShit(){
 
     alSourcei(sources[0][0], AL_BUFFER, sources[0][1]);
     TEST_ERROR("buffer binding");
+    alutUnloadWAV(format, data, size, freq);
 	////////////
 
     alSourcef(sources[1][0], AL_GAIN, 0.1);
@@ -118,6 +119,7 @@ void initShit(){
 
     alSourcei(sources[1][0], AL_BUFFER, sources[1][1]);
     TEST_ERROR("buffer binding");
+    alutUnloadWAV(format, data, size, freq);
 	////////////
 
     alSourcef(sources[2][0], AL_GAIN,.20) ;
@@ -129,6 +131,7 @@ void initShit(){
 
     alSourcei(sources[2][0], AL_BUFFER, sources[2][1]);
     TEST_ERROR("buffer binding");
+    alutUnloadWAV(format, data, size, freq);
 	///////////
     
     alSourcef(sources[3][0], AL_GAIN, 0.05);
@@ -140,6 +143,7 @@ void initShit(){
 
     alSourcei(sources[3][0], AL_BUFFER, sources[3][1]);
     TEST_ERROR("buffer binding");
+    alutUnloadWAV(format, data, size, freq);
 	//////////
     alSourcef(sources[4][0], AL_GAIN, 0.05);
     alutLoadWAVFile((ALbyte *)"sounds/savepoint.wav", &format, &data, &size, &freq,&loop);
@@ -150,6 +154,7 @@ void initShit(){
 
     alSourcei(sources[4][0], AL_BUFFER, sources[4][1]);
     TEST_ERROR("buffer binding");
+    alutUnloadWAV(format, data, size, freq);
 	//////////	
     alSourcef(sources[5][0], AL_GAIN, 0.1);
     alutLoadWAVFile((ALbyte *)"sounds/laser.wav", &format, &data, &size, &freq,&loop);
@@ -160,6 +165,7 @@ void initShit(){
 
     alSourcei(sources[5][0], AL_BUFFER, sources[5][1]);
     TEST_ERROR("buffer binding");
+    alutUnloadWAV(format, data, size, freq);
 	/////	
     alSourcef(sources[6][0], AL_GAIN, 0.1);
     alutLoadWAVFile((ALbyte *)"sounds/pain.wav", &format, &data, &size, &freq,&loop);
@@ -170,6 +176,7 @@ void initShit(){
 
     alSourcei(sources[6][0], AL_BUFFER, sources[6][1]);
     TEST_ERROR("buffer binding");
+    alutUnloadWAV(format, data, size, freq);
 	/////
     alSourcef(sources[7][0], AL_GAIN, 0.5);
     alutLoadWAVFile((ALbyte *)"sounds/snort.wav", &format, &data, &size, &freq,&loop);
@@ -177,6 +184,7 @@ void initShit(){
     alBufferData(sources[7][1], format, data, size, freq);
     TEST_ERROR("buffer copy");
     alSourcei(sources[7][0], AL_BUFFER, sources[7][1]);
+    alutUnloadWAV(format, data, size, freq);
 
 
 

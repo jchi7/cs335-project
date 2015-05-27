@@ -1,7 +1,7 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
-#include "inputComponent.h"
+#include "structs.h"
 
 class GameObject
 {
@@ -29,7 +29,6 @@ class GameObject
         virtual void switchDirection();
     protected:
     private:
-        InputComponent* IComponent;
 };
 
 #endif // GAMEOBJECT_H

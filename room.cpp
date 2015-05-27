@@ -21,7 +21,7 @@ Room::Room(int nPlatform, int nSpike, int nSavePoints, int numBasic, int nElevat
     this->numSavePoints = nSavePoints;
     this->numBasicEnemies = numBasic;
     this->numElevators = nElevators;
-
+    /*
     this->platforms.reserve(nPlatform);
     this->spikes.reserve(nSpike);
     this->savePoints.reserve(nSavePoints);
@@ -29,6 +29,7 @@ Room::Room(int nPlatform, int nSpike, int nSavePoints, int numBasic, int nElevat
     if (this->numBasicEnemies > 0)
         this->enemies.reserve(numBasic);
     this->currentBasicEnemy = 0;
+    */
 }
 
 Room::~Room()
@@ -50,5 +51,31 @@ Room::~Room()
     }
     for (int i = elevators.size() - 1; i >= 0; i--) {
         delete elevators[i];
+    }
+    for (int i = spawnPoints.size() - 1; i >= 0; i--) {
+        delete spawnPoints[i];
+    }
+}
+
+void Room::respawn() {
+    
+    for (int i = (int) enemies.size() - 1; i >= 0; i--) {
+        delete enemies[i];
+        //enemies.erase(enemies.begin() + i);
+    }
+    this->numBasicEnemies = 0;
+    for (auto &point: spawnPoints) {
+        switch (point->id) {
+            case ENEMY:
+                enemies.push_back(new BasicEnemy(0, 0, point->body.center[0], point->body.center[1]));
+                numBasicEnemies++;
+                break;
+            case SHOOTERENEMY:
+                enemies.push_back(new ShooterEnemy(0, 0, point->body.center[0], point->body.center[1]));
+                numBasicEnemies++;
+                break;
+            default:
+                break;
+        }
     }
 }

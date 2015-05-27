@@ -2,6 +2,9 @@
 #define ROOM_H
 
 #include "gameObject.h"
+#include "basicEnemy.h"
+#include "shooterEnemy.h"
+#include "spawnPoint.h"
 #include "elevator.h"
 
 class Room
@@ -23,11 +26,13 @@ class Room
         std::vector<GameObject*> platforms;
         std::vector<GameObject*> spikes;
         std::vector<GameObject*> savePoints;
+        std::vector<GameObject*> spawnPoints;
         std::vector<Elevator*> elevators;
 
         Room();
         Room(int nPlatform, int nSpikes, int nSavePoints, int numBasic, int nElevators);
         ~Room();
+        void respawn();
     protected:
     private:
 };

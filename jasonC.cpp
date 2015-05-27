@@ -117,12 +117,23 @@ void enemyPhysics(Game *game)
                     break;
             }
         }
-
         if (entity->body.orientation == FACING_LEFT && (entity->body.center[0] - entity->body.width <= 0)) {
             entity->switchDirection();
         } else if (entity->body.orientation == FACING_RIGHT && (entity->body.center[0] + entity->body.width >= 1000)) {
             entity->switchDirection();
         }
+        switch (entity->state) {
+            case PREDEATH:
+                entity->body.orientation = STOP;
+                break;
+            case DEATH:
+                current_level->enemies.erase(current_level->enemies.begin() + i);
+                current_level->numBasicEnemies--;
+                break;
+            default:
+                break;
+        }
+        /*
         if (entity->state == PREDEATH) {
             entity->body.orientation = STOP;
         }
@@ -130,6 +141,7 @@ void enemyPhysics(Game *game)
             current_level->enemies.erase(current_level->enemies.begin() + i);
             current_level->numBasicEnemies--;
         }
+        */
     } 
 }
 
