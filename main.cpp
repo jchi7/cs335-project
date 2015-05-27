@@ -612,7 +612,6 @@ void render_MainMenu(void)
     */
     glPopMatrix();
     
-    /*
         //Rendering the menu Items
         if (i == 0) {
             glEnable(GL_TEXTURE_2D);
@@ -667,7 +666,6 @@ void render_MainMenu(void)
 
             glPopMatrix();
         }
-    */
     }
 }
 
