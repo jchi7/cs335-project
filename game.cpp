@@ -47,7 +47,7 @@ Game::Game()
 Game::~Game()
 {
     delete hero;
-    //level.erase(level.begin(), level.end());
+    level.erase(level.begin(), level.end());
     //dtor
 }
 

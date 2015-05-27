@@ -249,6 +249,8 @@ int main()
         }
     }
     cleanupImages();
+    glXMakeCurrent(dpy, win, NULL);
+    glXDestroyContext(dpy, glc);
     cleanupXWindows();
 	//close audio devices
 	closeDevices();
@@ -283,6 +285,7 @@ void initXWindows(void)
     set_title();
     glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
     glXMakeCurrent(dpy, win, glc);
+    XFree(vi);
 }
 
 void init_opengl(void)
@@ -608,7 +611,8 @@ void render_MainMenu(void)
     }
     */
     glPopMatrix();
-        
+    
+    /*
         //Rendering the menu Items
         if (i == 0) {
             glEnable(GL_TEXTURE_2D);
@@ -663,6 +667,7 @@ void render_MainMenu(void)
 
             glPopMatrix();
         }
+    */
     }
 }
 

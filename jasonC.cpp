@@ -127,6 +127,7 @@ void enemyPhysics(Game *game)
                 entity->body.orientation = STOP;
                 break;
             case DEATH:
+                delete current_level->enemies[i];
                 current_level->enemies.erase(current_level->enemies.begin() + i);
                 current_level->numBasicEnemies--;
                 break;
