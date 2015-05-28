@@ -119,13 +119,17 @@ bool collisionRectTri(Shape * r, Shape * t)
 
 extern bool topOnlyCollisionRectRect(Shape * top, Shape * bottom, Vec topPrev)
 {
+    // !!!! ERROR: does not work if top was prevously colliding on the upper boundary of bottom, and then immediately collides on the side !!!!
+
     if (top->type != RECTANGLE || bottom->type != RECTANGLE) {
         std::cout << "bool topOnlyCollisionRectRect: ERROR, passed incompatable Shape types\n";
         exit(1);
     }
 
-    if (top->center[1]-top->height < bottom->center[1]+bottom->height) {
-      return false;
+    if (topPrev[1]+top->height < bottom->center[1]-bottom->height ||
+      top->center[1]-top->height < bottom->center[1]-bottom->height)
+    {
+        return false;
     }
 
     bool topLeftCollision=false, topRightCollision=false;

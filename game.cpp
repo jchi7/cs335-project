@@ -390,7 +390,7 @@ void Game::fillLevel()
                     level[vert][horz].spawnPoints.push_back(new SpawnPoint(convVal[2], convVal[3], SHOOTERENEMY));
                 }
                 else if (objType == "ELEVATOR") {
-                    float convVal[3];
+                    float convVal[4];
                     for (int col = 0; col < 3; col++) {
                         getline(iss, val, ',');
                         stringstream converter(val);
@@ -399,9 +399,12 @@ void Game::fillLevel()
                     getline(iss, val, ',');
                     stringstream converter(val);
                     converter >> convValTex;
+                    getline(iss, val, ',');
+                    stringstream converter2(val);
+                    converter2 >> convVal[3];
 
                     // create Elevator
-                    level[vert][horz].elevators.push_back(new Elevator(convVal[0], convVal[1], convVal[2],convValTex));
+                    level[vert][horz].elevators.push_back(new Elevator(convVal[0], convVal[1], convVal[2], convValTex, convVal[3]));
                     level[vert][horz].numElevators++;
                 }
             }
@@ -547,7 +550,8 @@ void Game::writeElevator(Elevator * elev, ofstream & outf)
       << elev->body.center[0] << ","
       << elev->getLowerLimit() << ","
       << elev->getUpperLimit() << ","
-      << elev->tex_id << "\n";
+      << elev->tex_id << ","
+      << elev->getVertSpeed() << "\n";
 }
 
 void Game::heroShoots()

@@ -1,7 +1,7 @@
 #include "elevator.h"
 
 /* --------------- Elevator Class --------------- */
-Elevator::Elevator(float centerX, float lowerY, float upperY, int texture)
+Elevator::Elevator(float centerX, float lowerY, float upperY, int texture, float vertVelMult)
 {
     body.type = RECTANGLE;
     id = ELEVATOR;
@@ -12,6 +12,7 @@ Elevator::Elevator(float centerX, float lowerY, float upperY, int texture)
         lowerY = upperY;
         upperY = temp;
     }
+    vertSpeed = vertVelMult;
 
     vecMake(centerX, lowerY, body.center);
     vecMake(0, fabs(gravity*2), velocity);
@@ -50,6 +51,11 @@ void Elevator::setLowerLimit(float newLimit)
     lowerLimit = newLimit;
 }
 
+void Elevator::setVertSpeed(float newSpeed)
+{
+    vertSpeed = fabs(newSpeed);
+}
+
 float Elevator::getUpperLimit()
 {
     return upperLimit;
@@ -60,6 +66,11 @@ float Elevator::getLowerLimit()
     return lowerLimit;
 }
 
+float Elevator::getVertSpeed()
+{
+    return vertSpeed;
+}
+
 void Elevator::movement()
 {
     if (delay != 0) {
@@ -67,7 +78,7 @@ void Elevator::movement()
         return;
     }
     prevPosition[1] = body.center[1];
-    body.center[1] += velocity[1];
+    body.center[1] += velocity[1]*vertSpeed;
     if (body.center[1] > upperLimit) {
         body.center[1] = upperLimit;
         velocity[1] = -fabs(velocity[1]);

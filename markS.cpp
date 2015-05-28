@@ -524,7 +524,7 @@ void editorAddElevator(Game *game, GameObject * mouse)
         mouse->body.center[0],
         mouse->body.center[1],
         mouse->body.center[1] + (game->platformTextureHeight * 2),
-        0
+        0, 1
     ));
     room->numElevators++;
     game->movableElevatorIndex = room->elevators.size() - 1;

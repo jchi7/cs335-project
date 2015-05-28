@@ -212,9 +212,21 @@ void Hero::onCollision(GameObject * obj)
             }
         }
         if (obj->id == ELEVATOR) {
+            if (obj->velocity[1] >= 0) {
+                return;
+            }
             if (topOnlyCollisionRectRect(&body, &(obj->body), prevPosition))
             {
-                velocity[1] = obj->velocity[1];
+                velocity[1] += obj->velocity[1];
+                // DEBUG:
+                //cout << "top collision, velocity[1] = " << velocity[1] << endl;
+            }
+            else {
+                // DEBUG:
+                //cout << "non-top collision, velocity[1] = " << velocity[1] << endl;
+                if (prevPosition[1]+body.height <= obj->body.center[1]+obj->body.height) {
+                    body.center[1] += obj->velocity[1]*3;
+                }
             }
         }
     }
