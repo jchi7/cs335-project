@@ -74,11 +74,11 @@ void Room::respawn() {
     for (auto &point: spawnPoints) {
         switch (point->id) {
             case ENEMY:
-                enemies.push_back(new BasicEnemy(0, 0, point->body.center[0], point->body.center[1]));
+                enemies.push_back(new BasicEnemy(point->body.center[0], point->body.center[1]));
                 numBasicEnemies++;
                 break;
             case SHOOTERENEMY:
-                enemies.push_back(new ShooterEnemy(0, 0, point->body.center[0], point->body.center[1]));
+                enemies.push_back(new ShooterEnemy(point->body.center[0], point->body.center[1]));
                 numBasicEnemies++;
                 break;
             default:

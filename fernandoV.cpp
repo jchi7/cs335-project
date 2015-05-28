@@ -155,7 +155,7 @@ void init_openal(){
     TEST_ERROR("buffer binding");
     alutUnloadWAV(format, data, size, freq);
 	//////////
-    alSourcef(sources[4][0], AL_GAIN, 0.05);
+    alSourcef(sources[4][0], AL_GAIN, 0.3);
 #ifdef ISMAC
     alutLoadWAVFile((ALbyte *)"sounds/savepoint.wav", &format, &data, &size, &freq);
 #else    

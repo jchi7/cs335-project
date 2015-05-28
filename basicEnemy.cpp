@@ -1,7 +1,7 @@
 #include "basicEnemy.h"
 #include "fernandoV.h"
 
-BasicEnemy::BasicEnemy(int left, int right, int x, int y)
+BasicEnemy::BasicEnemy( float x, float y)
 {
     this->body.type = RECTANGLE;
     this->id = ENEMY;

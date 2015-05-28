@@ -8,7 +8,7 @@
 class ShooterEnemy : public BasicEnemy
 {
     public:
-        ShooterEnemy(int, int, int, int);
+        ShooterEnemy( float, float);
         Coordinates sprite[10];
         float Inc;
         virtual ~ShooterEnemy();

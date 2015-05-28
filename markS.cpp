@@ -451,8 +451,6 @@ void editorAddEnemy(Game * game, GameObject * mouse)
     Room * room = game->getRoomPtr();
     room->enemies.push_back(
         new BasicEnemy(
-            10,
-            20,
             mouse->body.center[0],
             mouse->body.center[1]));
     room->numBasicEnemies++;
@@ -469,11 +467,11 @@ void nextEnemy(Game *game, GameObject * mouse)
     switch (id){
         case ENEMY:
             room->enemies[game->movableEnemyIndex] = new ShooterEnemy(
-                10,10,mouse->body.center[0], mouse->body.center[1]);
+                mouse->body.center[0], mouse->body.center[1]);
             break;
         case SHOOTERENEMY:
             room->enemies[game->movableEnemyIndex] = new BasicEnemy(
-                10,10,mouse->body.center[0], mouse->body.center[1]);
+                mouse->body.center[0], mouse->body.center[1]);
             break;
         default:
             break;
