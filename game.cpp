@@ -738,7 +738,6 @@ void Game::initLevel()
         level.push_back(tempRow);
         tempRow.clear();
     }
-    cout << "inside initlevel" << endl;
 }
 
 void Game::fillLevel()
@@ -910,7 +909,6 @@ void Game::fillLevel()
             file.close();
         }
     }
-    cout << "lets see if this displays" << endl;
     // DEBUG:
 //    cout << level[1][3].savePoints[0]->body.width << endl;
 }

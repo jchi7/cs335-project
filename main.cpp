@@ -161,7 +161,7 @@ int main()
 //    newgame.respawnAtSavePoint();
 
 	//initialize openAL and menu music
-	initShit();
+	init_openal();
 	playMenuMusic();
 
     bool render = true;
@@ -281,8 +281,12 @@ int main()
         }
     }
     cleanupImages();
-    //glXMakeCurrent(dpy, win, NULL);
-    //glXDestroyContext(dpy, glc);
+    #ifdef NVIDIA
+    glXDestroyContext(dpy, glc);
+    #else
+    glXMakeCurrent(dpy, win, NULL);
+    glXDestroyContext(dpy, glc);
+    #endif
     cleanupXWindows();
 	//close audio devices
 	closeDevices();
@@ -331,7 +335,6 @@ void init_opengl(void)
     glOrtho(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT, -1, 1);
     //Set the screen background color
     glClearColor(0.1, 0.1, 0.1, 1.0);
-    cout << "1" << endl;
     //Importing Images
     spikeDeathImage = ppm6GetImage("./images/spikeDead.ppm");
     eShootingRightImage = ppm6GetImage("./images/mega_walkR.ppm");
@@ -361,7 +364,6 @@ void init_opengl(void)
     coalImage = ppm6GetImage("./images/coal.ppm");
     dirtImage = ppm6GetImage("./images/dirt.ppm");
     shooterDeathImage = ppm6GetImage("./images/shooterDeath.ppm");
-    cout << "2" << endl;
 
     //Binding the textures... 
     glGenTextures(1, &keyTexture); 
@@ -597,7 +599,7 @@ void init_MainMenuButtons(void)
 void render_MainMenu(void)
 {
     //Rect r;
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
     //glColor3ub(200,200,200);
     glColor3f(1.0,1.0,1.0);
 
@@ -986,7 +988,7 @@ void render_game(Game* game)
     microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     Room* current_level = game->getRoomPtr();
 
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
     float w, h;
     
     glColor3f(1.0,1.0,1.0);
