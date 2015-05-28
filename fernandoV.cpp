@@ -170,7 +170,7 @@ void initShit(){
     TEST_ERROR("buffer binding");
     alutUnloadWAV(format, data, size, freq);
 	//////////	
-    alSourcef(sources[5][0], AL_GAIN, 0.1);
+    alSourcef(sources[5][0], AL_GAIN, 0.05);
 #ifdef ISMAC
     alutLoadWAVFile((ALbyte *)"sounds/laser.wav", &format, &data, &size, &freq);
 #else    
@@ -200,7 +200,7 @@ void initShit(){
     TEST_ERROR("buffer binding");
     alutUnloadWAV(format, data, size, freq);
 	/////
-    alSourcef(sources[7][0], AL_GAIN, 0.5);
+    alSourcef(sources[7][0], AL_GAIN, 0.1);
 #ifdef ISMAC
     alutLoadWAVFile((ALbyte *)"sounds/snort.wav", &format, &data, &size, &freq);
 #else    
