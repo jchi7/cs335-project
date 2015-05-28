@@ -1,6 +1,7 @@
 #ifndef MARKS_H
 #define MARKS_H
 
+bool currentlyEditable(Game *);
 void editorAddPlatform(Game *game, GameObject * mouse);
 void editorAddSpike(Game *game, GameObject * mouse);
 void editorAddSavePoint(Game *game, GameObject * mouse);

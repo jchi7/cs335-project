@@ -28,6 +28,7 @@ class Game
         bool isElevatorMovable;
         bool isElevatorResizable;
         bool isEnemyMovable;
+        bool isHeroMovable;
 
         int movablePlatformIndex;
         int movableSpikeIndex;
@@ -46,6 +47,9 @@ class Game
         int savePointHorizontalRoom;
         int savePointVerticalRoom;
         int savePointIndex;
+
+        int creditsTextPosition;
+        std::vector< Grid * > mapGrid;
 
         // position of current room:
         int currentHorizontalLevel;
@@ -69,6 +73,11 @@ class Game
         Game();
         ~Game();
 
+        void playCredits();
+        void checkCreditsInput(XEvent *);
+        void initializeMap(int, int);
+        void checkMapInput(XEvent*);
+        void renderMap(Display *, Window *);
         void respawnAtSavePoint();
         void setSavePoint(int index);
         void checkRoom();

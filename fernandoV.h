@@ -1,7 +1,13 @@
 #ifndef AUDIO_H
 #define AUDIO_H
-#include <AL/al.h>
-#include <AL/alc.h>
+
+#ifdef ISMAC
+    #include <OpenAL/al.h>
+    #include <OpenAL/alc.h>
+#else
+    #include <AL/al.h>
+    #include <AL/alc.h>
+#endif
 #include <AL/alut.h>
 void initShit();
 void playJump();

@@ -9,11 +9,6 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-#include <AL/al.h>
-#include <AL/alc.h>
-
-#include <AL/alut.h>
-
 #define TEST_ERROR(_msg)        \
     error = alGetError();       \
     if (error != AL_NO_ERROR) { \
@@ -98,8 +93,11 @@ void initShit(){
 
 
 
-
+#ifdef ISMAC
+    alutLoadWAVFile((ALbyte *)"sounds/jump.wav", &format, &data, &size, &freq);
+#else    
     alutLoadWAVFile((ALbyte *)"sounds/jump.wav", &format, &data, &size, &freq,&loop);
+#endif    
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[0][1], format, data, size, freq);
@@ -111,7 +109,11 @@ void initShit(){
 	////////////
 
     alSourcef(sources[1][0], AL_GAIN, 0.1);
+#ifdef ISMAC
+    alutLoadWAVFile((ALbyte *)"sounds/grunt.wav", &format, &data, &size, &freq);
+#else    
     alutLoadWAVFile((ALbyte *)"sounds/grunt.wav", &format, &data, &size, &freq,&loop);
+#endif    
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[1][1], format, data, size, freq);
@@ -123,7 +125,11 @@ void initShit(){
 	////////////
 
     alSourcef(sources[2][0], AL_GAIN,.20) ;
+#ifdef ISMAC
+    alutLoadWAVFile((ALbyte *)"sounds/Opening.wav", &format, &data, &size, &freq);
+#else    
     alutLoadWAVFile((ALbyte *)"sounds/Opening.wav", &format, &data, &size, &freq,&loop);
+#endif    
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[2][1], format, data, size, freq);
@@ -135,7 +141,11 @@ void initShit(){
 	///////////
     
     alSourcef(sources[3][0], AL_GAIN, 0.05);
+#ifdef ISMAC
+    alutLoadWAVFile((ALbyte *)"sounds/gameSound2.wav", &format, &data, &size, &freq);
+#else    
     alutLoadWAVFile((ALbyte *)"sounds/gameSound2.wav", &format, &data, &size, &freq,&loop);
+#endif
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[3][1], format, data, size, freq);
@@ -146,7 +156,11 @@ void initShit(){
     alutUnloadWAV(format, data, size, freq);
 	//////////
     alSourcef(sources[4][0], AL_GAIN, 0.05);
+#ifdef ISMAC
+    alutLoadWAVFile((ALbyte *)"sounds/savepoint.wav", &format, &data, &size, &freq);
+#else    
     alutLoadWAVFile((ALbyte *)"sounds/savepoint.wav", &format, &data, &size, &freq,&loop);
+#endif    
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[4][1], format, data, size, freq);
@@ -157,7 +171,11 @@ void initShit(){
     alutUnloadWAV(format, data, size, freq);
 	//////////	
     alSourcef(sources[5][0], AL_GAIN, 0.1);
+#ifdef ISMAC
+    alutLoadWAVFile((ALbyte *)"sounds/laser.wav", &format, &data, &size, &freq);
+#else    
     alutLoadWAVFile((ALbyte *)"sounds/laser.wav", &format, &data, &size, &freq,&loop);
+#endif    
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[5][1], format, data, size, freq);
@@ -168,7 +186,11 @@ void initShit(){
     alutUnloadWAV(format, data, size, freq);
 	/////	
     alSourcef(sources[6][0], AL_GAIN, 0.1);
+#ifdef ISMAC
+    alutLoadWAVFile((ALbyte *)"sounds/pain.wav", &format, &data, &size, &freq);
+#else    
     alutLoadWAVFile((ALbyte *)"sounds/pain.wav", &format, &data, &size, &freq,&loop);
+#endif    
     TEST_ERROR("loading wav file");
 
     alBufferData(sources[6][1], format, data, size, freq);
@@ -179,7 +201,11 @@ void initShit(){
     alutUnloadWAV(format, data, size, freq);
 	/////
     alSourcef(sources[7][0], AL_GAIN, 0.5);
+#ifdef ISMAC
+    alutLoadWAVFile((ALbyte *)"sounds/snort.wav", &format, &data, &size, &freq);
+#else    
     alutLoadWAVFile((ALbyte *)"sounds/snort.wav", &format, &data, &size, &freq,&loop);
+#endif    
     TEST_ERROR("loading wav file");
     alBufferData(sources[7][1], format, data, size, freq);
     TEST_ERROR("buffer copy");
@@ -255,7 +281,7 @@ void closeDevices() {
 	
  for (int i = 0; i < MAX_SOURCES; i++){
 	alDeleteSources(1, &sources[i][0]);
-	alDeleteBuffers(1, &sources[0][i]);
+	alDeleteBuffers(1, &sources[i][1]);
 	}
 	cout<<"all devices are closed\n";
 	device = alcGetContextsDevice(context);

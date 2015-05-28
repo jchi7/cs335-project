@@ -16,6 +16,8 @@
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
 
+#include "fonts.h"
+
 #define GRAVITY -0.35
 #define MAXBUTTONS 4
 
@@ -34,6 +36,7 @@ void check_menu_button(XEvent *e, Game * game);
 void check_game_input(XEvent *e, Game * game);
 void check_death_input(XEvent *e, Game *newgame);
 
+void moveHero(XEvent *e, Game * game);
 void movePlatform(XEvent *e, Game * game);
 void moveSavePoint(XEvent *e, Game * game);
 void moveSpike(XEvent *e, Game * game);
@@ -231,9 +234,12 @@ int main()
                         moveElevator(&e, &newgame);
                     if (newgame.isEnemyMovable == true)
                         moveEnemy(&e, &newgame);
+                    if (newgame.isHeroMovable == true)
+                        moveHero(&e, &newgame);
                 }
                 if (doPhysics == true){
-                    physics(&newgame);
+                    if (!newgame.isHeroMovable)
+                        physics(&newgame);
                     doPhysics = false;
                 }
                 if (render == true){
@@ -242,6 +248,32 @@ int main()
                     glXSwapBuffers(dpy, win);
                 }
                 break;
+            case MAP:
+                while(XPending(dpy)) {
+                    XEvent e;
+                    XNextEvent(dpy, &e);
+                    newgame.checkMapInput(&e);
+                }
+                if (render == true){
+                    newgame.renderMap(dpy, &win);
+                    glXSwapBuffers(dpy, win);
+                }
+
+                break;
+            case CREDITS:
+                while(XPending(dpy))
+                {
+                    XEvent e;
+                    XNextEvent(dpy, &e);
+                    newgame.checkCreditsInput(&e);
+                }
+                if (render == true)
+                {
+                    newgame.playCredits();
+                    glXSwapBuffers(dpy, win);
+                }
+                break;
+    
             case EXIT_GAME:
                 break;
             default:
@@ -249,8 +281,8 @@ int main()
         }
     }
     cleanupImages();
-    glXMakeCurrent(dpy, win, NULL);
-    glXDestroyContext(dpy, glc);
+    //glXMakeCurrent(dpy, win, NULL);
+    //glXDestroyContext(dpy, glc);
     cleanupXWindows();
 	//close audio devices
 	closeDevices();
@@ -290,6 +322,7 @@ void initXWindows(void)
 
 void init_opengl(void)
 {
+    cout << "inside openGL" << endl;
     //OpenGL initialization
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     //Initialize matrices
@@ -448,6 +481,7 @@ void init_opengl(void)
     setUpImage(forestTexture,backgroundImage);
     //Setting up the Gui Background image.
     setUpImage(guiBackgroundTexture,guiBackgroundImage);
+    cout << "after opengl" << endl;
 }
 
 // Need to clean up PPM images
@@ -565,7 +599,7 @@ void init_MainMenuButtons(void)
 void render_MainMenu(void)
 {
     //Rect r;
-    //glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
     //glColor3ub(200,200,200);
     glColor3f(1.0,1.0,1.0);
 
@@ -712,6 +746,11 @@ void moveEnemy(XEvent *e, Game * game)
     currentRoom->enemies[game->movableEnemyIndex]->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
     
 }
+void moveHero(XEvent *e, Game * game)
+{
+    game->hero->body.center[0] = e->xbutton.x;
+    game->hero->body.center[1] = WINDOW_HEIGHT - e->xbutton.y;
+}
 void moveSpike(XEvent *e, Game *game){
     Room * currentRoom = game->getRoomPtr();
     GameObject * currentSpike = currentRoom->spikes[game->movableSpikeIndex];
@@ -831,7 +870,7 @@ void check_death_input(XEvent *e,Game *game)
         if (key == XK_Escape){
             g_gamestate = MAIN_MENU;
         }
-        if (key == XK_Return) { 
+        if (key == XK_Return || key == XK_space) { 
             game->respawnAtSavePoint();
             renderNum = 0;
         }
@@ -878,6 +917,7 @@ void physics(Game * game)
             game->setSavePoint(i);
             currentSavePoint = i;
             savePointRoom = room;
+            break;
         }
     }
 	if(isCollision == false) {
@@ -948,7 +988,7 @@ void render_game(Game* game)
     microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     Room* current_level = game->getRoomPtr();
 
-    //glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
     float w, h;
     
     glColor3f(1.0,1.0,1.0);
