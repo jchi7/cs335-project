@@ -81,7 +81,6 @@ void setUpImage (GLuint texture, Ppmimage *picture);
 void convertToRGBA(Ppmimage *picture); 
 void renderTexture(GLuint imageTexture, float x1,float x2,float y1, float y2, int width, int height);
 GLuint getBMP(const char *path);
-Ppmimage *shooterDeathImage = NULL;
 Ppmimage *spikeDeathImage = NULL;
 Ppmimage *eShootingRightImage = NULL;
 Ppmimage *eShootingLeftImage = NULL;
@@ -108,6 +107,7 @@ Ppmimage *deadMessageImage = NULL;
 Ppmimage *elevatorImage = NULL;
 Ppmimage *coalImage = NULL;
 Ppmimage *woodImage = NULL;
+Ppmimage *shooterDeathImage = NULL;
 Ppmimage *dirtImage = NULL;
 
 //Creating the Textures
@@ -158,7 +158,7 @@ int main()
     //Game newgame();  //says newgame is non-class type 'Game()'
     Game newgame;
     newgame.hero = new Hero();
-    newgame.respawnAtSavePoint();
+//    newgame.respawnAtSavePoint();
 
 	//initialize openAL and menu music
 	init_openal();
@@ -335,9 +335,8 @@ void init_opengl(void)
     glOrtho(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT, -1, 1);
     //Set the screen background color
     glClearColor(0.1, 0.1, 0.1, 1.0);
-
+    cout << "1" << endl;
     //Importing Images
-    shooterDeathImage = ppm6GetImage("./images/shooterDeath.ppm");
     spikeDeathImage = ppm6GetImage("./images/spikeDead.ppm");
     eShootingRightImage = ppm6GetImage("./images/mega_walkR.ppm");
     eShootingLeftImage = ppm6GetImage("./images/mega_walkL.ppm");
@@ -365,6 +364,8 @@ void init_opengl(void)
     woodImage = ppm6GetImage("./images/wood.ppm");
     coalImage = ppm6GetImage("./images/coal.ppm");
     dirtImage = ppm6GetImage("./images/dirt.ppm");
+    shooterDeathImage = ppm6GetImage("./images/shooterDeath.ppm");
+    cout << "2" << endl;
 
     //Binding the textures... 
     glGenTextures(1, &keyTexture); 
@@ -396,6 +397,7 @@ void init_opengl(void)
     glGenTextures(1, &eShootingLeftTexture);
     glGenTextures(1, &spikeDeathTexture);
     glGenTextures(1, &shooterDeathTexture);
+    
 
     //Setting up the shooter death texture
     setUpImage(shooterDeathTexture,shooterDeathImage);
@@ -407,7 +409,7 @@ void init_opengl(void)
     //Settinf up the sprite sheets for the shooter enemy.
     setUpImage(eShootingRightTexture,eShootingRightImage);
     convertToRGBA(eShootingRightImage);
-
+    
     setUpImage(eShootingLeftTexture,eShootingLeftImage);
     convertToRGBA(eShootingLeftImage);
     
@@ -418,7 +420,6 @@ void init_opengl(void)
     //Setting up the bullet image/texture
     setUpImage(bulletTexture,bulletImage);
     convertToRGBA(bulletImage);
-
     //Setting up the spike enemy left image
     setUpImage(spikeEnemyLeftTexture,spikeEnemyLeftImage);
     convertToRGBA(spikeEnemyLeftImage);
@@ -438,7 +439,6 @@ void init_opengl(void)
     //Setting up the dead Mssage texture
     setUpImage(deadMessageTexture,deadMessageImage);
     convertToRGBA(deadMessageImage);
-    
     //Setting up the spike texture
     setUpImage(spikeTexture, spikeImage);
     convertToRGBA(spikeImage);

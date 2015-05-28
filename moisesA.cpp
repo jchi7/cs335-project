@@ -105,6 +105,7 @@ void renderHero(GLuint heroTexture,Game* game,Coordinates* heroSprite,int index,
 
 void setUpImage(GLuint texture, Ppmimage *picture)
 {
+    cout<<"set up 1"<<endl;
     //Setting up the jumpLeft image
     int w = picture->width;
     int y = picture->height;

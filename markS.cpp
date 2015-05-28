@@ -94,7 +94,12 @@ void check_game_input(XEvent *e, Game *game)
     if (e->type == KeyPress){
         //cout << e->xbutton.x << endl;
         int key = XLookupKeysym(&e->xkey,0);
-        if (key == XK_m && currentlyEditable(game)){
+        if (key == XK_m && !game->isPlatformMovable &&
+                !game->isElevatorMovable &&
+                !game->isPlatformResizable &&
+                !game->isSpikeMovable &&
+                !game->isSavePointMovable &&
+                !game->isEnemyMovable){
             if (g_gamestate == MAP)
                 g_gamestate = LEVEL_EDITOR;
             else if (g_gamestate == LEVEL_EDITOR)
@@ -131,7 +136,13 @@ void check_game_input(XEvent *e, Game *game)
             if (key == XK_b){
                 game->saveRooms();
             }
-            if (currentlyEditable(game)){
+            if (!game->isPlatformMovable &&
+                    !game->isPlatformResizable &&
+                    !game->isElevatorMovable &&
+                    !game->isElevatorResizable &&
+                    !game->isSpikeMovable &&
+                    !game->isSavePointMovable &&
+                    !game->isEnemyMovable){
                 if (key == XK_j){
                     game->moveRoomLeft();
                 }
@@ -185,12 +196,23 @@ void check_game_input(XEvent *e, Game *game)
                 {
                     Room * curRoom = game->getRoomPtr();
                     curRoom->elevators[game->movableElevatorIndex]->tex_id++;
-                    curRoom->elevators[game->movableElevatorIndex]->tex_id %= 4;
+                    curRoom->elevators[game->movableElevatorIndex]->tex_id %= 5;
                      
                 }
                 if (currentlyEditable(game))
                 {
                     editorAddElevator(game, &mouse);
+                }
+            }
+            if (key == XK_h)
+            {
+                if (game->isElevatorMovable ||
+                        game->isElevatorResizable)
+                {
+                    Elevator * curElevator = game->getWorkingElevatorPtr();
+                    int nextSpeed = curElevator->getVertSpeed();
+                    nextSpeed++;
+                    curElevator->setVertSpeed(nextSpeed % 20);
                 }
             }
             if (key == XK_s){
@@ -583,6 +605,7 @@ bool currentlyEditable(Game * game)
             !game->isPlatformResizable &&
             !game->isElevatorMovable &&
             !game->isElevatorResizable &&
+            !game->isSavePointMovable &&
             !game->isHeroMovable)
     {
         return true;

@@ -12,10 +12,10 @@ Game::Game()
     this->leftPressed = 0;
     this->rightPressed = 0;
     this->shootPressed = 0;
-    this->currentHorizontalLevel = 3;
-    this->currentVerticalLevel = 1;
-    this->savePointHorizontalRoom = 3;
-    this->savePointVerticalRoom = 1;
+    this->currentHorizontalLevel = 0;
+    this->currentVerticalLevel = 0;
+    this->savePointHorizontalRoom = 0;
+    this->savePointVerticalRoom = 0;
     this->savePointIndex = 0;
     this->totalHorizontal = 20;
     this->totalVertical = 10;
@@ -130,7 +130,13 @@ void Game::checkMapInput(XEvent *e)
         if (key == XK_m){
             g_gamestate = LEVEL_EDITOR;
         }
-        if (currentlyEditable(this))
+        if (!isPlatformMovable &&
+                !isPlatformResizable &&
+                !isElevatorMovable &&
+                !isElevatorResizable &&
+                !isSpikeMovable &&
+                !isSavePointMovable &&
+                !isEnemyMovable)
         {
             if (key == XK_j){
                 moveRoomLeft();

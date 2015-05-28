@@ -17,6 +17,8 @@ Hero::Hero()
 
     body.orientation = FACING_RIGHT;
 
+    body.center[0] = 50;
+    body.center[1] = 100;
     jumpInitiated = 0;
     initialJump = 0;
     secondJump = 0;
