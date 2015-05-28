@@ -257,7 +257,6 @@ void Game::renderMap(Display * dpy, Window * win)
     glPopMatrix();
     
     glEnable(GL_TEXTURE_2D);
-    glEnable(GL_TEXTURE_2D);
     Rect r;
     r.bot = 660;
     r.left = 450;
