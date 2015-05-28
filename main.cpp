@@ -335,7 +335,6 @@ void init_opengl(void)
     glOrtho(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT, -1, 1);
     //Set the screen background color
     glClearColor(0.1, 0.1, 0.1, 1.0);
-    cout << "1" << endl;
     //Importing Images
     spikeDeathImage = ppm6GetImage("./images/spikeDead.ppm");
     eShootingRightImage = ppm6GetImage("./images/mega_walkR.ppm");
@@ -365,7 +364,6 @@ void init_opengl(void)
     coalImage = ppm6GetImage("./images/coal.ppm");
     dirtImage = ppm6GetImage("./images/dirt.ppm");
     shooterDeathImage = ppm6GetImage("./images/shooterDeath.ppm");
-    cout << "2" << endl;
 
     //Binding the textures... 
     glGenTextures(1, &keyTexture); 
