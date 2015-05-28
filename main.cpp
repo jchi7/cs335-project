@@ -240,6 +240,18 @@ int main()
                 }
 
                 break;
+            case CREDITS:
+                while(XPending(dpy)) 
+                {
+                    XEvent e;
+                    XNextEvent(dpy, &e);
+                    newgame.checkCreditsInput(&e);
+                }
+                if (render == true)
+                {
+                    newgame.playCredits();
+                    glXSwapBuffers(dpy, win);
+                }
             case EXIT_GAME:
                 break;
             default:
@@ -798,7 +810,7 @@ void check_death_input(XEvent *e,Game *game)
         if (key == XK_Escape){
             g_gamestate = MAIN_MENU;
         }
-        if (key == XK_Return) { 
+        if (key == XK_Return || key == XK_space) { 
             game->respawnAtSavePoint();
             renderNum = 0;
         }

@@ -32,6 +32,8 @@ Game::Game()
     this->movableSavePointIndex = 0;
     this->movableEnemyIndex = 0;
     this->resizablePlatformIndex = 0;
+
+    this->creditsTextPosition = 0;
     
     this->resizablePlatformX = 0;
     this->resizablePlatformY = 0;
@@ -45,6 +47,10 @@ Game::Game()
 Game::~Game()
 {
     delete hero;
+    for (int i = 0; i < totalVertical * totalHorizontal; i++)
+    {
+        delete mapGrid[i];
+    }
     //level.erase(level.begin(), level.end());
     //dtor
 }
@@ -306,11 +312,81 @@ void Game::renderMap(Display * dpy, Window * win)
     ggprint16(&r,0,0xffffffff, "Level Editor KeyBinds");
     
     r.bot = 260;
-    r.left = 40;
+    r.left = 150;
     r.center = 0;
-    ggprint8b(&r,0,0xffffffff, "Left Shift: Create Platform");
+    ggprint13(&r,0,0xffffffff, "Left Shift: Create/Switch Texture Platform");
 
-/*    ggprint06(&r, 20, 0x00ff0000, "ggprint06");
+    r.bot = 230;
+    r.left = 150;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "A key: Create Save Point");
+
+    r.bot = 200;
+    r.left = 150;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "S key: Create/Rotate Spike");
+
+    r.bot = 170;
+    r.left = 150;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "G key: Create Elevator");
+
+    r.bot = 140;
+    r.left = 150;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "F key: Create/Toggle Enemies");
+    
+    r.bot = 110;
+    r.left = 150;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "Z key: Grab And Move Objects");
+   
+    r.bot = 80;
+    r.left = 150;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "X Key: Paste Object to Screen/Stop Resizing Object");
+   
+    r.bot = 50;
+    r.left = 150;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "C key: Resize Platform");
+   
+    r.bot = 260;
+    r.left = 550;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "D key: Delete Object");
+
+    r.bot = 230;
+    r.left = 550;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "B key: Save Changes to Current Room");
+    
+    r.bot = 200;
+    r.left = 550;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "M key: Toggle This Map screen");
+
+    r.bot = 170;
+    r.left = 550;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "I key: Move Up One Room on the Grid");
+
+    r.bot = 140;
+    r.left = 550;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "J key: Move Left One Room on The Grid");
+
+    r.bot = 110;
+    r.left = 550;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "K key: Move Down One Room on The Grid");
+
+    r.bot = 80;
+    r.left = 550;
+    r.center = 0;
+    ggprint13(&r,0,0xffffffff, "L key: Move Right One Room on The Grid");
+
+    /*    ggprint06(&r, 20, 0x00ff0000, "ggprint06");
     ggprint07(&r, 20, 0x00ffff00, "ggprint07");
     ggprint08(&r, 20, 0x00ffff00, "ggprint08");
     ggprint10(&r, 20, 0x00ffff00, "ggprint10");
@@ -318,6 +394,117 @@ void Game::renderMap(Display * dpy, Window * win)
     ggprint8b(&r, 20, 0x00ffff00, "ggprint8b");
     ggprint13(&r, 20, 0x00ff00ff, "ggprint13");
     ggprint16(&r, 20, 0x00ff0000, "ggprint16");*/
+}
+void Game::checkCreditsInput(XEvent *e)
+{
+    if (e->type == KeyPress)
+    {
+        int key = XLookupKeysym(&e->xkey,0);
+        if ( key == XK_Escape)
+        {
+            g_gamestate = MAIN_MENU;
+        }
+    }
+}
+
+void Game::playCredits()
+{
+    glDisable(GL_TEXTURE_2D);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glPushMatrix();
+    glColor3ub(255,255,255);
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(400,195 + creditsTextPosition/4);
+    glVertex2i(600,195 + creditsTextPosition/4);
+    glEnd();
+    glPopMatrix();
+    
+    glPushMatrix();
+    glColor3ub(255,255,255);
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(410,-105 + creditsTextPosition/4);
+    glVertex2i(590,-105 + creditsTextPosition/4);
+    glEnd();
+    glPopMatrix();
+    glEnable(GL_TEXTURE_2D);
+    
+    Rect creditsPosition[10];
+    char * creditsText[10];
+    char firstLine[50] = "Congratulations You Beat The Game!!\0";
+    char secondLine[30] = "Development Team:\0";
+    char thirdLine[30] = "Fernando Villarreal\0";
+    char fourthLine[30] = "Jasjot \"Sunny\" Sumal\0";
+    char fifthLine[30] = "Jason Chi\0";
+    char sixthLine[30] = "Mark Stevens\0";
+    char seventhLine[30] = "Moises Ayala\0";
+    char eighthLine[30] = "Game Testers:\0";
+    char ninthLine[30] = "Polo Melendez\0";
+    char tenthLine[30] = "THANK YOU FOR PLAYING\0";
+
+    creditsText[0] = firstLine;
+    creditsText[1] = secondLine;
+    creditsText[2] = thirdLine;
+    creditsText[3] = fourthLine;
+    creditsText[4] = fifthLine;
+    creditsText[5] = sixthLine;
+    creditsText[6] = seventhLine;
+    creditsText[7] = eighthLine;
+    creditsText[8] = ninthLine;
+    creditsText[9] = tenthLine;
+
+    creditsPosition[0].left = 350;
+    creditsPosition[0].bot = 300 + creditsTextPosition/4;
+    creditsPosition[0].center = 0;
+
+    creditsPosition[1].left = 420;
+    creditsPosition[1].bot = 200 + creditsTextPosition/4;
+    creditsPosition[1].center = 0;
+
+    creditsPosition[2].left = 440;
+    creditsPosition[2].bot = 160 + creditsTextPosition/4;
+    creditsPosition[2].center = 0;
+
+    creditsPosition[3].left = 440;
+    creditsPosition[3].bot = 120 + creditsTextPosition/4;
+    creditsPosition[3].center = 0;
+    
+    creditsPosition[4].left = 440;
+    creditsPosition[4].bot = 80 + creditsTextPosition/4;
+    creditsPosition[4].center = 0;
+    
+    creditsPosition[5].left = 440;
+    creditsPosition[5].bot = 40 + creditsTextPosition/4;
+    creditsPosition[5].center = 0;
+    
+    creditsPosition[6].left = 440;
+    creditsPosition[6].bot = 0 + creditsTextPosition/4;
+    creditsPosition[6].center = 0;
+    
+    creditsPosition[7].left = 430;
+    creditsPosition[7].bot = -100 + creditsTextPosition/4;
+    creditsPosition[7].center = 0;
+    
+    creditsPosition[8].left = 440;
+    creditsPosition[8].bot = -150 + creditsTextPosition/4;
+    creditsPosition[8].center = 0;
+    
+    creditsPosition[9].left = 370;
+    if (creditsTextPosition < 2400)
+        creditsPosition[9].bot = -250 + creditsTextPosition/4;
+    else
+        creditsPosition[9].bot = 350;
+    creditsPosition[9].center = 0;
+    
+    for (int i = 0; i < 10; i++){
+        if ( i < 2 || i == 7 || i == 9)
+            ggprint16(&creditsPosition[i], 0, 0xffffffff, creditsText[i]);
+        else
+            ggprint13(&creditsPosition[i], 0, 0x00ff0000, creditsText[i]);
+
+    } 
+    creditsTextPosition++;
+
 }
 void Game::setSavePoint(int index)
 {
@@ -419,7 +606,8 @@ void Game::checkRoom()
         // DEBUG:
         cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
-
+    if (currentHorizontalLevel == 19 && currentVerticalLevel == 9)
+        g_gamestate = CREDITS;
 }
 
 Room * Game::getRoomPtr()

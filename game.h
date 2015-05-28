@@ -38,6 +38,8 @@ class Game
         int savePointVerticalRoom;
         int savePointIndex;
 
+        int creditsTextPosition;
+
         std::vector< Grid * > mapGrid;
 
         // position of current room:
@@ -62,6 +64,8 @@ class Game
         Game();
         ~Game();
 
+        void playCredits();
+        void checkCreditsInput(XEvent *);
         void initializeMap(int, int);
         void checkMapInput(XEvent*);
         void renderMap(Display *, Window *);
