@@ -161,7 +161,7 @@ int main()
     newgame.respawnAtSavePoint();
 
 	//initialize openAL and menu music
-	initShit();
+	init_openal();
 	playMenuMusic();
 
     bool render = true;
@@ -281,8 +281,12 @@ int main()
         }
     }
     cleanupImages();
-    //glXMakeCurrent(dpy, win, NULL);
-    //glXDestroyContext(dpy, glc);
+    #ifdef NVIDIA
+    glXDestroyContext(dpy, glc);
+    #else
+    glXMakeCurrent(dpy, win, NULL);
+    glXDestroyContext(dpy, glc);
+    #endif
     cleanupXWindows();
 	//close audio devices
 	closeDevices();
@@ -322,7 +326,6 @@ void initXWindows(void)
 
 void init_opengl(void)
 {
-    cout << "inside openGL" << endl;
     //OpenGL initialization
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     //Initialize matrices
@@ -481,7 +484,6 @@ void init_opengl(void)
     setUpImage(forestTexture,backgroundImage);
     //Setting up the Gui Background image.
     setUpImage(guiBackgroundTexture,guiBackgroundImage);
-    cout << "after opengl" << endl;
 }
 
 // Need to clean up PPM images
@@ -599,7 +601,7 @@ void init_MainMenuButtons(void)
 void render_MainMenu(void)
 {
     //Rect r;
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
     //glColor3ub(200,200,200);
     glColor3f(1.0,1.0,1.0);
 
@@ -988,7 +990,7 @@ void render_game(Game* game)
     microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     Room* current_level = game->getRoomPtr();
 
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
     float w, h;
     
     glColor3f(1.0,1.0,1.0);

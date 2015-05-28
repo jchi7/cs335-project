@@ -9,7 +9,7 @@
     #include <AL/alc.h>
 #endif
 #include <AL/alut.h>
-void initShit();
+void init_openal();
 void playJump();
 void playDeath();
 void playMenuMusic();

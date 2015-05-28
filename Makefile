@@ -12,7 +12,7 @@ mac:
 	g++ -DISMAC=1 main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp fernandoV.cpp gameObject.cpp platform.cpp elevator.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp collisions.cpp vecFxns.cpp jasonC.cpp basicBullet.cpp shooterEnemy.cpp spawnPoint.cpp $(WFLAGS) -o Game $(MAC2FLAGS) log.cpp fonts.cpp fonttex.cpp -pthread
 
 315:
-	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp gameObject.cpp platform.cpp elevator.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp jasonC.cpp collisions.cpp vecFxns.cpp basicBullet.cpp shooterEnemy.cpp spawnPoint.cpp $(WFLAGS) -o Game $(MAC2FLAGS) -L/usr/lib/nvidia-331/
+	g++ -DNVIDIA=1 main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp fernandoV.cpp gameObject.cpp platform.cpp elevator.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp collisions.cpp vecFxns.cpp jasonC.cpp basicBullet.cpp shooterEnemy.cpp spawnPoint.cpp $(WFLAGS) -o Game $(MAC2FLAGS) log.cpp fonts.cpp fonttex.cpp -pthread -L/usr/lib/nvidia-331/
 
 main:
 	g++ main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp fernandoV.cpp gameObject.cpp platform.cpp elevator.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp collisions.cpp vecFxns.cpp jasonC.cpp basicBullet.cpp shooterEnemy.cpp spawnPoint.cpp $(WFLAGS) -o Game $(MAC2FLAGS) log.cpp fonts.cpp fonttex.cpp -pthread

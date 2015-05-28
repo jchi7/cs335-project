@@ -36,7 +36,7 @@ using namespace std;
     ALCenum error;
     ALint source_state;
 
-void initShit(){
+void init_openal(){
 
 
     enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
