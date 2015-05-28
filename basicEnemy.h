@@ -16,7 +16,7 @@ class BasicEnemy : public GameObject
 	Coordinates enemyWalkLeft[10];
 
         BasicEnemy() {}
-        BasicEnemy(int, int, int, int);
+        BasicEnemy( float, float);
         virtual ~BasicEnemy();
         virtual void update();
         virtual void movement();

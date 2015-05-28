@@ -1,7 +1,7 @@
 #include "shooterEnemy.h"
 #include "fernandoV.h"
 
-ShooterEnemy::ShooterEnemy(int left, int right, int x, int y)
+ShooterEnemy::ShooterEnemy(float x, float y)
 {
     this->body.type = RECTANGLE;
     this->id = SHOOTERENEMY;

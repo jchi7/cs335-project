@@ -63,8 +63,8 @@ Game::~Game()
 void Game::initializeMap(int numHorizontal, int numVertical)
 {
     float left = 200;
-    float right = 900;
-    float top = 650;
+    //float right = 900;
+    //float top = 650;
     float bottom = 350;
     float gridWidth = 700 / numHorizontal;
     float gridHeight = 300 / numVertical;
@@ -865,28 +865,28 @@ void Game::fillLevel()
 //                    cout << "Created spike in " << "[" << vert << "][" << horz <<"]: " << vecPrint(spikePts[0]) << ", " << vecPrint(spikePts[1]) << ", " << vecPrint(spikePts[2]) << ", " << orientation << endl;
                 }
                 else if (objType == "ENEMY") {
-                    float convVal[4];
-                    for (int col = 0; col < 4; col++) {
+                    float convVal[2];
+                    for (int col = 0; col < 2; col++) {
                         getline(iss, val, ',');
                         stringstream converter(val);
                         converter >> convVal[col];
                     }
                     // create Enemy
-                    level[vert][horz].enemies.push_back(new BasicEnemy(convVal[0], convVal[1], convVal[2], convVal[3]));
+                    level[vert][horz].enemies.push_back(new BasicEnemy(convVal[0], convVal[1]));
                     level[vert][horz].numBasicEnemies++;
-                    level[vert][horz].spawnPoints.push_back(new SpawnPoint(convVal[2], convVal[3], ENEMY));
+                    level[vert][horz].spawnPoints.push_back(new SpawnPoint(convVal[0], convVal[1], ENEMY));
                 }
                 else if (objType == "SHOOTER") {
-                    float convVal[4];
-                    for (int col = 0; col < 4; col++) {
+                    float convVal[2];
+                    for (int col = 0; col < 2; col++) {
                         getline(iss, val, ',');
                         stringstream converter(val);
                         converter >> convVal[col];
                     }
                     // create Shooter Enemy
-                    level[vert][horz].enemies.push_back(new ShooterEnemy(convVal[0], convVal[1], convVal[2], convVal[3]));
+                    level[vert][horz].enemies.push_back(new ShooterEnemy(convVal[0], convVal[1]));
                     level[vert][horz].numBasicEnemies++;
-                    level[vert][horz].spawnPoints.push_back(new SpawnPoint(convVal[2], convVal[3], SHOOTERENEMY));
+                    level[vert][horz].spawnPoints.push_back(new SpawnPoint(convVal[0], convVal[1], SHOOTERENEMY));
                 }
                 else if (objType == "ELEVATOR") {
                     float convVal[4];
@@ -996,15 +996,11 @@ void Game::writeEnemy(GameObject * enemy, ofstream & outf)
     {
         case ENEMY:
             outf << "ENEMY,"
-                << "10" << ","
-                << "10" << ","
                 << enemy->body.center[0] << ","
                 << enemy->body.center[1] << "\n";
             break;
         case SHOOTERENEMY:
             outf << "SHOOTER,"
-                << "10" << ","
-                << "10" << ","
                 << enemy->body.center[0] << ","
                 << enemy->body.center[1] << "\n";
             break;
