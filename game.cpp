@@ -542,7 +542,7 @@ void Game::checkRoom()
     Room *oldRoom;
     Room *newRoom;
     if (hero->body.center[0] > WINDOW_WIDTH){
-        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable || isPlatformResizable || isElevatorMovable || isElevatorResizable){
             hero->body.center[0] = WINDOW_WIDTH - hero->body.width;
         }
         else{
@@ -565,7 +565,7 @@ void Game::checkRoom()
     //    cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[0] < 0){
-        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable || isPlatformResizable || isElevatorMovable || isElevatorResizable){
             hero->body.center[0] = 0 + hero->body.width;
         }
         else{
@@ -588,7 +588,7 @@ void Game::checkRoom()
       //  cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[1] > WINDOW_HEIGHT){
-        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable || isPlatformResizable || isElevatorMovable || isElevatorResizable){
             hero->body.center[1] = WINDOW_HEIGHT - hero->body.height;
         }
         else {
@@ -611,7 +611,7 @@ void Game::checkRoom()
      //   cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
     if (hero->body.center[1] < 0){
-        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable){
+        if (isPlatformMovable || isSpikeMovable || isSavePointMovable || isEnemyMovable || isPlatformResizable || isElevatorMovable || isElevatorResizable){
             hero->body.center[1] = 0 +  hero->body.height;
         }
         else {
