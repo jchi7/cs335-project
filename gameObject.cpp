@@ -67,11 +67,11 @@ string GameObject::debugReport()
     return report.str();
 }
 
-void GameObject::movement()
+void GameObject::onCollision()
 {
 }
 
-void GameObject::onCollision(GameObject *obj)
+void GameObject::movement()
 {
 }
 
