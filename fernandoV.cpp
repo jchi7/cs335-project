@@ -36,6 +36,8 @@ using namespace std;
     ALCenum error;
     ALint source_state;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 void init_openal(){
 
 
@@ -215,6 +217,8 @@ void init_openal(){
 
 
 }
+#pragma GCC diagnostic push
+
 void playJump(){
     alSourcePlay(sources[0][0]);
     TEST_ERROR("source playing");

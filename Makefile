@@ -1,6 +1,6 @@
 # cs335 lab1
 # to compile your project, type make and press enter
-WFLAGS = #-Wall -Wextra
+WFLAGS = -Wall -Wextra
 CFLAGS = -I ./include
 LIB    = 
 LFLAGS = -std=c++0x -lX11 -lGLU -lGL -lm #-lXrandr

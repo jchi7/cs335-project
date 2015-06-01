@@ -45,7 +45,7 @@ void moveEnemy(XEvent *e, Game * game);
 void physics(Game * game);
 
 void render_game(Game* game);
-void renderEnemy(GameObject *, int);
+void renderEnemy(GameObject *);
 void renderBullet(GameObject *, int);
 void renderSpike(GameObject *);
 void renderPlatform(GameObject *);
@@ -1007,7 +1007,7 @@ void render_game(Game* game)
     }
     int enemyItr = 0;
     for(auto &entity : current_level->enemies) {
-        renderEnemy(entity, enemyItr);
+        renderEnemy(entity);
         enemyItr = (enemyItr + 1)%10;
     }
     int savePointCounter= 0;
@@ -1119,7 +1119,7 @@ void render_game(Game* game)
     }
 }
 
-void renderEnemy(GameObject * entity, int index)
+void renderEnemy(GameObject * entity)
 {
     float w = entity->body.width;
     float h = entity->body.height;
