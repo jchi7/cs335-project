@@ -51,7 +51,7 @@ void renderSpike(GameObject *);
 void renderPlatform(GameObject *);
 void renderSavePoint(GameObject *, int);
 //void renderElevator(GameObject *);
-void renderElevatorShadow(Elevator *, float);
+void renderElevatorShadow(Elevator *, int[3], float);
 
 //X Windows variables
 Display *dpy;
@@ -985,12 +985,23 @@ void physics(Game * game)
 
 void render_game(Game* game)
 {
+    static bool firstEditorRun = true;
+    static int shadowColor[3];
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
     microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     Room* current_level = game->getRoomPtr();
 
     glClear(GL_COLOR_BUFFER_BIT);
     float w, h;
+
+    if(firstEditorRun) {
+        if(game->state == LEVEL_EDITOR) {
+            firstEditorRun = false;
+            shadowColor[0] = 100;
+            shadowColor[1] = 100;
+            shadowColor[2] = 100;
+        }
+    }
     
     glColor3f(1.0,1.0,1.0);
     if( forestBackgroundSet == true ) {
@@ -1020,11 +1031,20 @@ void render_game(Game* game)
         }
         savePointCounter++;
     }
+
     if(game->isElevatorResizable) {
-        renderElevatorShadow(current_level->elevators[game->resizableElevatorIndex], 0.5);
+        renderElevatorShadow(current_level->elevators[game->resizableElevatorIndex], current_level->elevators[game->resizableElevatorIndex]->rgb, 0.5);
     }
-    for(auto entity : current_level->elevators) {
-        renderPlatform(entity);
+    for(int i = 0; i < current_level->numElevators; i++) {
+        if(game->state == LEVEL_EDITOR) {
+            if(i != game->resizableElevatorIndex) {
+                renderElevatorShadow(current_level->elevators[i], shadowColor, 0.5);
+            }
+            else if(!game->isElevatorResizable) {
+                renderElevatorShadow(current_level->elevators[i], shadowColor, 0.5);
+            }
+        }
+        renderPlatform(current_level->elevators[i]);
     }
     for(auto entity : current_level->platforms) {
         renderPlatform(entity);
@@ -1383,7 +1403,7 @@ void renderSavePoint(GameObject * entity, int index)
     }
 }*/
 
-void renderElevatorShadow(Elevator * entity, float alpha)
+void renderElevatorShadow(Elevator * entity, int color[3], float alpha)
 {
     float w = entity->body.width;
     float h = entity->body.height;
@@ -1395,9 +1415,9 @@ void renderElevatorShadow(Elevator * entity, float alpha)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColor4f(
-      ((float)entity->rgb[0])/255.0,
-      ((float)entity->rgb[1])/255.0,
-      ((float)entity->rgb[2])/255.0,
+      ((float)color[0])/255.0,
+      ((float)color[1])/255.0,
+      ((float)color[2])/255.0,
       alpha);
     glPushMatrix();
     glBegin(GL_QUADS);
