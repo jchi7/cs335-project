@@ -229,7 +229,7 @@ void Hero::onCollision(GameObject * obj)
 //            else {
 //                // DEBUG:
 //                //cout << "non-top collision, velocity[1] = " << velocity[1] << endl;
-            if (prevPosition[1]+body.height <= obj->body.center[1]+obj->body.height) {
+            if (prevPosition[1]+body.height >= obj->body.center[1]+obj->body.height) {
               body.center[1] += obj->velocity[1]*3;
             }
             velocity[1] = prevVel[1];
