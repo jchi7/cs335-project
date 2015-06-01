@@ -176,6 +176,8 @@ void Hero::onCollision(GameObject * obj)
         return;
     }
     else { // obj->id == PLATFORM || ELEVATOR
+        Vec prevVel;
+        vecCopy(velocity, prevVel);
         if (prevPosition[0]  < obj->body.center[0] - obj->body.width) {
             if (prevPosition[1] - body.height < obj->body.center[1] + obj->body.height){
                 body.center[0] = obj->body.center[0] - obj->body.width - body.width;
@@ -217,19 +219,21 @@ void Hero::onCollision(GameObject * obj)
             if (obj->velocity[1] >= 0) {
                 return;
             }
-            if (topOnlyCollisionRectRect(&body, &(obj->body), prevPosition))
-            {
-                velocity[1] += obj->velocity[1];
-                // DEBUG:
-                //cout << "top collision, velocity[1] = " << velocity[1] << endl;
+
+//            if (topOnlyCollisionRectRect(&body, &(obj->body), prevPosition))
+//            {
+//                velocity[1] += obj->velocity[1];
+//                // DEBUG:
+//                //cout << "top collision, velocity[1] = " << velocity[1] << endl;
+//            }
+//            else {
+//                // DEBUG:
+//                //cout << "non-top collision, velocity[1] = " << velocity[1] << endl;
+            if (prevPosition[1]+body.height <= obj->body.center[1]+obj->body.height) {
+              body.center[1] += obj->velocity[1]*3;
             }
-            else {
-                // DEBUG:
-                //cout << "non-top collision, velocity[1] = " << velocity[1] << endl;
-                if (prevPosition[1]+body.height <= obj->body.center[1]+obj->body.height) {
-                    body.center[1] += obj->velocity[1]*3;
-                }
-            }
+            velocity[1] = prevVel[1];
+//            }
         }
     }
 }
