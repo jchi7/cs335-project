@@ -213,9 +213,6 @@ void init_openal(){
     TEST_ERROR("buffer copy");
     alSourcei(sources[7][0], AL_BUFFER, sources[7][1]);
     alutUnloadWAV(format, data, size, freq);
-
-
-
 }
 #pragma GCC diagnostic push
 
