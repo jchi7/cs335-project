@@ -17,6 +17,8 @@ Hero::Hero()
 
     body.orientation = FACING_RIGHT;
 
+    bottomPlatformCollision = false;
+
     body.center[0] = 50;
     body.center[1] = 100;
     jumpInitiated = 0;
@@ -162,6 +164,7 @@ void Hero::movement()
         state = JUMPING;
         jumpCount = 1;
     }
+    cout << velocity[1] << endl;
 }
 
 // reposition hero & reset hero state
@@ -170,6 +173,7 @@ void Hero::onCollision(GameObject * obj)
     if (obj->id == SPIKE || obj->id == ENEMY || obj->id == EBULLET) {
             if (((BasicEnemy*)obj)->state != PREDEATH  || ((ShooterEnemy*)obj)->state != PREDEATH) {
                 state = DEATH;
+                return;
             }
     }
     else if (obj->id == HBULLET) {
@@ -181,12 +185,14 @@ void Hero::onCollision(GameObject * obj)
         if (prevPosition[0]  < obj->body.center[0] - obj->body.width) {
             if (prevPosition[1] - body.height < obj->body.center[1] + obj->body.height){
                 body.center[0] = obj->body.center[0] - obj->body.width - body.width;
+                return;
             }
         }
 
         if (prevPosition[0]  > obj->body.center[0] + obj->body.width) {
             if (prevPosition[1] - body.height < obj->body.center[1] + obj->body.height){
                 body.center[0] = obj->body.center[0] + obj->body.width + body.width;
+                return;
             }
         }
 
@@ -203,7 +209,9 @@ void Hero::onCollision(GameObject * obj)
             body.center[0] - body.width < obj->body.center[0] + obj->body.width)
         {
             body.center[1] = obj->body.center[1] + obj->body.height + body.height;
-            velocity[1] = 0;
+            if (obj->id != ELEVATOR) {
+                velocity[1] = 0;
+            }
             jumpCount = 0;
             
             if (state == DEATH)
@@ -217,8 +225,10 @@ void Hero::onCollision(GameObject * obj)
         }
         if (obj->id == ELEVATOR) {
             if (obj->velocity[1] >= 0) {
+                velocity[1]=0;
                 return;
             }
+                cout << "elevator polo: " << obj->velocity[1] << endl;
 
 //            if (topOnlyCollisionRectRect(&body, &(obj->body), prevPosition))
 //            {
@@ -229,10 +239,23 @@ void Hero::onCollision(GameObject * obj)
 //            else {
 //                // DEBUG:
 //                //cout << "non-top collision, velocity[1] = " << velocity[1] << endl;
-            if (prevPosition[1]+body.height >= obj->body.center[1]+obj->body.height) {
-              body.center[1] += obj->velocity[1]*3;
+            if (body.center[1] <= obj->body.center[1]+obj->body.height) {
+              velocity[1] += obj->velocity[1]*3 + gravity;
+              body.center[1] += velocity[1];
+              
             }
-            velocity[1] = prevVel[1];
+            else
+            {
+                //platform slower than heros velocity
+                if(obj->velocity[1] >= velocity[1]) {
+                    velocity[1] = obj->velocity[1] * ((Elevator*)obj)->getVertSpeed();
+                }
+
+                //platform down is faster than hero 
+                else {
+                }
+            }
+            //velocity[1] = prevVel[1];
 //            }
         }
     }

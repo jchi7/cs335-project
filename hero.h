@@ -5,11 +5,14 @@
 #include "gameObject.h"
 #include "collisions.h"
 #include "fernandoV.h"
+#include "elevator.h"
 
 class Hero : public GameObject
 {
     public:
         CharacterState state;
+
+        bool bottomPlatformCollision;
 
         int leftPressed;
         int rightPressed;
