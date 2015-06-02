@@ -863,7 +863,7 @@ void check_menu_button(XEvent *e, Game * game)
   }
   return;
 }
-
+/*
 void check_death_input(XEvent *e,Game *game)
 {
     if (e -> type ==KeyPress ) { 
@@ -876,7 +876,7 @@ void check_death_input(XEvent *e,Game *game)
             renderNum = 0;
         }
     }
-}
+}*/
 
 void physics(Game * game)
 {

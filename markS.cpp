@@ -613,4 +613,42 @@ bool currentlyEditable(Game * game)
         return false;
     }
 }
+void check_death_input(XEvent *e,Game *game)
+{
+    if (e -> type ==KeyPress ) {
+        int key = XLookupKeysym(&e->xkey,0);
+        if (currentlyEditable(game)){
+            if (key == XK_Escape){
+                g_gamestate = MAIN_MENU;
+            }
+            if (key == XK_Return || key == XK_space) {
+                game->respawnAtSavePoint();
+                renderNum = 0;
+            }
+        }
+        if (key == XK_x){
+            if (game->isPlatformMovable){
+                game->isPlatformMovable = false;
+            }
+            if (game->isPlatformResizable){
+                game->isPlatformResizable = false;
+            }
+            if (game->isElevatorMovable){
+                game->isElevatorMovable = false;
+            }
+            if (game->isElevatorResizable){
+                game->isElevatorResizable = false;
+            }
+            if (game->isSpikeMovable){
+                game->isSpikeMovable = false;
+            }
+            if (game->isSavePointMovable){
+                game->isSavePointMovable = false;
+            }
+            if (game->isEnemyMovable){
+                game->isEnemyMovable = false;
+            }
+        }
 
+    }
+}

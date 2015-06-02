@@ -83,6 +83,7 @@ struct Coordinates {
 
 //External Global Variables
 extern GameState g_gamestate;
+extern int renderNum;
 // extern int leftPressed ;
 // extern int rightPressed ;
 // extern int shootPressed ;
