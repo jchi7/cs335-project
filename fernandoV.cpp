@@ -1,3 +1,10 @@
+/*this file is for audio using OpenAL API
+every sound is called by function and every 
+init is called in main every sound is called in
+different parts of the game for initOpenAL is called in main
+deathSound in hero.cpp
+*/
+
 #include "fernandoV.h"
 #include <iostream>
 #include <stdio.h>
