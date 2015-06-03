@@ -17,7 +17,6 @@
     }
 
 #define MAX_SOURCES 10
-
 using namespace std;
     ALboolean enumeration;
     const ALCchar *devices;
@@ -68,12 +67,12 @@ void init_openal(){
     TEST_ERROR("make default context");
 
     /* set orientation */
-    alListener3f(AL_POSITION, 0, 0, 1.0f);
+   /* alListener3f(AL_POSITION, 0, 0, 1.0f);
     TEST_ERROR("listener position");
-        alListener3f(AL_VELOCITY, 0, 0, 0);
+    alListener3f(AL_VELOCITY, 0, 0, 0);
     TEST_ERROR("listener velocity");
     alListenerfv(AL_ORIENTATION, listenerOri);
-    TEST_ERROR("listener orientation");
+    TEST_ERROR("listener orientation");*/
 
     for (int i = 0; i < MAX_SOURCES; i++){
         alGenSources((ALuint)1, &sources[i][0]);
