@@ -164,7 +164,6 @@ void Hero::movement()
         state = JUMPING;
         jumpCount = 1;
     }
-    cout << velocity[1] << endl;
 }
 
 // reposition hero & reset hero state
@@ -228,7 +227,6 @@ void Hero::onCollision(GameObject * obj)
                 velocity[1]=0;
                 return;
             }
-                cout << "elevator polo: " << obj->velocity[1] << endl;
 
 //            if (topOnlyCollisionRectRect(&body, &(obj->body), prevPosition))
 //            {
@@ -240,7 +238,7 @@ void Hero::onCollision(GameObject * obj)
 //                // DEBUG:
 //                //cout << "non-top collision, velocity[1] = " << velocity[1] << endl;
             if (body.center[1] <= obj->body.center[1]+obj->body.height) {
-              velocity[1] += obj->velocity[1]*3 + gravity;
+              velocity[1] += obj->velocity[1] * ((Elevator*)obj)->getVertSpeed();
               body.center[1] += velocity[1];
               
             }

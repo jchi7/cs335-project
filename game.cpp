@@ -446,22 +446,22 @@ void Game::playCredits()
     glPushMatrix();
     glColor3ub(255,255,255);
     glBegin(GL_LINE_LOOP);
-    glVertex2i(400,195 + creditsTextPosition/4);
-    glVertex2i(600,195 + creditsTextPosition/4);
+    glVertex2i(400,195 + creditsTextPosition/3);
+    glVertex2i(600,195 + creditsTextPosition/3);
     glEnd();
     glPopMatrix();
 
     glPushMatrix();
     glColor3ub(255,255,255);
     glBegin(GL_LINE_LOOP);
-    glVertex2i(410,-105 + creditsTextPosition/4);
-    glVertex2i(590,-105 + creditsTextPosition/4);
+    glVertex2i(410,-105 + creditsTextPosition/3);
+    glVertex2i(590,-105 + creditsTextPosition/3);
     glEnd();
     glPopMatrix();
     glEnable(GL_TEXTURE_2D);
 
-    Rect creditsPosition[10];
-    char * creditsText[10];
+    Rect creditsPosition[11];
+    char * creditsText[11];
     char firstLine[50] = "Congratulations You Beat The Game!!\0";
     char secondLine[30] = "Development Team:\0";
     char thirdLine[30] = "Fernando Villarreal\0";
@@ -471,7 +471,8 @@ void Game::playCredits()
     char seventhLine[30] = "Moises Ayala\0";
     char eighthLine[30] = "Game Testers:\0";
     char ninthLine[30] = "Polo Melendez\0";
-    char tenthLine[30] = "THANK YOU FOR PLAYING\0";
+    char tenthLine[30] = "Austin Chavez\0";
+    char eleventhLine[30] = "THANK YOU FOR PLAYING\0";
 
     creditsText[0] = firstLine;
     creditsText[1] = secondLine;
@@ -483,51 +484,57 @@ void Game::playCredits()
     creditsText[7] = eighthLine;
     creditsText[8] = ninthLine;
     creditsText[9] = tenthLine;
+    creditsText[10] = eleventhLine;
 
     creditsPosition[0].left = 350;
-    creditsPosition[0].bot = 300 + creditsTextPosition/4;
+    creditsPosition[0].bot = 300 + creditsTextPosition/3;
     creditsPosition[0].center = 0;
 
     creditsPosition[1].left = 420;
-    creditsPosition[1].bot = 200 + creditsTextPosition/4;
+    creditsPosition[1].bot = 200 + creditsTextPosition/3;
     creditsPosition[1].center = 0;
 
     creditsPosition[2].left = 440;
-    creditsPosition[2].bot = 160 + creditsTextPosition/4;
+    creditsPosition[2].bot = 160 + creditsTextPosition/3;
     creditsPosition[2].center = 0;
 
     creditsPosition[3].left = 440;
-    creditsPosition[3].bot = 120 + creditsTextPosition/4;
+    creditsPosition[3].bot = 120 + creditsTextPosition/3;
     creditsPosition[3].center = 0;
 
     creditsPosition[4].left = 440;
-    creditsPosition[4].bot = 80 + creditsTextPosition/4;
+    creditsPosition[4].bot = 80 + creditsTextPosition/3;
     creditsPosition[4].center = 0;
 
     creditsPosition[5].left = 440;
-    creditsPosition[5].bot = 40 + creditsTextPosition/4;
+    creditsPosition[5].bot = 40 + creditsTextPosition/3;
     creditsPosition[5].center = 0;
 
     creditsPosition[6].left = 440;
-    creditsPosition[6].bot = 0 + creditsTextPosition/4;
+    creditsPosition[6].bot = 0 + creditsTextPosition/3;
     creditsPosition[6].center = 0;
 
     creditsPosition[7].left = 430;
-    creditsPosition[7].bot = -100 + creditsTextPosition/4;
+    creditsPosition[7].bot = -100 + creditsTextPosition/3;
     creditsPosition[7].center = 0;
 
     creditsPosition[8].left = 440;
-    creditsPosition[8].bot = -150 + creditsTextPosition/4;
+    creditsPosition[8].bot = -150 + creditsTextPosition/3;
     creditsPosition[8].center = 0;
-    creditsPosition[9].left = 370;
-    if (creditsTextPosition < 2400)
-        creditsPosition[9].bot = -250 + creditsTextPosition/4;
-    else
-        creditsPosition[9].bot = 350;
+    
+    creditsPosition[9].left = 440;
+    creditsPosition[9].bot = -200 + creditsTextPosition/3;
     creditsPosition[9].center = 0;
+    
+    creditsPosition[10].left = 370;
+    if (creditsTextPosition < 1950)
+        creditsPosition[10].bot = -300 + creditsTextPosition/3;
+    else
+        creditsPosition[10].bot = 350;
+    creditsPosition[10].center = 0;
 
-    for (int i = 0; i < 10; i++){
-        if ( i < 2 || i == 7 || i == 9)
+    for (int i = 0; i < 11; i++){
+        if ( i < 2 || i == 7 || i == 10)
             ggprint16(&creditsPosition[i], 0, 0xffffffff, creditsText[i]);
         else
             ggprint13(&creditsPosition[i], 0, 0x00ff0000, creditsText[i]);
@@ -633,7 +640,7 @@ void Game::checkRoom()
         // DEBUG:
      //   cout << "room: " << currentVerticalLevel << "," << currentHorizontalLevel << endl;
     }
-    if (currentHorizontalLevel == 19 && currentVerticalLevel == 9)
+    if (currentHorizontalLevel == 9 && currentVerticalLevel == 9)
         g_gamestate = CREDITS;
 
 }
