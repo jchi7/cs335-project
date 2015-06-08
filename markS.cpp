@@ -1,5 +1,19 @@
-//Mark Stevens
-//This function handles game input.
+//Author: Mark Stevens
+//
+//Description:
+//
+//This function handles all of our game input when playing the game in regular
+//and Level Editor mode. It does not, however, handle input when in map mode or
+//during credits. These are handled in game.cpp
+//
+// There are also some helper functions at the bottom of the file that are 
+// used to clean up the code in check_game_input() function.
+//
+// The first function movablePlatformCollision() handles the pseudo snapping of
+// platforms against each other. Essentially what this means is that when you
+// move platforms in level editor mode you cannot move one platform on top of
+// another. They will not overlap in any way. Instead the movable platform will
+// slide along the outside of the stationary platform that it is trying to overlap
 
 
 #include "structs.h"
