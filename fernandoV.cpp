@@ -1,7 +1,7 @@
 /*
 Fernando Villarreal
 this file is for audio using OpenAL API
-every sound is called by function and every 
+every sound is called by function and  
 init is called in main every sound is called in
 different parts of the game for initOpenAL is called in main
 deathSound in hero.cpp
