@@ -158,7 +158,7 @@ void Hero::movement()
     body.center[1] += velocity[1];
     if (velocity[1] > -7)
         velocity[1] += gravity;
-    if (jumpRelease == 3 && velocity[1] > 2)
+    if (jumpRelease == 3 && velocity[1] > 2 && velocity[1] < 5.5)
         velocity[1] = 1;
     if (prevPosition[1] > (body.center[1] + 2) && (state == STANDING || state == WALKING)){
         state = JUMPING;

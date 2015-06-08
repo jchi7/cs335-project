@@ -12,6 +12,7 @@
 #include "jasonC.h"
 #include "fernandoV.h"
 //=======
+#include "firstBoss.h"
 #include "markS.h"
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
@@ -70,7 +71,7 @@ long long microseconds;
 long long afterDeath = 0;
 int GoldMilliSec = 0;
 int GtimeLapse = 0;
-int Gthreshold = 15000;
+int Gthreshold = 15625;
 //int Gthreshold = 15;
 //Variable that is used count the number of renders...
 int renderNum = 0;
@@ -147,6 +148,8 @@ auto start = std::chrono::high_resolution_clock::now();
 //End
 //value for save point sound
 bool Scollision = false;
+float alph = 0.0;
+bool alphIncrease = true;
 
 GameObject mouse;
 
@@ -158,6 +161,8 @@ int main()
     //Game newgame();  //says newgame is non-class type 'Game()'
     Game newgame;
     newgame.hero = new Hero();
+    Room * bossRoom = &newgame.level[9][10];
+    newgame.firstBoss = new FirstBoss(bossRoom);
 //    newgame.respawnAtSavePoint();
 
 	//initialize openAL and menu music
@@ -979,6 +984,17 @@ void physics(Game * game)
 	}
 
 
+    if (room->isBoss)
+    {
+        switch (room->bossIndex)
+        {
+            case 0:
+                game->firstBoss->run(game->hero, room);
+                break;
+            default:
+                break;
+        }
+    }
 
     game->checkRoom();
 }
@@ -990,6 +1006,8 @@ void render_game(Game* game)
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
     microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     Room* current_level = game->getRoomPtr();
+
+
 
     //glClear(GL_COLOR_BUFFER_BIT);
     float w, h;
@@ -1135,6 +1153,53 @@ void render_game(Game* game)
         }
         else {
             renderHero(idleRightTexture,game  ,game->hero->heroIdleR,numAnimation,w, h, 10);
+        }
+    }
+
+/*
+    if (alphIncrease)
+    {
+        alph += 0.02;
+        if (alph >= 0.90)
+            alphIncrease = false;
+    }
+    else
+    {
+        alph -= 0.02;
+        if (alph <= 0)
+            alphIncrease = true;
+    }
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glPushMatrix();
+    glColor4f(0.8,0.0,0.0,alph);
+    glBegin(GL_QUADS);
+    glVertex2i(game->hero->body.center[0] - 20, game->hero->body.center[1] - 20);
+    glVertex2i(game->hero->body.center[0] - 20, game->hero->body.center[1] + 20);
+    glVertex2i(game->hero->body.center[0] + 20, game->hero->body.center[1] + 20);
+    glVertex2i(game->hero->body.center[0] + 20, game->hero->body.center[1] - 20);
+    glEnd();
+    glPopMatrix();
+    glPushMatrix();
+    glColor4f(0.0,0.8,0.0,alph);
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(game->hero->body.center[0] - 20, game->hero->body.center[1] + 30);
+    glVertex2i(game->hero->body.center[0] + 20, game->hero->body.center[1] + 30);
+    glEnd();
+    glPopMatrix();
+    glDisable(GL_BLEND);
+    glEnable(GL_TEXTURE_2D);
+*/
+    if (current_level->isBoss)
+    {
+        switch (current_level->bossIndex)
+        {
+            case 0:
+                game->firstBoss->render();
+                break;
+            default:
+                break;
         }
     }
 }

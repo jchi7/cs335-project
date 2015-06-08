@@ -9,7 +9,7 @@ MAC2FLAGS = -lX11 -lGL -lalut -lopenal -lGLU -lm -I/usr/X11R6/include -L/usr/X11
 all: main
 
 mac:
-	g++ -DISMAC=1 -DNVIDIA=1 main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp fernandoV.cpp gameObject.cpp platform.cpp elevator.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp collisions.cpp vecFxns.cpp jasonC.cpp basicBullet.cpp shooterEnemy.cpp spawnPoint.cpp $(WFLAGS) -o Game $(MAC2FLAGS) log.cpp fonts.cpp fonttex.cpp -pthread
+	g++ -w -DISMAC=1 -DNVIDIA=1 main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp fernandoV.cpp gameObject.cpp platform.cpp elevator.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp collisions.cpp vecFxns.cpp jasonC.cpp basicBullet.cpp shooterEnemy.cpp spawnPoint.cpp firstBoss.cpp $(WFLAGS) -o Game $(MAC2FLAGS) log.cpp fonts.cpp fonttex.cpp -pthread
 
 315:
 	g++ -DNVIDIA=1 main.cpp game.cpp hero.cpp basicEnemy.cpp room.cpp fernandoV.cpp gameObject.cpp platform.cpp elevator.cpp savePoint.cpp markS.cpp moisesA.cpp spike.cpp ppm.cpp collisions.cpp vecFxns.cpp jasonC.cpp basicBullet.cpp shooterEnemy.cpp spawnPoint.cpp $(WFLAGS) -o Game $(MAC2FLAGS) log.cpp fonts.cpp fonttex.cpp -pthread -L/usr/lib/nvidia-331/

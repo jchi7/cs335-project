@@ -12,6 +12,8 @@ Room::Room()
     this->numElevators = 0;
     this->currentPlatform = 0;
     this->currentBasicEnemy = 0;
+    this->isBoss = false;
+    this->bossIndex = 0;
 }
 
 Room::Room(int nPlatform, int nSpike, int nSavePoints, int numBasic, int nElevators)

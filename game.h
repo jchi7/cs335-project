@@ -12,6 +12,7 @@
 #include "shooterEnemy.h"
 #include "basicBullet.h"
 #include "spawnPoint.h"
+#include "firstBoss.h"
 
 class Game
 {
@@ -69,6 +70,7 @@ class Game
             row0:  0-0  0-1  0-2  ... 0-totalHorizontal
         */
         Hero* hero;
+        FirstBoss * firstBoss;
 
         Game();
         ~Game();

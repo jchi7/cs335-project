@@ -45,6 +45,7 @@ Game::Game()
 
     this->platformTextureHeight = 15;
     this->platformTextureWidth = 15;
+
     initLevel();
     fillLevel();
     initializeMap(totalHorizontal, totalVertical);
@@ -745,6 +746,8 @@ void Game::initLevel()
         level.push_back(tempRow);
         tempRow.clear();
     }
+    level[9][10].isBoss = true;
+    level[9][10].bossIndex = 0;
 }
 
 void Game::fillLevel()

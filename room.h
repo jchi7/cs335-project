@@ -20,6 +20,8 @@ class Room
         int numElevators;
         int currentPlatform;
         int currentBasicEnemy;
+        int bossIndex;
+        bool isBoss;
 
         std::vector<GameObject*> enemies;
         std::vector<GameObject*> bullet;
