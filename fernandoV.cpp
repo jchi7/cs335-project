@@ -1,3 +1,12 @@
+/*
+Fernando Villarreal
+this file is for audio using OpenAL API
+every sound is called by function and  
+init is called in main every sound is called in
+different parts of the game for initOpenAL is called in main
+deathSound in hero.cpp
+*/
+
 #include "fernandoV.h"
 #include <iostream>
 #include <stdio.h>
@@ -17,6 +26,7 @@
     }
 
 #define MAX_SOURCES 10
+//define all datatypes
 using namespace std;
     ALboolean enumeration;
     const ALCchar *devices;
@@ -35,8 +45,11 @@ using namespace std;
     ALCenum error;
     ALint source_state;
 
+//ignores deprecated code warnings
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
+//is called in main initilizes device, context, and sources, buffer
 void init_openal(){
 
 
@@ -93,7 +106,8 @@ void init_openal(){
     }
 
 
-
+// loading/unloading WAV files
+//special macro for MAC
 #ifdef ISMAC
     alutLoadWAVFile((ALbyte *)"sounds/jump.wav", &format, &data, &size, &freq);
 #else    

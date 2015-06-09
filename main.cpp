@@ -991,7 +991,7 @@ void render_game(Game* game)
     microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     Room* current_level = game->getRoomPtr();
 
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
     float w, h;
 
     if(firstEditorRun) {
