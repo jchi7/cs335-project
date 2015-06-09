@@ -46,10 +46,10 @@ void physics(Game * game);
 
 void render_game(Game* game);
 void renderEnemy(GameObject *);
-void renderBullet(GameObject *, int);
-void renderSpike(GameObject *);
-void renderPlatform(GameObject *);
-void renderSavePoint(GameObject *, int);
+void renderBullet(GameObject *, int,GLuint);
+void renderSpike(GameObject *,GLuint);
+void renderPlatform(GameObject *,GLuint*);
+void renderSavePoint(GameObject *, int,GLuint,GLuint,int);
 //void renderElevator(GameObject *);
 void renderElevatorShadow(Elevator *, int[3], float);
 
@@ -1010,11 +1010,11 @@ void render_game(Game* game)
 
     //int bulletAnimation = 0;
     for(auto entity : current_level->bullet) {
-        renderBullet(entity, bulletAnimation);
+        renderBullet(entity, bulletAnimation,bulletTexture);
         bulletAnimation = (bulletAnimation + 1)%10;
     }
     for(auto entity : current_level->spikes) {
-        renderSpike(entity);
+        renderSpike(entity,spikeTexture);
     }
     int enemyItr = 0;
     for(auto &entity : current_level->enemies) {
@@ -1024,10 +1024,10 @@ void render_game(Game* game)
     int savePointCounter= 0;
     for(auto entity : current_level->savePoints) {
         if (current_level == savePointRoom) {
-            renderSavePoint(entity, savePointCounter);
+            renderSavePoint(entity, savePointCounter,keyTexture,checkPointTexture,currentSavePoint);
         }
         else {
-            renderSavePoint(entity, -1);
+            renderSavePoint(entity, -1,keyTexture,checkPointTexture,currentSavePoint);
         }
         savePointCounter++;
     }
@@ -1044,10 +1044,10 @@ void render_game(Game* game)
                 renderElevatorShadow(current_level->elevators[i], shadowColor, 0.5);
             }
         }
-        renderPlatform(current_level->elevators[i]);
+        renderPlatform(current_level->elevators[i],platformTextures);
     }
     for(auto entity : current_level->platforms) {
-        renderPlatform(entity);
+        renderPlatform(entity,platformTextures);
     }
     if( game->hero->state == DEATH && (renderNum % 40 <= 25)) {
         renderTexture(deadMessageTexture, 0.0,1.0,0.0, 1.0, 400, 100);
@@ -1259,7 +1259,7 @@ void renderEnemy(GameObject * entity)
     }
 }
 
-void renderBullet(GameObject * entity, int index)
+/*void renderBullet(GameObject * entity, int index)
 {
     float w = entity->body.width + 4;
     float h = entity->body.height + 4;
@@ -1283,8 +1283,8 @@ void renderBullet(GameObject * entity, int index)
     glPopMatrix();
     index = (index + 1)%10;
 }
-
-void renderSpike(GameObject * entity)
+*/
+/*void renderSpike(GameObject * entity)
 {
     glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
     glEnable(GL_TEXTURE_2D);
@@ -1298,9 +1298,9 @@ void renderSpike(GameObject * entity)
         glTexCoord2f(.5,.5); glVertex2f(entity->body.corners[2][0],entity->body.corners[2][1]);
     glEnd();
     glPopMatrix();
-}
+}*/
 
-void renderPlatform(GameObject * entity)
+/*void renderPlatform(GameObject * entity)
 {
     float w = entity -> textureWidth;
     float h = entity -> textureHeight;
@@ -1331,8 +1331,8 @@ void renderPlatform(GameObject * entity)
         }
     }
 }
-
-void renderSavePoint(GameObject * entity, int index)
+*/
+/*void renderSavePoint(GameObject * entity, int index)
 {
     glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
     float w = entity->body.width;
@@ -1366,7 +1366,7 @@ void renderSavePoint(GameObject * entity, int index)
         glPopMatrix();
     }
 }
-
+*/
 /*void renderElevator(GameObject * entity)
 {
     float w = entity -> textureWidth;

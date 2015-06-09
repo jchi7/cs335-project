@@ -1,5 +1,6 @@
 //Moises Ayala
 //These functions handles the texture rendering
+//All of these functions were used in main.cpp to render certain textures of our game
 
 #include <GL/glx.h>
 #include "game.h"
@@ -7,7 +8,7 @@
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 700
 
-
+//This Function will render a background texture on our game
 void renderBackground(GLuint backgroundTexture)
 {
     glPushMatrix();
@@ -21,6 +22,8 @@ void renderBackground(GLuint backgroundTexture)
     glEnd();
 }
 
+//This function will render a part of an image file, just have to specify the dimensions of the
+//Image that needs to be cropped out
 void renderTexture(GLuint imageTexture, float x1,float x2,float y1, float y2, int width, int height)
 {
     glEnable(GL_TEXTURE_2D);
@@ -80,6 +83,7 @@ unsigned char *buildAlphaData(Ppmimage *img)
     return newdata;
 }
  
+ //This function renders the sprite sheet for our hero character,
 void renderHero(GLuint heroTexture,Game* game,Coordinates* heroSprite,int index,int w, int h,int mod)
 {
     glEnable(GL_TEXTURE_2D);
@@ -127,3 +131,114 @@ void convertToRGBA(Ppmimage *picture) {
     delete [] silhouetteData;
 }
 
+//This function loops throug all of the save points and will render the correct texture on them.
+void renderSavePoint(GameObject * entity, int index,GLuint keyTexture,GLuint checkPointTexture,int currentSavePoint)
+{
+    glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+    float w = entity->body.width;
+    float h = entity->body.height;
+    if(index == currentSavePoint) {
+        glEnable(GL_TEXTURE_2D);
+        glColor4ub(255,255,255,255);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBindTexture(GL_TEXTURE_2D, keyTexture);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
+        glTexCoord2f(0.1f,0.0f); glVertex2i(-w,h);
+        glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
+        glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
+        glEnd();
+        glPopMatrix();
+    }
+    else {
+        glEnable(GL_TEXTURE_2D);
+        glColor4ub(255,255,255,255);
+        glPushMatrix();
+        glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+        glBindTexture(GL_TEXTURE_2D, checkPointTexture);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
+        glTexCoord2f(0.1f,0.0f); glVertex2i(-w,h);
+        glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
+        glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
+        glEnd();
+        glPopMatrix();
+    }
+}
+//This function will render our platform textures
+void renderPlatform(GameObject * entity,GLuint *platformTextures)
+{
+    float w = entity -> textureWidth;
+    float h = entity -> textureHeight;
+
+    int cornerX = entity->body.center[0] - entity->body.width;
+    int cornerY = entity->body.center[1] + entity -> body.height;
+
+    glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+    for (int row = 0; row < entity->verticalTiles; row++){
+        int rowOffset = cornerY - ((row * entity->textureHeight * 2) + entity->textureHeight);
+
+        for (int column = 0; column < entity->horizontalTiles; column++){
+            //The follwoing code is to draw the platforms
+            int colOffset = cornerX + (column * entity->textureWidth * 2) + entity->textureWidth;
+            glEnable(GL_TEXTURE_2D);
+            glColor4ub(255,255,255,255);
+            glPushMatrix();
+            //glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+            glTranslatef(colOffset, rowOffset, entity->body.center[2]);
+            glBindTexture(GL_TEXTURE_2D, platformTextures[entity->tex_id]);
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.1f,1.0f); glVertex2i(-w,-h);
+            glTexCoord2f(0.1f,0.0f); glVertex2i(-w,h);
+            glTexCoord2f(1.0f,0.0f); glVertex2i(w,h);
+            glTexCoord2f(1.0f,1.0f); glVertex2i(w,-h);
+            glEnd();
+            glPopMatrix();
+        }
+    }
+}
+
+//Function will render our spike attributes
+void renderSpike(GameObject * entity,GLuint spikeTexture)
+{
+    glColor3ub(entity->rgb[0], entity->rgb[1], entity->rgb[2]);
+    glEnable(GL_TEXTURE_2D);
+    glColor4ub(255,255,255,255);
+    glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, spikeTexture);
+    glBegin(GL_TRIANGLES);
+    //moises
+    glTexCoord2f(0.1,.9); glVertex2f(entity->body.corners[0][0],entity->body.corners[0][1]);
+    glTexCoord2f(.9,.9); glVertex2f(entity->body.corners[1][0],entity->body.corners[1][1]);
+    glTexCoord2f(.5,.5); glVertex2f(entity->body.corners[2][0],entity->body.corners[2][1]);
+    glEnd();
+    glPopMatrix();
+}
+
+
+//This function renders the bullet for both hero and the shooter enemy
+void renderBullet(GameObject * entity, int index,GLuint bulletTexture)
+{
+    float w = entity->body.width + 4;
+    float h = entity->body.height + 4;
+    glEnable(GL_TEXTURE_2D);
+    glColor4ub(255,255,255,255);
+    glPushMatrix();
+
+    glTranslatef(entity->body.center[0], entity->body.center[1], entity->body.center[2]);
+    glBindTexture(GL_TEXTURE_2D, bulletTexture);
+    glBegin(GL_QUADS);
+    glTexCoord2f(((BasicBullet*)entity)->bullet[index].x1,((BasicBullet*)entity)->bullet[index].y2);
+    glVertex2i(-w,-h);
+    glTexCoord2f(((BasicBullet*)entity)->bullet[index].x1,((BasicBullet*)entity)->bullet[index].y1);
+    glVertex2i(-w,h);
+    glTexCoord2f(((BasicBullet*)entity)->bullet[index].x2,((BasicBullet*)entity)->bullet[index].y1);
+    glVertex2i(w,h);
+    glTexCoord2f(((BasicBullet*)entity)->bullet[index].x2,((BasicBullet*)entity)->bullet[index].y2);
+    glVertex2i(w,-h);
+    glEnd();
+
+    glPopMatrix();
+    index = (index + 1)%10;
+}
