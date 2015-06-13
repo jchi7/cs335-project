@@ -1196,7 +1196,7 @@ void render_game(Game* game)
         switch (current_level->bossIndex)
         {
             case 0:
-                game->firstBoss->render();
+                game->firstBoss->render(current_level);
                 break;
             default:
                 break;

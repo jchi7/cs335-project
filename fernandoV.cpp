@@ -226,6 +226,21 @@ void init_openal(){
     TEST_ERROR("buffer copy");
     alSourcei(sources[7][0], AL_BUFFER, sources[7][1]);
     alutUnloadWAV(format, data, size, freq);
+    
+    alSourcef(sources[8][0], AL_GAIN, 1);
+#ifdef ISMAC
+    alutLoadWAVFile((ALbyte *)"sounds/Stomp.wav", &format, &data, &size, &freq);
+#else    
+    alutLoadWAVFile((ALbyte *)"sounds/pain.wav", &format, &data, &size, &freq,&loop);
+#endif    
+    TEST_ERROR("loading wav file");
+
+    alBufferData(sources[8][1], format, data, size, freq);
+    TEST_ERROR("buffer copy");
+
+    alSourcei(sources[8][0], AL_BUFFER, sources[8][1]);
+    TEST_ERROR("buffer binding");
+    alutUnloadWAV(format, data, size, freq);
 }
 #pragma GCC diagnostic push
 
@@ -256,7 +271,11 @@ void playLaser(){
     TEST_ERROR("source playing");
     return;
 }
-
+void playStomp(){
+    alSourcePlay(sources[8][0]);
+    TEST_ERROR("source playing");
+    return;
+}
 void playMenuMusic(){
     
 	alSourcei(sources[2][0],AL_LOOPING,AL_TRUE);

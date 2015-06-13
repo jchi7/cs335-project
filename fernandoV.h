@@ -18,6 +18,7 @@ void stopMenuMusic();
 void stopGameMusic();
 void playSavePoint();
 void playLaser();
+void playStomp();
 void playEnemyDeath();
 void playSpikeDeath();
 void playcrow();
