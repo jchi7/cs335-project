@@ -37,6 +37,8 @@ class FirstBoss : public GameObject
         int chasingSpikeIndex;
         int spikeHitCounter;
         bool firstCircle;
+        bool secondCircle;
+        bool thirdCircle;
         int bloodIndex;
         float particleVelocity;
         float bloodVelocity[50][2];
@@ -50,7 +52,7 @@ class FirstBoss : public GameObject
         void firstAttack(Hero *, Room *);
         void secondAttack(Room *);
         void thirdAttack(Room *);
-        void endSecondAttack(Room *);
+        void endSecondAttack(Hero *,Room *);
         void ceilingSpikes(Room *, FirstAttackPosition, int);
         void createBulletCircle(float, float, float , float, int, bool,int);
         void fourthAttack(Hero*, Room*);

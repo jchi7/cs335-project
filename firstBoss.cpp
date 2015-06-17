@@ -34,7 +34,7 @@ FirstBoss::FirstBoss(Room * room)
     this->destinationPosition = WAIT;
     this->nextPosition = 0;
     this->goingUp = true;
-    this->sleepTimer = 1700;
+    this->sleepTimer = -200;
     this->attackCount = 0;
     this->alphaIncrease = true;
     this->alph = 0.0; 
@@ -48,6 +48,8 @@ FirstBoss::FirstBoss(Room * room)
     this->unwindCircleCounter = 120;
     this->chasingSpikeIndex = 0;
     this->firstCircle = true;
+    this->secondCircle = true;
+    this->thirdCircle = true;
     this->bloodIndex = 0;
     this->particleVelocity = 1.0;
     this->bottomPlatformIndex = room->platforms.size();
@@ -140,8 +142,6 @@ void FirstBoss::reset()
 }
 void FirstBoss::run(Hero * hero, Room * room)
 {
-
-
     Shape * s;
     Shape * h = &hero->body;
     int count = 0;
@@ -154,8 +154,11 @@ void FirstBoss::run(Hero * hero, Room * room)
             particles[i]->center[1] += bloodVelocity[count][1];
             count++;
         }
+    }
+    if (bossAttack == FIFTH_ATTACK && sleepTimer > 100)
+    {
         particleVelocity += GRAVITY;
-        for (int i = 0; i < bloodIndex; i++)
+        for (int i = 12; i < 140 ; i++)
         {
             particles[i]->center[1] += particleVelocity;
         }
@@ -170,19 +173,14 @@ void FirstBoss::run(Hero * hero, Room * room)
         {
             hero->state = DEATH;
         }
-
     }
     if (bossAttack == FIFTH_ATTACK && bloodIndex == 0)
     {
         if (collisionRectRect(&room->spikes[chasingSpikeIndex]->body, &body))
         {
-            std::cout << "first" << std::endl;
             killBoss(room);
-            std::cout << "second" << std::endl;
             delete room->spikes[chasingSpikeIndex];
-            std::cout << "third" << std::endl;
             room->spikes.erase(room->spikes.begin() + chasingSpikeIndex);
-            std::cout << "fourth" << std::endl;
             room->numSpikes--;
         }
     }
@@ -191,10 +189,11 @@ void FirstBoss::run(Hero * hero, Room * room)
         if (collisionRectRect(&room->spikes[chasingSpikeIndex]->body, &room->bullet[i]->body)) 
         {
             spikeHitCounter -=3;
-            if (spikeHitCounter < 0)
+            if (spikeHitCounter <= 0)
             {
                 sleepTimer = 0;
                 bossAttack = FIFTH_ATTACK;
+                spikeHitCounter = 0;
             }
         }
         if (collisionRectRect(&body, &room->bullet[i]->body))
@@ -232,9 +231,9 @@ void FirstBoss::run(Hero * hero, Room * room)
             {
                 secondAttack(room);
             }
-            else if (sleepTimer < 1800)
+            else if (sleepTimer < 2300)
             {
-                endSecondAttack(room);
+                endSecondAttack(hero,room);
                 sleepTimer ++;
             }
             else
@@ -250,6 +249,7 @@ void FirstBoss::run(Hero * hero, Room * room)
                 room->platforms[bottomPlatformIndex]->body.center[1] = 30;
                 if (startingPosition == WAIT)
                     startingPosition = RIGHT;
+
             }
             break;
         case THIRD_ATTACK:
@@ -319,7 +319,7 @@ void FirstBoss::render(Room * room)
         if (alph <= 0)
             alphaIncrease = true;
     }
-    if (showBeam)
+    if (showBeam && bossAttack == THIRD_ATTACK )
     {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -403,7 +403,9 @@ void FirstBoss::firstAttack(Hero * hero, Room * room)
 {
 
     if (room->platforms[rightPlatformIndex]->body.center[0] > 995)
+    {
         room->platforms[rightPlatformIndex]->body.center[0]--;
+    }
     switch (startingPosition)
     {
         case RIGHT:
@@ -727,11 +729,11 @@ void FirstBoss::ceilingSpikes(Room * room, FirstAttackPosition position, int sle
 }
 void FirstBoss::secondAttack(Room * room)
 {
-    if (sleepTimer % 50 == 0)
+    if (sleepTimer % 40 == 0)
     {
         Vec spike[3];
         spike[0][0] = 1000; 
-        spike[0][1] = (rand()%300) + 120; 
+        spike[0][1] = (rand()%380) + 120; 
         spike[0][2] = 0; 
         spike[1][0] = 1000; 
         spike[1][1] = spike[0][1] + 26; 
@@ -742,7 +744,7 @@ void FirstBoss::secondAttack(Room * room)
         room->spikes.push_back(new Spike(spike,FACING_LEFT));
         room->numSpikes++;
         spike[0][0] = 0; 
-        spike[0][1] = (rand()%300) + 120; 
+        spike[0][1] = (rand()%380) + 120; 
         spike[0][2] = 0; 
         spike[1][0] = 0; 
         spike[1][1] = spike[0][1] + 26; 
@@ -780,7 +782,7 @@ void FirstBoss::secondAttack(Room * room)
         }
     }
 }
-void FirstBoss::endSecondAttack(Room * room)
+void FirstBoss::endSecondAttack(Hero * hero, Room * room)
 {
     for (int i = rightSpikeIndex + 7; i < room->numSpikes; i++)
     {
@@ -803,11 +805,28 @@ void FirstBoss::endSecondAttack(Room * room)
         }
         else
         {
-            room->spikes[i]->body.corners[0][1] -= 5;
-            room->spikes[i]->body.corners[1][1] -= 5;
-            room->spikes[i]->body.corners[2][1] -= 5;
+            std::cout << (sleepTimer - 1620) / 10 << std::endl;
+            if ( ((sleepTimer - 1620) / 20) >= (i - (rightSpikeIndex + 7) ) )
+            {
+                if (hero->body.center[0] < room->spikes[i]->body.corners[2][0])
+                {
+                    room->spikes[i]->body.corners[0][0] -= 1;
+                    room->spikes[i]->body.corners[1][0] -= 1;
+                    room->spikes[i]->body.corners[2][0] -= 1;
+                }
+                else
+                {
+                    room->spikes[i]->body.corners[0][0] += 1;
+                    room->spikes[i]->body.corners[1][0] += 1;
+                    room->spikes[i]->body.corners[2][0] += 1;
+                }
+                room->spikes[i]->body.corners[0][1] -= 4;
+                room->spikes[i]->body.corners[1][1] -= 4;
+                room->spikes[i]->body.corners[2][1] -= 4;
+            }
         }
     }
+   
 }
 void FirstBoss::thirdAttack(Room * room)
 {
@@ -962,19 +981,47 @@ void FirstBoss::fourthAttack(Hero * hero, Room * room)
     if (sleepTimer == 400)
     {
         createBulletCircle(body.center[0],body.center[1],100,360/32,32,false,1);
-        createBulletCircle(body.center[0],body.center[1],-100,360/32,32,false,2);
+    //    createBulletCircle(body.center[0],body.center[1],-100,360/32,32,false,2);
+    //    createBulletCircle(body.center[0],body.center[1],-200,360/32,32,false,1);
+    //    createBulletCircle(body.center[0],body.center[1],0,360/32,32,false,3);
     }
     if (sleepTimer > 400)
     {
-        createBulletCircle(body.center[0],body.center[1],1,0.5,32,true,1);
-        createBulletCircle(body.center[0],body.center[1],1,0.5,32,true,2);
-        if (sleepTimer == 600 && firstCircle == false)
+        if (!firstCircle)
+            createBulletCircle(body.center[0],body.center[1],0.5,0.25,32,true,2);
+        if (!secondCircle)
+            createBulletCircle(body.center[0],body.center[1],0.5,0.25,32,true,3);
+        if (!thirdCircle)
+            createBulletCircle(body.center[0],body.center[1],0.5,0.25,32,true,4);
+        createBulletCircle(body.center[0],body.center[1],0.5,0.25,32,true,1);
+        if (sleepTimer == 600)
         {
-            createBulletCircle(body.center[0],body.center[1],-400,0.5,32,true,2);
+            if (firstCircle == false)
+                createBulletCircle(body.center[0],body.center[1],-400,0.5,32,true,2);
+            else
+                createBulletCircle(body.center[0],body.center[1],100,360/32,32,false,2);
+            firstCircle = false;
+
         }
         if (sleepTimer == 800)
         {
-            firstCircle = false;
+            if (secondCircle == false)
+                createBulletCircle(body.center[0],body.center[1],-400,0.5,32,true,3);
+            else
+                createBulletCircle(body.center[0],body.center[1],100,360/32,32,false,3);
+            secondCircle = false;
+        }
+        if (sleepTimer == 1000)
+        {
+            if (thirdCircle == false)
+                createBulletCircle(body.center[0],body.center[1],-400,0.5,32,true,4);
+            else
+                createBulletCircle(body.center[0],body.center[1],100,360/32,32,false,4);
+            thirdCircle = false;
+
+        }
+        if (sleepTimer == 1200)
+        {
             createBulletCircle(body.center[0],body.center[1],-400,0,32,true,1);
             sleepTimer = 401;
         }
